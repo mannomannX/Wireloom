@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="788.8000000000001" height="503.7142857142857" viewBox="0 0 788.8000000000001 503.7142857142857" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="788.8000000000001" height="503.7142857142857" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="787.8000000000001" height="502.7142857142857" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="788.8000000000001" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="394.40000000000003" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Cloud Platform &amp; Cluster Observability</text>
+<line x1="0" y1="88" x2="788.8000000000001" y2="88" stroke="#b0b0b0" stroke-width="1" />
+<text x="135.3857142857143" y="65.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">Production Cluster: eu-central-1</text>
+<rect x="448.11428571428576" y="46.5" width="55" height="21" rx="3" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1" />
+<line x1="449.61428571428576" y1="66.5" x2="501.61428571428576" y2="66.5" stroke="#e0e0e0" stroke-width="1.5" />
+<text x="457.61428571428576" y="61.666666666666664" font-size="12" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-weight="600" fill="#2d2d2d">Cmd+K</text>
+<line x1="512.1142857142858" y1="46" x2="512.1142857142858" y2="66" stroke="#c4c4c4" stroke-width="1" />
+<g opacity="1">
+<rect x="521.1142857142858" y="46.5" width="131.8" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="587.0142857142857" y="66.66666666666667" text-anchor="middle" font-weight="500" fill="#ffffff">Deploy Service</text>
+</g>
+<rect x="16.5" y="104.5" width="120.6" height="108.71428571428572" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<g transform="translate(28 116) scale(1.5)" color="#3f8f5c">
+<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="currentColor" stroke="none" />
+</g>
+<text x="68" y="131" fill="#3f8f5c">+14% /hr</text>
+<text x="28" y="163" fill="#7a7f87">Total QPS</text>
+<text x="28" y="195.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">142.8k</text>
+<rect x="146.1" y="104.5" width="106.2" height="108.71428571428572" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<g transform="translate(157.6 116) scale(1.5)" color="#3f7cc2">
+<path d="M 8 2 L 9 3.5 L 11 3 L 11.5 5 L 13 6 L 12.5 8 L 13 10 L 11.5 11 L 11 13 L 9 12.5 L 8 14 L 7 12.5 L 5 13 L 4.5 11 L 3 10 L 3.5 8 L 3 6 L 4.5 5 L 5 3 L 7 3.5 Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+<circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.2" />
+</g>
+<text x="197.6" y="131" fill="#3f7cc2">-2.1ms</text>
+<text x="157.6" y="163" fill="#7a7f87">Avg Latency</text>
+<text x="157.6" y="195.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">18.4ms</text>
+<rect x="261.3" y="104.5" width="113.4" height="108.71428571428572" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<g transform="translate(272.8 116) scale(1.5)" color="#7a56b0">
+<path d="M 3 8 L 7 12 L 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<text x="312.8" y="131" fill="#7a56b0">Optimal</text>
+<text x="272.8" y="163" fill="#7a7f87">Error Rate</text>
+<text x="272.8" y="195.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">0.04%</text>
+<rect x="383.70000000000005" y="104.5" width="113.4" height="108.71428571428572" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<g transform="translate(395.20000000000005 116) scale(1.5)" color="#c79a2e">
+<path d="M 8 2 L 14 13 L 2 13 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="8" y1="6" x2="8" y2="9" stroke="currentColor" stroke-width="1.6" />
+<circle cx="8" cy="11" r="0.8" fill="currentColor" />
+</g>
+<text x="435.20000000000005" y="131" fill="#c79a2e">Warning</text>
+<text x="395.20000000000005" y="163" fill="#7a7f87">Memory Usage</text>
+<text x="395.20000000000005" y="195.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">84.2%</text>
+<line x1="16" y1="435.2142857142857" x2="772.8000000000001" y2="435.2142857142857" stroke="#b0b0b0" stroke-width="1" />
+<text x="30" y="244.38095238095238" font-weight="600" fill="#2d2d2d">Active Services</text>
+<line x1="20" y1="255.71428571428572" x2="148" y2="255.71428571428572" stroke="#3a3a3a" stroke-width="2" />
+<text x="168" y="244.38095238095238" font-weight="400" fill="#8a8f97">Config &amp; Manifest</text>
+<text x="320.4" y="244.38095238095238" font-weight="400" fill="#8a8f97">Maintenance &amp; Ops</text>
+<rect x="16" y="265.7142857142857" width="756.8000000000001" height="30" fill="#f5f5f5" />
+<line x1="16" y1="295.7142857142857" x2="772.8000000000001" y2="295.7142857142857" stroke="#e0e0e0" stroke-width="1" />
+<text x="22" y="285.6142857142857" font-weight="600" fill="#2d2d2d">Service Name</text>
+<text x="236" y="285.6142857142857" text-anchor="middle" font-weight="600" fill="#2d2d2d">Health Status</text>
+<text x="390" y="285.6142857142857" text-anchor="end" font-weight="600" fill="#2d2d2d">P99 Latency</text>
+<text x="490" y="285.6142857142857" text-anchor="end" font-weight="600" fill="#2d2d2d">Throughput</text>
+<text x="541" y="285.6142857142857" text-anchor="middle" font-weight="600" fill="#2d2d2d">Runtime</text>
+<line x1="16" y1="323.7142857142857" x2="772.8000000000001" y2="323.7142857142857" stroke="#e8e8e8" stroke-width="1" />
+<text x="22" y="314.6142857142857" fill="#2d2d2d">auth-service</text>
+<rect x="182.5" y="299.2142857142857" width="83.4" height="21" rx="11" fill="#e8f3ec" stroke="#3f8f5c" stroke-width="1" />
+<path d="M 192 309.7142857142857 L 196 313.7142857142857 L 202 305.7142857142857" fill="none" stroke="#3f8f5c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+<text x="208" y="314.3809523809524" font-size="12" font-weight="500" fill="#205537">Healthy</text>
+<text x="302" y="314.6142857142857" fill="#2d2d2d">12ms</text>
+<text x="402" y="314.6142857142857" fill="#2d2d2d">48.2k</text>
+<rect x="502.5" y="299.2142857142857" width="33.4" height="21" rx="3" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1" />
+<line x1="504" y1="319.2142857142857" x2="534.4" y2="319.2142857142857" stroke="#e0e0e0" stroke-width="1.5" />
+<text x="512" y="314.3809523809524" font-size="12" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-weight="600" fill="#2d2d2d">Go</text>
+<rect x="16" y="323.7142857142857" width="756.8000000000001" height="28" fill="#fafafa" />
+<line x1="16" y1="351.7142857142857" x2="772.8000000000001" y2="351.7142857142857" stroke="#e8e8e8" stroke-width="1" />
+<text x="22" y="342.6142857142857" fill="#2d2d2d">billing-api</text>
+<rect x="182.5" y="327.2142857142857" width="83.4" height="21" rx="11" fill="#e8f3ec" stroke="#3f8f5c" stroke-width="1" />
+<path d="M 192 337.7142857142857 L 196 341.7142857142857 L 202 333.7142857142857" fill="none" stroke="#3f8f5c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+<text x="208" y="342.3809523809524" font-size="12" font-weight="500" fill="#205537">Healthy</text>
+<text x="302" y="342.6142857142857" fill="#2d2d2d">24ms</text>
+<text x="402" y="342.6142857142857" fill="#2d2d2d">12.1k</text>
+<rect x="502.5" y="327.2142857142857" width="47.8" height="21" rx="3" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1" />
+<line x1="504" y1="347.2142857142857" x2="548.8" y2="347.2142857142857" stroke="#e0e0e0" stroke-width="1.5" />
+<text x="512" y="342.3809523809524" font-size="12" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-weight="600" fill="#2d2d2d">Rust</text>
+<line x1="16" y1="379.7142857142857" x2="772.8000000000001" y2="379.7142857142857" stroke="#e8e8e8" stroke-width="1" />
+<text x="22" y="370.6142857142857" fill="#2d2d2d">search-indexer</text>
+<rect x="182.5" y="355.2142857142857" width="90.6" height="21" rx="11" fill="#f7efdc" stroke="#c79a2e" stroke-width="1" />
+<path d="M 197 360.7142857142857 L 202 369.7142857142857 L 192 369.7142857142857 Z" fill="none" stroke="#c79a2e" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="197" y1="364.7142857142857" x2="197" y2="367.7142857142857" stroke="#c79a2e" stroke-width="1.4" stroke-linecap="round" />
+<text x="208" y="370.3809523809524" font-size="12" font-weight="500" fill="#6b4e15">Degraded</text>
+<text x="302" y="370.6142857142857" fill="#2d2d2d">184ms</text>
+<text x="402" y="370.6142857142857" fill="#2d2d2d">32.0k</text>
+<rect x="502.5" y="355.2142857142857" width="47.8" height="21" rx="3" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1" />
+<line x1="504" y1="375.2142857142857" x2="548.8" y2="375.2142857142857" stroke="#e0e0e0" stroke-width="1.5" />
+<text x="512" y="370.3809523809524" font-size="12" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-weight="600" fill="#2d2d2d">Java</text>
+<rect x="16" y="379.7142857142857" width="756.8000000000001" height="28" fill="#fafafa" />
+<line x1="16" y1="407.7142857142857" x2="772.8000000000001" y2="407.7142857142857" stroke="#e8e8e8" stroke-width="1" />
+<text x="22" y="398.6142857142857" fill="#2d2d2d">notification-hub</text>
+<rect x="182.5" y="383.2142857142857" width="83.4" height="21" rx="11" fill="#e8f3ec" stroke="#3f8f5c" stroke-width="1" />
+<path d="M 192 393.7142857142857 L 196 397.7142857142857 L 202 389.7142857142857" fill="none" stroke="#3f8f5c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+<text x="208" y="398.3809523809524" font-size="12" font-weight="500" fill="#205537">Healthy</text>
+<text x="302" y="398.6142857142857" fill="#2d2d2d">9ms</text>
+<text x="402" y="398.6142857142857" fill="#2d2d2d">50.5k</text>
+<rect x="502.5" y="383.2142857142857" width="47.8" height="21" rx="3" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1" />
+<line x1="504" y1="403.2142857142857" x2="548.8" y2="403.2142857142857" stroke="#e0e0e0" stroke-width="1.5" />
+<text x="512" y="398.3809523809524" font-size="12" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-weight="600" fill="#2d2d2d">Node</text>
+<line x1="16" y1="407.7142857142857" x2="772.8000000000001" y2="407.7142857142857" stroke="#e0e0e0" stroke-width="1.5" />
+<rect x="16" y="407.7142857142857" width="756.8000000000001" height="28" fill="#f5f5f5" opacity="0.6" />
+<text x="22" y="426.6142857142857" font-weight="600" fill="#2d2d2d">4 Services Running (99.98% SLA)</text>
+<text x="580" y="426.6142857142857" text-anchor="end" font-weight="600" fill="#2d2d2d">142.8k req/s</text>
+<line x1="0" y1="451.7142857142857" x2="788.8000000000001" y2="451.7142857142857" stroke="#b0b0b0" stroke-width="1" />
+<rect x="16.5" y="462.2142857142857" width="141" height="21" rx="11" fill="#e8f3ec" stroke="#3f8f5c" stroke-width="1" />
+<path d="M 26 472.7142857142857 L 30 476.7142857142857 L 36 468.7142857142857" fill="none" stroke="#3f8f5c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+<text x="42" y="477.3809523809524" font-size="12" font-weight="500" fill="#205537">Cluster Healthy</text>
+<line x1="166.5" y1="461.7142857142857" x2="166.5" y2="481.7142857142857" stroke="#c4c4c4" stroke-width="1" />
+<text x="175" y="476.7142857142857" fill="#7a7f87">Nodes: 16/16 Active</text>
+<line x1="320.3" y1="461.7142857142857" x2="320.3" y2="481.7142857142857" stroke="#c4c4c4" stroke-width="1" />
+<text x="328.8" y="476.7142857142857" fill="#7a7f87">Region: Frankfurt</text>
+<g opacity="1">
+<rect x="499.70000000000005" y="462.2142857142857" width="139" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="569.2" y="482.3809523809524" text-anchor="middle" font-weight="500" fill="#2d2d2d">Refresh Metrics</text>
+</g>
+<g opacity="1">
+<rect x="647.7" y="462.2142857142857" width="124.60000000000001" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="710" y="482.3809523809524" text-anchor="middle" font-weight="500" fill="#2d2d2d">Export Report</text>
+</g>
+</svg>

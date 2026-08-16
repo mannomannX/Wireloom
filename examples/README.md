@@ -55,6 +55,7 @@ Focus: the `table` primitive (`table`, `columns:`, `column`, `tr`, `foot:`, `td`
 | `43-matrix-view.wireloom` | Feature matrix with `compact` and `bordered` table flags, column alignments, and icons. |
 | `44-developer-dashboard.wireloom` | API inspector with `code` blocks, `chip variant=kbd`, vertical dividers, `tabs` with active content, and `table`. |
 | `45-macros-reusable-components.wireloom` | Reusable UI patterns with `define @Macro` and `use @Macro` templating and parameter substitution. |
+| `46-cloud-observability-hub.wireloom` | Cloud Observability dashboard combining macros, table with status and kbd chips, code viewport, and toolbar spacers. |
 
 ## Targets
 

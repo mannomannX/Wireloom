@@ -254,9 +254,9 @@ function tokenizeLineContent(rawLine, startColumn0, lineNo, tokens) {
       col++;
       continue;
     }
-    if (ch !== void 0 && /[a-zA-Z_@]/.test(ch)) {
+    if (ch !== void 0 && /[a-zA-Z_@$]/.test(ch)) {
       const start = col;
-      while (col < end && /[a-zA-Z0-9_@-]/.test(rawLine[col] ?? "")) {
+      while (col < end && /[a-zA-Z0-9_@$-]/.test(rawLine[col] ?? "")) {
         col++;
       }
       const ident = rawLine.slice(start, col);
@@ -2746,6 +2746,9 @@ function coerceAttributeValue(token, spec, key, primitive) {
         );
       }
       const value = token.identValue ?? token.raw;
+      if (value.startsWith("$")) {
+        return { kind: "identifier", value, position };
+      }
       if (!spec.values.includes(value)) {
         if (primitive === "row" && key === "align" && (value === "left" || value === "right")) {
           throw new WireloomError(
@@ -2909,8 +2912,10 @@ function expandMacros(doc) {
       }
       if ("attributes" in n && Array.isArray(n.attributes)) {
         for (const attr of n.attributes) {
-          if (attr.kind === "pair" && attr.value.kind === "string") {
-            attr.value.value = substituteString(attr.value.value, args);
+          if (attr.kind === "pair") {
+            if (attr.value.kind === "string" || attr.value.kind === "identifier") {
+              attr.value.value = substituteString(attr.value.value, args);
+            }
           }
         }
       }

@@ -1,0 +1,2450 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "text",
+                "content": "Production Cluster: eu-central-1",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "bold",
+                    "position": {
+                      "line": 23,
+                      "column": 47
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "large",
+                      "position": {
+                        "line": 23,
+                        "column": 57
+                      }
+                    },
+                    "position": {
+                      "line": 23,
+                      "column": 52
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 23,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "spacer",
+                "attributes": [],
+                "position": {
+                  "line": 24,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "chip",
+                "label": "Cmd+K",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "variant",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "kbd",
+                      "position": {
+                        "line": 25,
+                        "column": 28
+                      }
+                    },
+                    "position": {
+                      "line": 25,
+                      "column": 20
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 25,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "divider",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "orientation",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "vertical",
+                      "position": {
+                        "line": 26,
+                        "column": 27
+                      }
+                    },
+                    "position": {
+                      "line": 26,
+                      "column": 15
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 26,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "button",
+                "label": "Deploy Service",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "primary",
+                    "position": {
+                      "line": 27,
+                      "column": 31
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 27,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 22,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 21,
+          "column": 3
+        }
+      },
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "panel",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "row",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "icon",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "name",
+                        "value": {
+                          "kind": "string",
+                          "value": "star",
+                          "position": {
+                            "line": 4,
+                            "column": 17
+                          }
+                        },
+                        "position": {
+                          "line": 4,
+                          "column": 12
+                        }
+                      },
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "success",
+                          "position": {
+                            "line": 4,
+                            "column": 32
+                          }
+                        },
+                        "position": {
+                          "line": 4,
+                          "column": 25
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 4,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "spacer",
+                    "attributes": [],
+                    "position": {
+                      "line": 5,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "+14% /hr",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "success",
+                          "position": {
+                            "line": 6,
+                            "column": 28
+                          }
+                        },
+                        "position": {
+                          "line": 6,
+                          "column": 21
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 6,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 3,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "Total QPS",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 7,
+                      "column": 19
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "142.8k",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "bold",
+                    "position": {
+                      "line": 8,
+                      "column": 19
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "large",
+                      "position": {
+                        "line": 8,
+                        "column": 29
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 24
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 5
+                }
+              }
+            ],
+            "position": {
+              "line": 2,
+              "column": 3
+            }
+          },
+          {
+            "kind": "panel",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "row",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "icon",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "name",
+                        "value": {
+                          "kind": "string",
+                          "value": "gear",
+                          "position": {
+                            "line": 4,
+                            "column": 17
+                          }
+                        },
+                        "position": {
+                          "line": 4,
+                          "column": 12
+                        }
+                      },
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "research",
+                          "position": {
+                            "line": 4,
+                            "column": 32
+                          }
+                        },
+                        "position": {
+                          "line": 4,
+                          "column": 25
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 4,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "spacer",
+                    "attributes": [],
+                    "position": {
+                      "line": 5,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "-2.1ms",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "research",
+                          "position": {
+                            "line": 6,
+                            "column": 28
+                          }
+                        },
+                        "position": {
+                          "line": 6,
+                          "column": 21
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 6,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 3,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "Avg Latency",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 7,
+                      "column": 19
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "18.4ms",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "bold",
+                    "position": {
+                      "line": 8,
+                      "column": 19
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "large",
+                      "position": {
+                        "line": 8,
+                        "column": 29
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 24
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 5
+                }
+              }
+            ],
+            "position": {
+              "line": 2,
+              "column": 3
+            }
+          },
+          {
+            "kind": "panel",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "row",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "icon",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "name",
+                        "value": {
+                          "kind": "string",
+                          "value": "check",
+                          "position": {
+                            "line": 4,
+                            "column": 17
+                          }
+                        },
+                        "position": {
+                          "line": 4,
+                          "column": 12
+                        }
+                      },
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "approval",
+                          "position": {
+                            "line": 4,
+                            "column": 32
+                          }
+                        },
+                        "position": {
+                          "line": 4,
+                          "column": 25
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 4,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "spacer",
+                    "attributes": [],
+                    "position": {
+                      "line": 5,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Optimal",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "approval",
+                          "position": {
+                            "line": 6,
+                            "column": 28
+                          }
+                        },
+                        "position": {
+                          "line": 6,
+                          "column": 21
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 6,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 3,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "Error Rate",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 7,
+                      "column": 19
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "0.04%",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "bold",
+                    "position": {
+                      "line": 8,
+                      "column": 19
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "large",
+                      "position": {
+                        "line": 8,
+                        "column": 29
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 24
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 5
+                }
+              }
+            ],
+            "position": {
+              "line": 2,
+              "column": 3
+            }
+          },
+          {
+            "kind": "panel",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "row",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "icon",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "name",
+                        "value": {
+                          "kind": "string",
+                          "value": "warning",
+                          "position": {
+                            "line": 4,
+                            "column": 17
+                          }
+                        },
+                        "position": {
+                          "line": 4,
+                          "column": 12
+                        }
+                      },
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "warning",
+                          "position": {
+                            "line": 4,
+                            "column": 32
+                          }
+                        },
+                        "position": {
+                          "line": 4,
+                          "column": 25
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 4,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "spacer",
+                    "attributes": [],
+                    "position": {
+                      "line": 5,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Warning",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "warning",
+                          "position": {
+                            "line": 6,
+                            "column": 28
+                          }
+                        },
+                        "position": {
+                          "line": 6,
+                          "column": 21
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 6,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 3,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "Memory Usage",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 7,
+                      "column": 19
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "84.2%",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "bold",
+                    "position": {
+                      "line": 8,
+                      "column": 19
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "large",
+                      "position": {
+                        "line": 8,
+                        "column": 29
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 24
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 5
+                }
+              }
+            ],
+            "position": {
+              "line": 2,
+              "column": 3
+            }
+          }
+        ],
+        "position": {
+          "line": 29,
+          "column": 3
+        }
+      },
+      {
+        "kind": "tabs",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "tab",
+            "label": "Active Services",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "active",
+                "position": {
+                  "line": 36,
+                  "column": 27
+                }
+              }
+            ],
+            "children": [
+              {
+                "kind": "table",
+                "rows": [
+                  {
+                    "kind": "tableRow",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 45,
+                          "column": 11
+                        },
+                        "content": "auth-service"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "status",
+                            "label": "Healthy",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "kind",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "success",
+                                  "position": {
+                                    "line": 46,
+                                    "column": 33
+                                  }
+                                },
+                                "position": {
+                                  "line": 46,
+                                  "column": 28
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 46,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 46,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 47,
+                          "column": 11
+                        },
+                        "content": "12ms"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 48,
+                          "column": 11
+                        },
+                        "content": "48.2k"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "chip",
+                            "label": "Go",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "variant",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "kbd",
+                                  "position": {
+                                    "line": 49,
+                                    "column": 29
+                                  }
+                                },
+                                "position": {
+                                  "line": 49,
+                                  "column": 21
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 49,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 49,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 44,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "tableRow",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 51,
+                          "column": 11
+                        },
+                        "content": "billing-api"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "status",
+                            "label": "Healthy",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "kind",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "success",
+                                  "position": {
+                                    "line": 52,
+                                    "column": 33
+                                  }
+                                },
+                                "position": {
+                                  "line": 52,
+                                  "column": 28
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 52,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 52,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 53,
+                          "column": 11
+                        },
+                        "content": "24ms"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 54,
+                          "column": 11
+                        },
+                        "content": "12.1k"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "chip",
+                            "label": "Rust",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "variant",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "kbd",
+                                  "position": {
+                                    "line": 55,
+                                    "column": 31
+                                  }
+                                },
+                                "position": {
+                                  "line": 55,
+                                  "column": 23
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 55,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 55,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 50,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "tableRow",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 57,
+                          "column": 11
+                        },
+                        "content": "search-indexer"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "status",
+                            "label": "Degraded",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "kind",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "warning",
+                                  "position": {
+                                    "line": 58,
+                                    "column": 34
+                                  }
+                                },
+                                "position": {
+                                  "line": 58,
+                                  "column": 29
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 58,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 58,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 59,
+                          "column": 11
+                        },
+                        "content": "184ms"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 60,
+                          "column": 11
+                        },
+                        "content": "32.0k"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "chip",
+                            "label": "Java",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "variant",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "kbd",
+                                  "position": {
+                                    "line": 61,
+                                    "column": 31
+                                  }
+                                },
+                                "position": {
+                                  "line": 61,
+                                  "column": 23
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 61,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 61,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 56,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "tableRow",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 63,
+                          "column": 11
+                        },
+                        "content": "notification-hub"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "status",
+                            "label": "Healthy",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "kind",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "success",
+                                  "position": {
+                                    "line": 64,
+                                    "column": 33
+                                  }
+                                },
+                                "position": {
+                                  "line": 64,
+                                  "column": 28
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 64,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 64,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 65,
+                          "column": 11
+                        },
+                        "content": "9ms"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 66,
+                          "column": 11
+                        },
+                        "content": "50.5k"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "chip",
+                            "label": "Node",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "variant",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "kbd",
+                                  "position": {
+                                    "line": 67,
+                                    "column": 31
+                                  }
+                                },
+                                "position": {
+                                  "line": 67,
+                                  "column": 23
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 67,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 67,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 62,
+                      "column": 9
+                    }
+                  }
+                ],
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "striped",
+                    "position": {
+                      "line": 37,
+                      "column": 13
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "compact",
+                    "position": {
+                      "line": 37,
+                      "column": 21
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 37,
+                  "column": 7
+                },
+                "columns": {
+                  "kind": "tableColumns",
+                  "attributes": [],
+                  "children": [
+                    {
+                      "kind": "tableColumn",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "w",
+                          "value": {
+                            "kind": "number",
+                            "value": 160,
+                            "unit": "px",
+                            "position": {
+                              "line": 39,
+                              "column": 35
+                            }
+                          },
+                          "position": {
+                            "line": 39,
+                            "column": 33
+                          }
+                        },
+                        {
+                          "kind": "pair",
+                          "key": "align",
+                          "value": {
+                            "kind": "identifier",
+                            "value": "left",
+                            "position": {
+                              "line": 39,
+                              "column": 45
+                            }
+                          },
+                          "position": {
+                            "line": 39,
+                            "column": 39
+                          }
+                        }
+                      ],
+                      "position": {
+                        "line": 39,
+                        "column": 11
+                      },
+                      "title": "Service Name",
+                      "align": "left",
+                      "width": {
+                        "value": 160,
+                        "unit": "px"
+                      }
+                    },
+                    {
+                      "kind": "tableColumn",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "w",
+                          "value": {
+                            "kind": "number",
+                            "value": 120,
+                            "unit": "px",
+                            "position": {
+                              "line": 40,
+                              "column": 36
+                            }
+                          },
+                          "position": {
+                            "line": 40,
+                            "column": 34
+                          }
+                        },
+                        {
+                          "kind": "pair",
+                          "key": "align",
+                          "value": {
+                            "kind": "identifier",
+                            "value": "center",
+                            "position": {
+                              "line": 40,
+                              "column": 46
+                            }
+                          },
+                          "position": {
+                            "line": 40,
+                            "column": 40
+                          }
+                        }
+                      ],
+                      "position": {
+                        "line": 40,
+                        "column": 11
+                      },
+                      "title": "Health Status",
+                      "align": "center",
+                      "width": {
+                        "value": 120,
+                        "unit": "px"
+                      }
+                    },
+                    {
+                      "kind": "tableColumn",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "w",
+                          "value": {
+                            "kind": "number",
+                            "value": 100,
+                            "unit": "px",
+                            "position": {
+                              "line": 41,
+                              "column": 34
+                            }
+                          },
+                          "position": {
+                            "line": 41,
+                            "column": 32
+                          }
+                        },
+                        {
+                          "kind": "pair",
+                          "key": "align",
+                          "value": {
+                            "kind": "identifier",
+                            "value": "right",
+                            "position": {
+                              "line": 41,
+                              "column": 44
+                            }
+                          },
+                          "position": {
+                            "line": 41,
+                            "column": 38
+                          }
+                        }
+                      ],
+                      "position": {
+                        "line": 41,
+                        "column": 11
+                      },
+                      "title": "P99 Latency",
+                      "align": "right",
+                      "width": {
+                        "value": 100,
+                        "unit": "px"
+                      }
+                    },
+                    {
+                      "kind": "tableColumn",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "w",
+                          "value": {
+                            "kind": "number",
+                            "value": 100,
+                            "unit": "px",
+                            "position": {
+                              "line": 42,
+                              "column": 33
+                            }
+                          },
+                          "position": {
+                            "line": 42,
+                            "column": 31
+                          }
+                        },
+                        {
+                          "kind": "pair",
+                          "key": "align",
+                          "value": {
+                            "kind": "identifier",
+                            "value": "right",
+                            "position": {
+                              "line": 42,
+                              "column": 43
+                            }
+                          },
+                          "position": {
+                            "line": 42,
+                            "column": 37
+                          }
+                        }
+                      ],
+                      "position": {
+                        "line": 42,
+                        "column": 11
+                      },
+                      "title": "Throughput",
+                      "align": "right",
+                      "width": {
+                        "value": 100,
+                        "unit": "px"
+                      }
+                    },
+                    {
+                      "kind": "tableColumn",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "w",
+                          "value": {
+                            "kind": "number",
+                            "value": 90,
+                            "unit": "px",
+                            "position": {
+                              "line": 43,
+                              "column": 30
+                            }
+                          },
+                          "position": {
+                            "line": 43,
+                            "column": 28
+                          }
+                        },
+                        {
+                          "kind": "pair",
+                          "key": "align",
+                          "value": {
+                            "kind": "identifier",
+                            "value": "center",
+                            "position": {
+                              "line": 43,
+                              "column": 39
+                            }
+                          },
+                          "position": {
+                            "line": 43,
+                            "column": 33
+                          }
+                        }
+                      ],
+                      "position": {
+                        "line": 43,
+                        "column": 11
+                      },
+                      "title": "Runtime",
+                      "align": "center",
+                      "width": {
+                        "value": 90,
+                        "unit": "px"
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 38,
+                    "column": 9
+                  }
+                },
+                "foot": {
+                  "kind": "tableFoot",
+                  "attributes": [],
+                  "children": [
+                    {
+                      "kind": "tableCell",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "span",
+                          "value": {
+                            "kind": "number",
+                            "value": 3,
+                            "unit": "px",
+                            "position": {
+                              "line": 69,
+                              "column": 53
+                            }
+                          },
+                          "position": {
+                            "line": 69,
+                            "column": 48
+                          }
+                        },
+                        {
+                          "kind": "pair",
+                          "key": "align",
+                          "value": {
+                            "kind": "identifier",
+                            "value": "left",
+                            "position": {
+                              "line": 69,
+                              "column": 61
+                            }
+                          },
+                          "position": {
+                            "line": 69,
+                            "column": 55
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "position": {
+                        "line": 69,
+                        "column": 11
+                      },
+                      "content": "4 Services Running (99.98% SLA)",
+                      "span": 3,
+                      "align": "left"
+                    },
+                    {
+                      "kind": "tableCell",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "span",
+                          "value": {
+                            "kind": "number",
+                            "value": 2,
+                            "unit": "px",
+                            "position": {
+                              "line": 70,
+                              "column": 34
+                            }
+                          },
+                          "position": {
+                            "line": 70,
+                            "column": 29
+                          }
+                        },
+                        {
+                          "kind": "pair",
+                          "key": "align",
+                          "value": {
+                            "kind": "identifier",
+                            "value": "right",
+                            "position": {
+                              "line": 70,
+                              "column": 42
+                            }
+                          },
+                          "position": {
+                            "line": 70,
+                            "column": 36
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "position": {
+                        "line": 70,
+                        "column": 11
+                      },
+                      "content": "142.8k req/s",
+                      "span": 2,
+                      "align": "right"
+                    }
+                  ],
+                  "position": {
+                    "line": 68,
+                    "column": 9
+                  }
+                }
+              }
+            ],
+            "position": {
+              "line": 36,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Config & Manifest",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "code",
+                "lang": "yaml",
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "apiVersion: apps/v1",
+                    "attributes": [],
+                    "position": {
+                      "line": 74,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "kind: Deployment",
+                    "attributes": [],
+                    "position": {
+                      "line": 75,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "metadata:",
+                    "attributes": [],
+                    "position": {
+                      "line": 76,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "  name: cluster-ingress-v2",
+                    "attributes": [],
+                    "position": {
+                      "line": 77,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "spec:",
+                    "attributes": [],
+                    "position": {
+                      "line": 78,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "  replicas: 8",
+                    "attributes": [],
+                    "position": {
+                      "line": 79,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "  strategy:",
+                    "attributes": [],
+                    "position": {
+                      "line": 80,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "    type: RollingUpdate",
+                    "attributes": [],
+                    "position": {
+                      "line": 81,
+                      "column": 9
+                    }
+                  }
+                ],
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "lang",
+                    "value": {
+                      "kind": "string",
+                      "value": "yaml",
+                      "position": {
+                        "line": 73,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 73,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "lines",
+                    "position": {
+                      "line": 73,
+                      "column": 24
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 73,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 72,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Maintenance & Ops",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "row",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "panel",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "row",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "DB Failover",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "bold",
+                                "position": {
+                                  "line": 13,
+                                  "column": 20
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 13,
+                              "column": 7
+                            }
+                          },
+                          {
+                            "kind": "spacer",
+                            "attributes": [],
+                            "position": {
+                              "line": 14,
+                              "column": 7
+                            }
+                          },
+                          {
+                            "kind": "status",
+                            "label": "Standby",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "kind",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "info",
+                                  "position": {
+                                    "line": 15,
+                                    "column": 29
+                                  }
+                                },
+                                "position": {
+                                  "line": 15,
+                                  "column": 24
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 15,
+                              "column": 7
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 12,
+                          "column": 5
+                        }
+                      },
+                      {
+                        "kind": "text",
+                        "content": "Switch active primary replica.",
+                        "attributes": [
+                          {
+                            "kind": "flag",
+                            "flag": "muted",
+                            "position": {
+                              "line": 16,
+                              "column": 18
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 16,
+                          "column": 5
+                        }
+                      },
+                      {
+                        "kind": "row",
+                        "attributes": [
+                          {
+                            "kind": "pair",
+                            "key": "justify",
+                            "value": {
+                              "kind": "identifier",
+                              "value": "end",
+                              "position": {
+                                "line": 17,
+                                "column": 17
+                              }
+                            },
+                            "position": {
+                              "line": 17,
+                              "column": 9
+                            }
+                          }
+                        ],
+                        "children": [
+                          {
+                            "kind": "button",
+                            "label": "Initiate",
+                            "attributes": [],
+                            "position": {
+                              "line": 18,
+                              "column": 7
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 17,
+                          "column": 5
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 11,
+                      "column": 3
+                    }
+                  },
+                  {
+                    "kind": "panel",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "row",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "Cache Purge",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "bold",
+                                "position": {
+                                  "line": 13,
+                                  "column": 20
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 13,
+                              "column": 7
+                            }
+                          },
+                          {
+                            "kind": "spacer",
+                            "attributes": [],
+                            "position": {
+                              "line": 14,
+                              "column": 7
+                            }
+                          },
+                          {
+                            "kind": "status",
+                            "label": "Ready",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "kind",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "success",
+                                  "position": {
+                                    "line": 15,
+                                    "column": 29
+                                  }
+                                },
+                                "position": {
+                                  "line": 15,
+                                  "column": 24
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 15,
+                              "column": 7
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 12,
+                          "column": 5
+                        }
+                      },
+                      {
+                        "kind": "text",
+                        "content": "Evict distributed Redis keys.",
+                        "attributes": [
+                          {
+                            "kind": "flag",
+                            "flag": "muted",
+                            "position": {
+                              "line": 16,
+                              "column": 18
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 16,
+                          "column": 5
+                        }
+                      },
+                      {
+                        "kind": "row",
+                        "attributes": [
+                          {
+                            "kind": "pair",
+                            "key": "justify",
+                            "value": {
+                              "kind": "identifier",
+                              "value": "end",
+                              "position": {
+                                "line": 17,
+                                "column": 17
+                              }
+                            },
+                            "position": {
+                              "line": 17,
+                              "column": 9
+                            }
+                          }
+                        ],
+                        "children": [
+                          {
+                            "kind": "button",
+                            "label": "Flush All",
+                            "attributes": [],
+                            "position": {
+                              "line": 18,
+                              "column": 7
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 17,
+                          "column": 5
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 11,
+                      "column": 3
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 84,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 83,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 35,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "status",
+                "label": "Cluster Healthy",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "success",
+                      "position": {
+                        "line": 90,
+                        "column": 37
+                      }
+                    },
+                    "position": {
+                      "line": 90,
+                      "column": 32
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 90,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "divider",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "orientation",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "vertical",
+                      "position": {
+                        "line": 91,
+                        "column": 27
+                      }
+                    },
+                    "position": {
+                      "line": 91,
+                      "column": 15
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 91,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "Nodes: 16/16 Active",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 92,
+                      "column": 34
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 92,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "divider",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "orientation",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "vertical",
+                      "position": {
+                        "line": 93,
+                        "column": 27
+                      }
+                    },
+                    "position": {
+                      "line": 93,
+                      "column": 15
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 93,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "Region: Frankfurt",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 94,
+                      "column": 32
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 94,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "spacer",
+                "attributes": [],
+                "position": {
+                  "line": 95,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "button",
+                "label": "Refresh Metrics",
+                "attributes": [],
+                "position": {
+                  "line": 96,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "button",
+                "label": "Export Report",
+                "attributes": [],
+                "position": {
+                  "line": 97,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 89,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 88,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 20,
+      "column": 1
+    },
+    "title": "Cloud Platform & Cluster Observability"
+  },
+  "sourceLines": 98,
+  "macros": [
+    {
+      "kind": "macroDefine",
+      "name": "@MetricCard",
+      "params": [],
+      "template": [
+        {
+          "kind": "panel",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "row",
+              "attributes": [],
+              "children": [
+                {
+                  "kind": "icon",
+                  "attributes": [
+                    {
+                      "kind": "pair",
+                      "key": "name",
+                      "value": {
+                        "kind": "string",
+                        "value": "$icon",
+                        "position": {
+                          "line": 4,
+                          "column": 17
+                        }
+                      },
+                      "position": {
+                        "line": 4,
+                        "column": 12
+                      }
+                    },
+                    {
+                      "kind": "pair",
+                      "key": "accent",
+                      "value": {
+                        "kind": "identifier",
+                        "value": "$accent",
+                        "position": {
+                          "line": 4,
+                          "column": 32
+                        }
+                      },
+                      "position": {
+                        "line": 4,
+                        "column": 25
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 4,
+                    "column": 7
+                  }
+                },
+                {
+                  "kind": "spacer",
+                  "attributes": [],
+                  "position": {
+                    "line": 5,
+                    "column": 7
+                  }
+                },
+                {
+                  "kind": "text",
+                  "content": "$trend",
+                  "attributes": [
+                    {
+                      "kind": "pair",
+                      "key": "accent",
+                      "value": {
+                        "kind": "identifier",
+                        "value": "$accent",
+                        "position": {
+                          "line": 6,
+                          "column": 28
+                        }
+                      },
+                      "position": {
+                        "line": 6,
+                        "column": 21
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 6,
+                    "column": 7
+                  }
+                }
+              ],
+              "position": {
+                "line": 3,
+                "column": 5
+              }
+            },
+            {
+              "kind": "text",
+              "content": "$title",
+              "attributes": [
+                {
+                  "kind": "flag",
+                  "flag": "muted",
+                  "position": {
+                    "line": 7,
+                    "column": 19
+                  }
+                }
+              ],
+              "position": {
+                "line": 7,
+                "column": 5
+              }
+            },
+            {
+              "kind": "text",
+              "content": "$value",
+              "attributes": [
+                {
+                  "kind": "flag",
+                  "flag": "bold",
+                  "position": {
+                    "line": 8,
+                    "column": 19
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "size",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "large",
+                    "position": {
+                      "line": 8,
+                      "column": 29
+                    }
+                  },
+                  "position": {
+                    "line": 8,
+                    "column": 24
+                  }
+                }
+              ],
+              "position": {
+                "line": 8,
+                "column": 5
+              }
+            }
+          ],
+          "position": {
+            "line": 2,
+            "column": 3
+          }
+        }
+      ],
+      "attributes": [],
+      "position": {
+        "line": 1,
+        "column": 1
+      }
+    },
+    {
+      "kind": "macroDefine",
+      "name": "@ActionCard",
+      "params": [],
+      "template": [
+        {
+          "kind": "panel",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "row",
+              "attributes": [],
+              "children": [
+                {
+                  "kind": "text",
+                  "content": "$name",
+                  "attributes": [
+                    {
+                      "kind": "flag",
+                      "flag": "bold",
+                      "position": {
+                        "line": 13,
+                        "column": 20
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 13,
+                    "column": 7
+                  }
+                },
+                {
+                  "kind": "spacer",
+                  "attributes": [],
+                  "position": {
+                    "line": 14,
+                    "column": 7
+                  }
+                },
+                {
+                  "kind": "status",
+                  "label": "$status",
+                  "attributes": [
+                    {
+                      "kind": "pair",
+                      "key": "kind",
+                      "value": {
+                        "kind": "identifier",
+                        "value": "$kind",
+                        "position": {
+                          "line": 15,
+                          "column": 29
+                        }
+                      },
+                      "position": {
+                        "line": 15,
+                        "column": 24
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 15,
+                    "column": 7
+                  }
+                }
+              ],
+              "position": {
+                "line": 12,
+                "column": 5
+              }
+            },
+            {
+              "kind": "text",
+              "content": "$desc",
+              "attributes": [
+                {
+                  "kind": "flag",
+                  "flag": "muted",
+                  "position": {
+                    "line": 16,
+                    "column": 18
+                  }
+                }
+              ],
+              "position": {
+                "line": 16,
+                "column": 5
+              }
+            },
+            {
+              "kind": "row",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "justify",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "end",
+                    "position": {
+                      "line": 17,
+                      "column": 17
+                    }
+                  },
+                  "position": {
+                    "line": 17,
+                    "column": 9
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "kind": "button",
+                  "label": "$action",
+                  "attributes": [],
+                  "position": {
+                    "line": 18,
+                    "column": 7
+                  }
+                }
+              ],
+              "position": {
+                "line": 17,
+                "column": 5
+              }
+            }
+          ],
+          "position": {
+            "line": 11,
+            "column": 3
+          }
+        }
+      ],
+      "attributes": [],
+      "position": {
+        "line": 10,
+        "column": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireloom v0.8.0 — Interactive Visual Gallery & Playground</title>
+  <style>
+    :root {
+      --bg: #0f141c;
+      --card-bg: #18202c;
+      --border: #2a3648;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .badge {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    select, button {
+      background: #222d3d;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    select:hover, button:hover {
+      border-color: var(--accent);
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #0f141c;
+      font-weight: 600;
+      border-color: var(--accent);
+    }
+
+    button.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      height: calc(100vh - 65px);
+      overflow: hidden;
+    }
+
+    .editor-pane {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      background: #111827;
+    }
+
+    .pane-header {
+      padding: 0.6rem 1rem;
+      background: #1e293b;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    textarea {
+      flex: 1;
+      width: 100%;
+      background: #111827;
+      border: none;
+      color: #f1f5f9;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      padding: 1rem;
+      resize: none;
+      outline: none;
+      tab-size: 2;
+    }
+
+    .preview-pane {
+      display: flex;
+      flex-direction: column;
+      background: #0b0f17;
+      overflow: hidden;
+    }
+
+    .preview-canvas {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      padding: 2rem;
+    }
+
+    .preview-canvas svg {
+      max-width: 100%;
+      height: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+      border-radius: 6px;
+      transition: transform 0.15s ease;
+    }
+
+    .error-box {
+      background: #7f1d1d;
+      color: #fecaca;
+      border: 1px solid #dc2626;
+      padding: 0.75rem 1rem;
+      margin: 1rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      display: none;
+    }
+
+    .error-box.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Wireloom</h1>
+      <span class="badge">v0.8.0 Release</span>
+    </div>
+    <div class="controls">
+      <label for="example-select" style="font-size: 0.85rem; color: var(--text-muted);">Examples:</label>
+      <select id="example-select">
+        <optgroup label="🌟 New v0.8.0 Features">
+          <option value="46" selected>46 — Cloud Observability & Service Hub (All v0.8 Features)</option>
+          <option value="41">41 — Simple Table & Sizing</option>
+          <option value="42">42 — Data Grid with Status Badges</option>
+          <option value="43">43 — Feature Matrix (Compact & Bordered)</option>
+          <option value="44">44 — Developer Dashboard (Code, Kbd, Tabs)</option>
+          <option value="45">45 — Reusable UI Macros (@Card)</option>
+        </optgroup>
+        <optgroup label="Mobile & Modern Navigation (v0.5+)">
+          <option value="31">31 — Spacer & Justify</option>
+          <option value="32">32 — Navbar Slots</option>
+          <option value="33">33 — Backbutton & Large Header</option>
+          <option value="34">34 — Tabbar Mobile Navigation</option>
+          <option value="36">36 — Bottom Sheet Modal</option>
+          <option value="39">39 — Segmented Control</option>
+        </optgroup>
+        <optgroup label="Widgets & Desktop (v0.4+)">
+          <option value="21">21 — Grid Matrix & Auto-Flow</option>
+          <option value="27">27 — Manual Annotations & Callouts</option>
+          <option value="28">28 — File Tree & Menubar</option>
+          <option value="29">29 — Form Controls (Toggle, Radio, Checkbox)</option>
+          <option value="30">30 — Status Indicators & Chips</option>
+        </optgroup>
+      </select>
+
+      <button id="theme-toggle">Theme: Light</button>
+      <button id="copy-svg-btn">Copy SVG</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="editor-pane">
+      <div class="pane-header">
+        <span>Wireloom DSL Input</span>
+        <span style="font-size: 0.75rem; text-transform: none; color: var(--text-muted);">Live Rendering</span>
+      </div>
+      <textarea id="dsl-input" spellcheck="false"></textarea>
+      <div id="error-display" class="error-box"></div>
+    </section>
+
+    <section class="preview-pane">
+      <div class="pane-header">
+        <span>Rendered SVG Canvas</span>
+        <span id="dimension-badge" style="font-size: 0.75rem; color: var(--text-muted);"></span>
+      </div>
+      <div class="preview-canvas" id="canvas-container"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import wireloom from './dist/index.js';
+
+    const EXAMPLES = {
+      "46": `define @MetricCard:
+  panel:
+    row:
+      icon name="$icon" accent=$accent
+      spacer
+      text "$trend" accent=$accent
+    text "$title" muted
+    text "$value" bold size=large
+
+define @ActionCard:
+  panel:
+    row:
+      text "$name" bold
+      spacer
+      status "$status" kind=$kind
+    text "$desc" muted
+    row justify=end:
+      button "$action"
+
+window "Cloud Platform & Cluster Observability":
+  header:
+    row:
+      text "Production Cluster: eu-central-1" bold size=large
+      spacer
+      chip "Cmd+K" variant=kbd
+      divider orientation=vertical
+      button "Deploy Service" primary
+
+  row:
+    use @MetricCard title="Total QPS" value="142.8k" trend="+14% /hr" icon="star" accent=success
+    use @MetricCard title="Avg Latency" value="18.4ms" trend="-2.1ms" icon="gear" accent=research
+    use @MetricCard title="Error Rate" value="0.04%" trend="Optimal" icon="check" accent=approval
+    use @MetricCard title="Memory Usage" value="84.2%" trend="Warning" icon="warning" accent=warning
+
+  tabs:
+    tab "Active Services" active:
+      table striped compact:
+        columns:
+          column "Service Name" w=160 align=left
+          column "Health Status" w=120 align=center
+          column "P99 Latency" w=100 align=right
+          column "Throughput" w=100 align=right
+          column "Runtime" w=90 align=center
+        tr:
+          td "auth-service"
+          status "Healthy" kind=success
+          td "12ms"
+          td "48.2k"
+          chip "Go" variant=kbd
+        tr:
+          td "billing-api"
+          status "Healthy" kind=success
+          td "24ms"
+          td "12.1k"
+          chip "Rust" variant=kbd
+        tr:
+          td "search-indexer"
+          status "Degraded" kind=warning
+          td "184ms"
+          td "32.0k"
+          chip "Java" variant=kbd
+        tr:
+          td "notification-hub"
+          status "Healthy" kind=success
+          td "9ms"
+          td "50.5k"
+          chip "Node" variant=kbd
+        foot:
+          td "4 Services Running (99.98% SLA)" span=3 align=left
+          td "142.8k req/s" span=2 align=right
+
+    tab "Config & Manifest":
+      code lang="yaml" lines:
+        text "apiVersion: apps/v1"
+        text "kind: Deployment"
+        text "metadata:"
+        text "  name: cluster-ingress-v2"
+        text "spec:"
+        text "  replicas: 8"
+        text "  strategy:"
+        text "    type: RollingUpdate"
+
+    tab "Maintenance & Ops":
+      row:
+        use @ActionCard name="DB Failover" status="Standby" kind=info desc="Switch active primary replica." action="Initiate"
+        use @ActionCard name="Cache Purge" status="Ready" kind=success desc="Evict distributed Redis keys." action="Flush All"
+
+  footer:
+    row:
+      status "Cluster Healthy" kind=success
+      divider orientation=vertical
+      text "Nodes: 16/16 Active" muted
+      divider orientation=vertical
+      text "Region: Frankfurt" muted
+      spacer
+      button "Refresh Metrics"
+      button "Export Report"`,
+
+      "41": `window "Pricing Table":
+  table striped:
+    columns:
+      column "Plan" w=120 align=left
+      column "Users" w=90 align=center
+      column "Storage" w=100 align=center
+      column "Price" w=100 align=right
+    tr:
+      td "Starter"
+      td "1-5"
+      td "10 GB"
+      td "$29/mo"
+    tr:
+      td "Professional"
+      td "Unlimited"
+      td "500 GB"
+      td "$99/mo"
+    foot:
+      td "Enterprise custom plans available on request" span=4 align=center`,
+
+      "42": `window "Order Management":
+  row:
+    input placeholder="Search orders..."
+    spacer
+    button "Filter"
+    button "Export" primary
+  table striped compact:
+    columns:
+      column "Order #" w=90 align=left
+      column "Customer" w=140 align=left
+      column "Status" w=100 align=center
+      column "Items" w=60 align=right
+      column "Total" w=90 align=right
+    tr:
+      td "#1042"
+      td "Alice Smith"
+      status "Shipped" kind=success
+      td "3"
+      td "$240.00"
+    tr:
+      td "#1043"
+      td "Bob Jones"
+      status "Processing" kind=info
+      td "1"
+      td "$85.50"
+    tr:
+      td "#1044"
+      td "Carol White"
+      status "Refunded" kind=error
+      td "2"
+      td "$120.00"
+    foot:
+      td "Total Revenue" span=4 align=right
+      td "$445.50"`,
+
+      "43": `window "Feature Matrix":
+  table bordered compact:
+    columns:
+      column "Feature" w=180 align=left
+      column "Free" w=70 align=center
+      column "Pro" w=70 align=center
+      column "Enterprise" w=90 align=center
+    tr:
+      td "Unlimited Projects"
+      icon name="minus"
+      icon name="check" accent=success
+      icon name="check" accent=success
+    tr:
+      td "Custom Domains"
+      icon name="minus"
+      icon name="check" accent=success
+      icon name="check" accent=success
+    tr:
+      td "24/7 SLA Support"
+      icon name="minus"
+      icon name="minus"
+      icon name="check" accent=success`,
+
+      "44": `window "API Explorer & Inspector":
+  header:
+    row:
+      text "GET /api/v2/deployments" bold
+      spacer
+      chip "Cmd+K" variant=kbd
+      button "Send Request" primary
+
+  tabs:
+    tab "Response" active:
+      code lang="json" lines:
+        text "{"
+        text "  \\"status\\": \\"healthy\\","
+        text "  \\"version\\": \\"v0.8.2\\","
+        text "  \\"nodes\\": 12"
+        text "}"
+    tab "Headers":
+      panel:
+        text "Authorization: Bearer <token>"
+        text "Content-Type: application/json"
+    tab "History":
+      table striped compact:
+        columns:
+          column "Time" w=70
+          column "Method" w=70
+          column "Status" w=80
+        tr:
+          td "12:04:02"
+          td "GET"
+          status "200 OK" kind=success
+        tr:
+          td "12:01:15"
+          td "POST"
+          status "201 Created" kind=success
+
+  footer:
+    row:
+      status "Connected" kind=success
+      divider orientation=vertical
+      text "Latency: 42ms" muted
+      spacer
+      button "Clear Console"`,
+
+      "45": `define @StatCard:
+  panel:
+    row:
+      text "$label" muted
+      spacer
+      icon name="star" accent=warning
+    text "$value" bold size=large
+    text "$change" accent=success
+
+define @ActionCard:
+  panel:
+    text "$title" bold
+    text "$desc"
+    row justify=end:
+      button "Configure"
+
+window "System Overview":
+  header:
+    text "Cluster Analytics" bold size=large
+
+  row:
+    use @StatCard label="Total Requests" value="1.4M" change="+18% vs last week"
+    use @StatCard label="Avg Response" value="84ms" change="-12ms improvement"
+
+  section "Quick Actions":
+    row:
+      use @ActionCard title="Backup Database" desc="Snapshot current production state."
+      use @ActionCard title="Deploy Cluster" desc="Roll out new container nodes."
+
+  footer:
+    button "Refresh Dashboard" primary`,
+
+      "31": `window "Dialog with Spacers":
+  panel:
+    row:
+      button "Cancel"
+      spacer
+      button "Done" primary
+    row justify=between:
+      text "Step 2 of 4" muted
+      text "Draft saved" muted`,
+
+      "32": `window "Note":
+  navbar:
+    leading:
+      backbutton "Notes"
+    trailing:
+      button "Share"
+      button "Done" primary
+  panel:
+    text "Body copy goes here."`,
+
+      "33": `window "Large Header":
+  header large:
+    text "Inbox"
+  panel:
+    text "Recent messages will appear here."`,
+
+      "34": `window "Mobile App":
+  header:
+    text "Home Feed" bold
+  list:
+    item "Welcome to Wireloom v0.8"
+    item "Fast SVG wireframing"
+  tabbar:
+    tabitem "Home" icon="planet" selected
+    tabitem "Messages" icon="policy" badge="3"
+    tabitem "Settings" icon="gear"`,
+
+      "36": `window "Photos":
+  header:
+    text "Vacation Album" bold
+  sheet title="Share via":
+    list:
+      item "AirDrop"
+      item "Messages"
+      item "Copy Link"
+    row justify=end:
+      button "Cancel"`,
+
+      "39": `window "Metrics":
+  panel:
+    segmented:
+      segment "Day"
+      segment "Week" selected
+      segment "Month"
+      segment "Year"
+    chart kind=line label="Traffic summary"`,
+
+      "21": `window "Grid Layout":
+  grid cols=3 rows=2:
+    cell "A1"
+    cell "A2"
+    cell "A3"
+    cell "B1" span=2
+    cell "B3"`,
+
+      "27": `window "Annotated Interface":
+  panel:
+    input placeholder="Search query..." id="search"
+    button "Search" primary id="btn-search"
+annotation "Enter keywords here" target="search" position=left
+annotation "Triggers live search" target="btn-search" position=right`,
+
+      "28": `window "Project Explorer":
+  menubar:
+    menu "File":
+      menuitem "New" shortcut="Ctrl+N"
+      menuitem "Open" shortcut="Ctrl+O"
+      separator
+      menuitem "Exit"
+  tree:
+    node "wireloom" icon="policy":
+      node "src" selected:
+        node "parser.ts"
+        node "renderer.ts"
+      node "README.md"`,
+
+      "29": `window "Settings":
+  section "Preferences":
+    toggle "Enable dark mode" on
+    radio "Compact layout" selected
+    radio "Comfortable layout"
+    checkbox "Automatically save drafts" checked`,
+
+      "30": `window "Deployment Status":
+  row:
+    status "Operational" kind=success
+    status "Syncing" kind=info
+    status "High Load" kind=warning
+  row:
+    chip "v0.8.0" accent=research
+    chip "Production"
+    chip "Delete" closable`
+    };
+
+    let currentTheme = 'default';
+    const textarea = document.getElementById('dsl-input');
+    const canvasContainer = document.getElementById('canvas-container');
+    const errorDisplay = document.getElementById('error-display');
+    const exampleSelect = document.getElementById('example-select');
+    const themeToggle = document.getElementById('theme-toggle');
+    const copySvgBtn = document.getElementById('copy-svg-btn');
+    const dimBadge = document.getElementById('dimension-badge');
+
+    async function updatePreview() {
+      const source = textarea.value;
+      try {
+        errorDisplay.classList.remove('active');
+        errorDisplay.textContent = '';
+        const res = await wireloom.render('preview', source, { theme: currentTheme });
+        canvasContainer.innerHTML = res.svg;
+        const svgEl = canvasContainer.querySelector('svg');
+        if (svgEl) {
+          const w = svgEl.getAttribute('width');
+          const h = svgEl.getAttribute('height');
+          dimBadge.textContent = `${w} × ${h} px`;
+        }
+      } catch (err) {
+        errorDisplay.textContent = err.message || String(err);
+        errorDisplay.classList.add('active');
+      }
+    }
+
+    textarea.addEventListener('input', updatePreview);
+
+    exampleSelect.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (EXAMPLES[val]) {
+        textarea.value = EXAMPLES[val];
+        updatePreview();
+      }
+    });
+
+    themeToggle.addEventListener('click', () => {
+      if (currentTheme === 'default') {
+        currentTheme = 'dark';
+        themeToggle.textContent = 'Theme: Dark';
+      } else {
+        currentTheme = 'default';
+        themeToggle.textContent = 'Theme: Light';
+      }
+      updatePreview();
+    });
+
+    copySvgBtn.addEventListener('click', () => {
+      const svg = canvasContainer.innerHTML;
+      if (svg) {
+        navigator.clipboard.writeText(svg).then(() => {
+          copySvgBtn.textContent = 'Copied!';
+          setTimeout(() => { copySvgBtn.textContent = 'Copy SVG'; }, 1500);
+        });
+      }
+    });
+
+    // Initialize with example 46 (showcase)
+    textarea.value = EXAMPLES["46"];
+    updatePreview();
+  </script>
+</body>
+</html>
