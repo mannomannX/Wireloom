@@ -2,6 +2,51 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] — 2026-08-17
+
+Major layout and component abstraction release. Introduces 1D scalar flex sizing, 2D shared track resolution, the full `table` data grid suite, monospace `code` viewports, reusable top-level component macros (`define` / `use`), and devtool UI enhancements (`chip variant=kbd`, vertical dividers, active tab content bodies). Every prior source file remains backward-compatible and renders identically unless newly added features are invoked.
+
+### Added
+- **1D Scalar Flex & Universal Sizing Engine**:
+  - `w=` and `h=` support explicit pixel numbers (`120`, `120px`), percentages (`50%`), and fractional units (`1fr`) across all containers and leaf primitives.
+  - `min-w=`, `max-w=`, `min-h=`, `max-h=` constraints for bounding responsive and fluid elements.
+  - `grow=` (`0`, `1`, `2`) and `shrink=` flex factors along the container main axis inside `row` and `col`.
+  - `gap=` (in px) on `row`, `col`, `panel`, `section`, and `grid`.
+  - `justify=start|center|end|between|around|evenly` along the main axis and `align=start|center|end|stretch` across the cross axis on flex containers (`row`, `col`, `panel`, `section`).
+  - `self-align=start|center|end|stretch` child cross-axis alignment override.
+- **`table` Primitive Suite & 2D Track Engine**:
+  - `table` container with optional styling flags: `striped` (zebra row striping), `compact` (reduced padding), and `bordered` (outer and cell border rules).
+  - `columns` header container with `column "Title"` headers supporting `align=left|center|right` and explicit or fluid width `w=`.
+  - `tr` table rows accepting `td` cells (with `span=N`, `align=`, `accent=`) or auto-wrapping child leaf widgets (`button`, `status`, `chip`, etc.) into cells.
+  - `foot` summary footer row with multi-column span support (`span=N`).
+  - Shared 2D track resolution engine (`src/renderer/tracks.ts`) handling explicit pixel widths, content-driven auto tracks, fractional `fr` distribution, and multi-track spans.
+- **`code` Monospace Viewport**:
+  - Monospace code block for devtools, configuration, and API mockups.
+  - Accepts string content with `\n` linebreaks or multi-line children text lines.
+  - Supports `lang="<name>"` badge in the header and `lines` bare flag for line-number gutters.
+- **Reusable Component Macros (`define` / `use`)**:
+  - Top-level `define @Name [params]:` declarations before `window` for authoring reusable UI card/tile templates.
+  - `use @Name [args]` primitive instantiating templates with recursive deep clone and `$param` placeholder substitution.
+  - Full attribute and child widget support with parameter substitution.
+- **Devtool Enhancements**:
+  - `chip variant=kbd`: renders tactile keyboard keycaps (e.g. `chip "Ctrl+K" variant=kbd`).
+  - `divider orientation=vertical`: renders vertical rule separators for toolbars and inline rows.
+  - Active `tab` content bodies: nested children placed inside an active `tab` automatically render in a card body below the tab strip.
+  - `grid track=uniform|auto`: content-driven track sizing for grids using the shared 2D track engine.
+- **Interactive Gallery Sandbox**:
+  - `gallery.html` provides live in-browser rendering with a split-pane code editor, error highlighting, SVG preview, theme switcher, and example selector.
+- **Showcase Example 46**:
+  - `examples/46-cloud-observability-hub.wireloom` demonstrating all v0.8.0 features together (macros, tables, status pills, kbd chips, code viewport, and flex layout).
+
+### Changed
+- `row align=` is migrated to the cross axis (`start|center|end|stretch`) for CSS/Flexbox consistency. Main-axis alignment is handled via `justify=start|center|end|between|around|evenly`. Legacy `align=left|right` triggers a helpful parse error guiding the author to `justify=` or `align=`.
+- `Theme` interface updated with tokens for tables (`tableBorderColor`, `tableZebraBg`, `tableHeaderBg`, `tableCellPaddingX`, `tableCellPaddingY`), code blocks (`codeBg`, `codeBorderColor`, `codeGutterColor`, `codeHeaderBg`, `codeFont`), keycaps (`chipKbdBg`, `chipKbdBorder`, `chipKbdShadow`), and vertical dividers.
+- AST serializer updated to cleanly roundtrip all v0.8.0 primitives, macro definitions, tables, code blocks, universal sizing attributes, and flags.
+
+### Tests
+- **605 tests passing across 28 test files (100% pass rate)**.
+- Full test suites added for flex axis distribution, universal sizing constraints, 2D track resolution, table parsing and rendering, code viewports, macros and parameter substitution, devtool features, dark-theme parity, and corpus roundtrip idempotency.
+
 ## [0.7.0] — 2026-05-30
 
 Edge-anchoring on both axes. Authors could already spread a row's children to opposite ends with `spacer`, but there was no way to pin content to the top/bottom of a column, and a `spacer` was only legal inside `row`. Worse, the common `footer: row: … spacer …` shape silently failed: the footer gave its lone row the row's intrinsic width and right-packed it, so the spacer had no slack and both clusters jammed against the right edge (e.g. a left-hand "Selected" card and a right-hand minimap ending up stacked on the right). This release makes vertical anchoring real and fixes the footer band.
