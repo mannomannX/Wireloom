@@ -40,25 +40,31 @@ window:
 
 Rendered: a bordered window containing the text.
 
-## Primitives (v0.4 / v0.4.1 / v0.4.5 / v0.50)
+## Primitives (v0.4 / v0.4.1 / v0.4.5 / v0.50 / v0.8.0)
 
-Every source must start with a single `window` root. In v0.4.1, one or more `annotation` nodes may follow the `window` as siblings to add user-manual-style callouts (see [Annotations (Callouts)](#annotations-callouts--v041)). v0.4.5 adds form controls (checkbox/radio/toggle), file trees, menubars, breadcrumbs, chips, avatars, and inline status indicators — see [v0.4.5 Primitives](#v045-primitives). v0.50 adds the mobile-navigation primitive set (`spacer`, `navbar`, `tabbar`, `tabitem`, `backbutton`, `sheet`, `segmented`, `segment`) plus `row justify=`, `header large`, and the `chevron` flag on `slot`/`item`: see [v0.50 Primitives](#v050-primitives).
+Every source must start with a single `window` root (optionally preceded by `define @Name:` macro definitions). In v0.4.1, one or more `annotation` nodes may follow the `window` as siblings to add user-manual-style callouts. v0.4.5 adds form controls, file trees, menubars, breadcrumbs, chips, avatars, and inline status indicators. v0.50 adds the mobile-navigation primitive set (`spacer`, `navbar`, `tabbar`, `tabitem`, `backbutton`, `sheet`, `segmented`, `segment`) plus `row justify=`, `header large`, and `chevron`. v0.8.0 adds the `table` primitive suite (`table`, `columns`, `column`, `tr`, `foot`, `td`), `code` viewports, reusable component macros (`define` / `use`), 1D scalar flex sizing, and devtool enhancements (`chip variant=kbd`, vertical dividers, active tab bodies).
 
 ### Structural containers
 
 | Primitive   | Children?                   | Positional args            | Purpose |
 |-------------|-----------------------------|----------------------------|---------|
 | `window`    | Yes                         | optional title string      | Root container. Exactly one per source. |
-| `header`    | Yes                         | —                          | Top chrome band (title-level content). |
+| `header`    | Yes                         | —                          | Top chrome band (title-level content). Supports `large` flag. |
 | `footer`    | Yes                         | —                          | Bottom chrome band (actions), or optional last child of a `slot`. |
 | `panel`     | Yes                         | —                          | Bordered dashed content container. |
 | `section`   | Yes                         | required title string      | Labeled container with small-caps title band. Supports `badge="…"`, `accent=`. |
-| `tabs`      | Yes (`tab` children only)   | —                          | Tab-bar container. |
-| `row`       | Yes                         | —                          | Horizontal flow. Supports `align=left|center|right`. |
-| `col`       | Yes                         | optional pixel width or `fill` | Vertical flow. Default is `fill` when no width given. |
+| `tabs`      | Yes (`tab` children)        | —                          | Tab-bar container. Active tab can contain nested content body. |
+| `row`       | Yes                         | —                          | Horizontal flow. Supports `justify=start\|center\|end\|between\|around\|evenly`, `align=start\|center\|end\|stretch`, `gap=`. |
+| `col`       | Yes                         | optional pixel width or `fill` | Vertical flow. Default is `fill` when no width given. Supports `align=`, `justify=`, `gap=`. |
 | `list`      | Yes (`item`/`slot` only)    | —                          | Vertical list container. |
-| `slot`      | Yes                         | required title string      | Titled bordered card. Supports `active` flag, `state=`, `accent=`, optional trailing `footer:` child. |
-| `grid`      | Yes (`cell` children only)  | —                          | Fixed `cols=N rows=M` grid. Cells auto-flow or take explicit `row=`/`col=`. **v0.4** |
+| `slot`      | Yes                         | required title string      | Titled bordered card. Supports `active` flag, `state=`, `accent=`, `chevron`, optional trailing `footer:` child. |
+| `grid`      | Yes (`cell` children only)  | —                          | Fixed `cols=N rows=M` grid. Supports `track=uniform\|auto`, `gap=`. **v0.4 / v0.8** |
+| `table`     | Yes (`columns`/`tr`/`foot`) | —                          | 2D tabular data grid. Flags: `striped`, `compact`, `bordered`. **v0.8** |
+| `columns`   | Yes (`column` children)     | —                          | Table column header definitions container. **v0.8** |
+| `tr`        | Yes (`td` or child widgets) | —                          | Table row. Automatically wraps non-`td` child widgets into cells. **v0.8** |
+| `foot`      | Yes (`td` children)         | —                          | Table summary footer row. **v0.8** |
+| `code`      | Yes (optional text lines)   | optional string content    | Monospace code viewport. `lang="<name>"`, `lines` flag. **v0.8** |
+| `define`    | Yes (template body)         | required `@Name` + params  | Top-level reusable component macro definition. **v0.8** |
 | `resourcebar` | Yes (`resource` children only) | —                      | Horizontal resource strip for game-UI headers. **v0.4** |
 | `stats`     | Yes (`stat` children only)  | —                          | Terse inline stat strip (LABEL value). **v0.4** |
 | `navbar`    | Yes (`leading:`/`trailing:` only) | —                    | Top chrome band with `leading:` and `trailing:` slots on one line. Direct child of `window` only, mutually exclusive with `header`. **v0.50** |
@@ -70,36 +76,55 @@ Every source must start with a single `window` root. In v0.4.1, one or more `ann
 
 | Primitive   | Positional args            | Purpose |
 |-------------|----------------------------|---------|
-| `tab`       | required string label      | Tab in a `tabs` bar. Supports `active` flag and `badge="…"`. |
-| `item`      | required string text       | Bulleted list item. |
+| `tab`       | required string label      | Tab in a `tabs` bar. Supports `active` flag, `badge="…"`, and optional nested children. |
+| `item`      | required string text       | Bulleted list item. Supports `chevron` flag. |
 | `text`      | required string content    | Static text. Typography attrs. Optional `accent=` to mark polarity (good/bad/warn). **v0.5.2** |
-| `button`    | required string label      | Clickable action. `primary`, `disabled`, `badge="…"`, `accent=`, `icon="<name>"` (leading inline glyph; empty label = icon-only). **v0.5.2** |
+| `button`    | required string label      | Clickable action. `primary`, `disabled`, `badge="…"`, `accent=`, `icon="<name>"`. **v0.5.2** |
 | `input`     | —                          | Text input. `placeholder=`, `type=`, `disabled`. |
 | `combo`     | optional string label      | Dropdown. `value=`, `options=`, `disabled`. |
 | `slider`    | —                          | Range control. Required `range=N-M` and `value=K`. Optional `label=`. |
-| `kv`        | required label + value strings | Right-aligned label/value row. Typography attrs on value. Optional `icon="<name>"` (leading glyph) and `accent=` (applied to the value side, e.g. `+15%` → success). **v0.5.2** |
+| `kv`        | required label + value strings | Right-aligned label/value row. Typography attrs on value. Optional `icon="<name>"` and `accent=`. **v0.5.2** |
 | `image`     | —                          | Placeholder image. `label=`, `width=`, `height=`. |
-| `icon`      | —                          | Icon glyph. `name=` (named library, see below), optional `accent=`. |
-| `divider`   | —                          | Horizontal rule. |
-| `cell`      | optional string label      | Grid cell (inside `grid`). Supports `row=`, `col=`, `state=`, `accent=`, and arbitrary container children. **v0.4** |
+| `icon`      | —                          | Icon glyph. `name=` (named library), optional `accent=`. |
+| `divider`   | —                          | Rule separator. Default horizontal; supports `orientation=vertical`. **v0.8** |
+| `cell`      | optional string label      | Grid cell (inside `grid`). Supports `span=N`, `rows=N`, `row=`, `col=`, `state=`, `accent=`. **v0.4 / v0.8** |
+| `column`    | required string title      | Table column header (inside `columns`). Supports `w=`, `align=left\|center\|right`. **v0.8** |
+| `td`        | optional string content    | Table cell (inside `tr` or `foot`). Supports `span=N`, `align=left\|center\|right`, `accent=`. **v0.8** |
+| `use`       | required `@Name`           | Instantiates a defined macro with attribute parameters. **v0.8** |
 | `resource`  | —                          | Required `name=` + `value=`. Optional `icon=` override. **v0.4** |
-| `stat`      | required label + value strings | Inline LABEL value pair (inside `stats`). Supports `bold`, `muted`, optional `icon="<name>"` and `accent=` (applied to the value). **v0.4 / v0.5.2** |
+| `stat`      | required label + value strings | Inline LABEL value pair (inside `stats`). Supports `bold`, `muted`, optional `icon="<name>"` and `accent=`. **v0.4 / v0.5.2** |
 | `progress`  | —                          | Horizontal bar. `value=`, `max=`, optional `label=`, `accent=`. **v0.4** |
-| `chart`     | —                          | Placeholder chart. `kind=bar|line|pie`, optional `label=`, `width=`, `height=`, `accent=`. Renders a stylized shape — no real data. **v0.4** |
-| `spacer`    | —                          | Flex gap inside a `row`. Consumes slack so siblings anchor to opposite ends. Only legal directly inside `row`. **v0.50** |
+| `chart`     | —                          | Placeholder chart. `kind=bar\|line\|pie`, optional `label=`, `width=`, `height=`, `accent=`. **v0.4** |
+| `spacer`    | —                          | Flex gap inside a `row` or `col`. Consumes slack so siblings anchor to opposite ends. **v0.50 / v0.7** |
 | `tabitem`   | required string label      | Icon+label cell inside `tabbar`. Attributes: `icon="<name>"`, `badge="…"`. Flags: `selected`, `disabled`. **v0.50** |
 | `backbutton`| required string label      | Chevron+label button (e.g., `‹ Notes`). Legal anywhere a `button` is. Flag: `disabled`. **v0.50** |
 | `segment`   | required string label      | Cell inside `segmented`. Flags: `selected` (exactly one per `segmented`), `disabled`. **v0.50** |
+| `chip`      | required string label      | Pill badge. Flags: `closable`, `selected`. Attributes: `accent=`, `icon=`, `variant=kbd`. **v0.4.5 / v0.8** |
 
 ## Attributes and Flags
 
 Attributes come after positional args, before the optional `:` that opens a children block.
 
-- **String values** use double quotes: `placeholder="Email"`
-- **Number values** use optional unit suffixes: `340`, `50%`, `1fr`
+- **String values** use double quotes: `placeholder="Email"`, `lang="ts"`
+- **Number values** use optional unit suffixes: `340`, `50%`, `1fr`, `120px`
 - **Range values**: `range=0-100` (slider only)
-- **Identifier values**: `type=password`, `weight=bold`, `align=right`
-- **Bare flags**: `primary`, `disabled`, `active`, `bold`, `italic`, `muted`
+- **Identifier values**: `type=password`, `weight=bold`, `align=center`, `justify=between`
+- **Bare flags**: `primary`, `disabled`, `active`, `bold`, `italic`, `muted`, `striped`, `compact`, `bordered`, `lines`
+
+### Universal Sizing & Flex Attributes (v0.8)
+
+| Attribute | Applies to | Values / Example | Purpose |
+|-----------|------------|------------------|---------|
+| `w=…` | Containers & Leaves | `120`, `120px`, `50%`, `1fr` | Explicit target width |
+| `h=…` | Containers & Leaves | `40`, `40px`, `100%`, `1fr` | Explicit target height |
+| `min-w=…` / `max-w=…` | Containers & Leaves | `100px`, `400px` | Min/Max width constraints |
+| `min-h=…` / `max-h=…` | Containers & Leaves | `50px`, `300px` | Min/Max height constraints |
+| `grow=…` | Children of `row`/`col` | `1`, `2` | Flex grow factor |
+| `shrink=…` | Children of `row`/`col` | `0`, `1` | Flex shrink factor |
+| `gap=…` | `row`, `col`, `panel`, `section`, `grid` | `8`, `12` | Inner gap between children |
+| `justify=…` | `row`, `col`, `panel`, `section` | `start`, `center`, `end`, `between`, `around`, `evenly` | Alignment along the container's main axis |
+| `align=…` | `row`, `col`, `panel`, `section` | `start`, `center`, `end`, `stretch` | Alignment across the cross axis |
+| `self-align=…` | Any child inside `row`/`col` | `start`, `center`, `end`, `stretch` | Cross-axis override for an individual child |
 
 ### Typography on `text` and `kv` (v-value)
 
@@ -120,24 +145,23 @@ Combine freely: `text "Heading" bold size=large`, `kv "Net" "+235 bc" bold`.
 | Attribute | Applies to              | Values |
 |-----------|-------------------------|--------|
 | `badge="…"` | `tab`, `section`, `button` | Short pill text (e.g., `"4/7"`, `"3 new"`). |
-| `align=…` | `row`                   | `left` (default), `center`, `right`. Ignored when any child is a fill col. |
 | `active`  | `tab`, `slot`           | Bare flag. |
 | `fill`    | `col` width positional  | Identifier. Distributes row slack. Bare `col:` also defaults to `fill`. |
-| `state=…` | `slot`, `cell` (**v0.4**) | `locked`, `available`, `active`, `purchased`, `maxed`, `growing`, `ripe`, `withering`, `cashed`. Distinct border/fill/text; `locked`/`purchased`/`ripe`/`maxed` paint a corner glyph. |
-| `accent=…` | `slot`, `section`, `cell`, `button`, `icon` (**v0.4**); `text`, `kv` value, `stat` value (**v0.5.2**) | `research`, `military`, `industry`, `wealth`, `approval`, `warning`, `danger`, `success`. Themed color applied to borders/fills/text. On `text`/`kv`/`stat` use it for polarity — `success` for "+15%", `danger` for "-10%", `warning` for "Low Crime". |
-| `icon="…"` | `button`, `kv`, `stat` (**v0.5.2**) | Named-library icon glyph painted as a leading mark before the label. On `button`, an empty label string (`button "" icon=search`) renders an icon-only button. Unknown names fall back to a boxed first letter. |
-| `cols=N rows=M` | `grid` (**v0.4**) | Required. Defines the grid shape. |
+| `state=…` | `slot`, `cell` (**v0.4**) | `locked`, `available`, `active`, `purchased`, `maxed`, `growing`, `ripe`, `withering`, `cashed`. |
+| `accent=…` | `slot`, `section`, `cell`, `button`, `icon`, `text`, `kv` value, `stat` value, `td` | `research`, `military`, `industry`, `wealth`, `approval`, `warning`, `danger`, `success`. |
+| `icon="…"` | `button`, `kv`, `stat`, `chip`, `crumb`, `node`, `tabitem` | Named-library icon glyph painted before the label. |
+| `orientation=…` | `divider` (**v0.8**) | `horizontal` (default) or `vertical`. |
+| `variant=…` | `chip` (**v0.8**) | `kbd` (renders keyboard keycap styling). |
+| `lines` | `code` (**v0.8**) | Bare flag. Renders line numbers in a gutter. |
+| `lang="…"` | `code` (**v0.8**) | Language tag displayed in the code block header. |
+| `track=…` | `grid` (**v0.8**) | `uniform` (default) or `auto` (content-driven track sizing). |
+| `span=N` | `cell`, `td` (**v0.8**) | Multi-column span. |
+| `rows=N` | `cell` (**v0.8**) | Multi-row span in grids. |
+| `striped`, `compact`, `bordered` | `table` (**v0.8**) | Table appearance styling flags. |
+| `cols=N rows=M` | `grid` (**v0.4**) | Required for fixed grid dimension. |
 | `row=N col=M`   | `cell` (**v0.4**) | 1-indexed explicit placement. Otherwise cells auto-flow L→R, T→B. |
-| `value=N max=M label="…"` | `progress` (**v0.4**) | `value`/`max` required for a filled bar; `label` optional. |
-| `kind=…` | `chart` (**v0.4**) | `bar`, `line`, or `pie`. Renders a placeholder glyph — no real data. |
-| `justify=…` | `row` (**v0.50**) | `start` (default), `between`, `around`, `end`. Distributes children along the horizontal axis. If a `spacer` child is present, `spacer` wins and `justify` is ignored. Fill cols still win over both. |
-| `large` | `header` (**v0.50**) | Bare flag. Turns the header into a tall large-title band (forces its `text` child to render bold at large size). |
-| `chevron` | `slot`, `item` (**v0.50**) | Bare flag. Reserves a trailing gutter and draws a right-chevron glyph. Used to signal "tap for detail" on list rows. |
-| `position=…` | `sheet` (**v0.50**) | `bottom` (default, anchors to window bottom with rounded top corners) or `center` (floating centered rectangle). |
-| `title="…"` | `sheet` (**v0.50**) | Optional title string. Renders bold and centered below the grabber. |
-| `icon="…"`, `badge="…"` | `tabitem` (**v0.50**) | Named-library icon above the label, optional trailing badge pill on the icon. |
-
-Unknown attributes or flags on the wrong primitive produce parse errors that list the expected options.
+| `position=…` | `sheet` (**v0.50**) | `bottom` (default) or `center`. |
+| `title="…"` | `sheet` (**v0.50**) | Optional title string. |
 
 ### Named icon library (v0.4)
 
