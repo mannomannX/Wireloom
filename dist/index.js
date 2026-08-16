@@ -4166,84 +4166,137 @@ function emptyLaidOut() {
   };
 }
 function measureChild(node, theme) {
+  let size;
   switch (node.kind) {
     case "text":
-      return measureText(node, theme);
+      size = measureText(node, theme);
+      break;
     case "button":
-      return measureButton(node, theme);
+      size = measureButton(node, theme);
+      break;
     case "backbutton":
-      return measureBackButton(node, theme);
+      size = measureBackButton(node, theme);
+      break;
     case "input":
-      return measureInput(node, theme);
+      size = measureInput(node, theme);
+      break;
     case "divider":
-      return measureDivider(node, theme);
+      size = measureDivider(node, theme);
+      break;
     case "spacer":
-      return measureSpacer();
+      size = measureSpacer();
+      break;
     case "panel":
-      return measurePanel(node, theme);
+      size = measurePanel(node, theme);
+      break;
     case "section":
-      return measureSection(node, theme);
+      size = measureSection(node, theme);
+      break;
     case "tabs":
-      return measureTabs(node, theme);
+      size = measureTabs(node, theme);
+      break;
     case "row":
-      return measureRow(node, theme);
+      size = measureRow(node, theme);
+      break;
     case "col":
-      return measureCol(node, theme);
+      size = measureCol(node, theme);
+      break;
     case "list":
-      return measureList(node, theme);
+      size = measureList(node, theme);
+      break;
     case "slot":
-      return measureSlot(node, theme);
+      size = measureSlot(node, theme);
+      break;
     case "kv":
-      return measureKv(node, theme);
+      size = measureKv(node, theme);
+      break;
     case "combo":
-      return measureCombo(node, theme);
+      size = measureCombo(node, theme);
+      break;
     case "slider":
-      return measureSlider(theme);
+      size = measureSlider(theme);
+      break;
     case "image":
-      return measureImage(node, theme);
+      size = measureImage(node, theme);
+      break;
     case "icon":
-      return measureIcon(theme);
+      size = measureIcon(theme);
+      break;
     case "grid":
-      return measureGrid(node, theme);
+      size = measureGrid(node, theme);
+      break;
     case "resourcebar":
-      return measureResourceBar(node, theme);
+      size = measureResourceBar(node, theme);
+      break;
     case "stats":
-      return measureStats(node, theme);
+      size = measureStats(node, theme);
+      break;
     case "progress":
-      return measureProgress(node, theme);
+      size = measureProgress(node, theme);
+      break;
     case "chart":
-      return measureChart(node, theme);
+      size = measureChart(node, theme);
+      break;
     case "tree":
-      return measureTree(node, theme);
+      size = measureTree(node, theme);
+      break;
     case "menubar":
-      return measureMenubar(node, theme);
+      size = measureMenubar(node, theme);
+      break;
     case "menu":
-      return measureMenu(node, theme);
+      size = measureMenu(node, theme);
+      break;
     case "breadcrumb":
-      return measureBreadcrumb(node, theme);
+      size = measureBreadcrumb(node, theme);
+      break;
     case "checkbox":
-      return measureCheckbox(node, theme);
+      size = measureCheckbox(node, theme);
+      break;
     case "radio":
-      return measureRadio(node, theme);
+      size = measureRadio(node, theme);
+      break;
     case "toggle":
-      return measureToggle(node, theme);
+      size = measureToggle(node, theme);
+      break;
     case "chip":
-      return measureChip(node, theme);
+      size = measureChip(node, theme);
+      break;
     case "avatar":
-      return measureAvatar(node, theme);
+      size = measureAvatar(node, theme);
+      break;
     case "spinner":
-      return measureSpinner(node, theme);
+      size = measureSpinner(node, theme);
+      break;
     case "status":
-      return measureStatus(node, theme);
+      size = measureStatus(node, theme);
+      break;
     case "segmented":
-      return measureSegmented(node, theme);
+      size = measureSegmented(node, theme);
+      break;
     case "table":
-      return measureTable(node, theme);
+      size = measureTable(node, theme);
+      break;
     case "code":
-      return measureCode(node, theme);
+      size = measureCode(node, theme);
+      break;
     case "macroUse":
       return { width: 0, height: 0 };
   }
+  if ("attributes" in node && Array.isArray(node.attributes)) {
+    const explicitW = getAttrNumber2(node.attributes, "w");
+    const minW = getAttrNumber2(node.attributes, "min-w");
+    const maxW = getAttrNumber2(node.attributes, "max-w");
+    if (explicitW !== void 0) size = { ...size, width: explicitW };
+    if (minW !== void 0 && size.width < minW) size = { ...size, width: minW };
+    if (maxW !== void 0 && size.width > maxW) size = { ...size, width: maxW };
+    const explicitH = getAttrNumber2(node.attributes, "h");
+    const minH = getAttrNumber2(node.attributes, "min-h");
+    const maxH = getAttrNumber2(node.attributes, "max-h");
+    if (explicitH !== void 0) size = { ...size, height: explicitH };
+    if (minH !== void 0 && size.height < minH) size = { ...size, height: minH };
+    if (maxH !== void 0 && size.height > maxH) size = { ...size, height: maxH };
+  }
+  return size;
 }
 function measureTree(node, theme) {
   let maxW = 0;
@@ -5100,7 +5153,8 @@ function positionWindow(node, m, x, y, theme) {
   let innerCursorY = bodyInnerY;
   for (let i = 0; i < bodyChildren.length; i++) {
     const child = bodyChildren[i];
-    const laidChild = positionContainerChild(child, bodyInnerX, innerCursorY, bodyInnerWidth, theme);
+    const childSize = measureChild(child, theme);
+    const laidChild = positionContainerChild(child, bodyInnerX, innerCursorY, bodyInnerWidth, theme, childSize.height);
     childrenLaid.push(laidChild);
     innerCursorY += laidChild.height;
     if (i < bodyChildren.length - 1) innerCursorY += theme.colGap;
