@@ -1,663 +1,669 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wireloom v0.8.0 — Interactive Visual Gallery & Playground</title>
+  <title>Wireloom Studio</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18M9 21V9'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0f141c;
-      --card-bg: #18202c;
-      --border: #2a3648;
-      --text: #e2e8f0;
-      --text-muted: #94a3b8;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --header-h: 52px;
+      --footer-h: 26px;
+    }
+
+    /* Dark Theme (Default) */
+    html[data-theme="dark"] {
+      --bg-base: #090d16;
+      --bg-surface: #0f172a;
+      --bg-surface-elevated: #1e293b;
+      --bg-input: #070c14;
+      --bg-canvas: #0b0f17;
+      
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.16);
+      --border-focus: #38bdf8;
+
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
       --accent: #38bdf8;
       --accent-hover: #0284c7;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --accent-subtle: rgba(56, 189, 248, 0.12);
+      
+      --success: #10b981;
+      --success-subtle: rgba(16, 185, 129, 0.15);
+      --error: #ef4444;
+      --error-subtle: rgba(239, 68, 68, 0.15);
+
+      --gutter-num: #3b4d66;
+      --shadow-canvas: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    /* Light Theme */
+    html[data-theme="light"] {
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f1f5f9;
+      --bg-input: #ffffff;
+      --bg-canvas: #f1f5f9;
+      
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.16);
+      --border-focus: #0284c7;
+
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-subtle: rgba(2, 132, 199, 0.1);
+      
+      --success: #059669;
+      --success-subtle: rgba(5, 150, 105, 0.12);
+      --error: #dc2626;
+      --error-subtle: rgba(220, 38, 38, 0.12);
+
+      --gutter-num: #94a3b8;
+      --shadow-canvas: 0 20px 35px -10px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.06);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: var(--font-sans);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
+    /* ----------------------------------------------------------------------- */
+    /* Minimal Top Navigation                                                  */
+    /* ----------------------------------------------------------------------- */
     header {
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 1.5rem;
+      height: var(--header-h);
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 0 1.25rem;
       gap: 1rem;
+      z-index: 20;
     }
 
-    .brand {
+    .brand-section {
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
+      align-items: baseline;
+      gap: 0.5rem;
     }
 
-    .brand h1 {
-      font-size: 1.25rem;
+    .logo-title {
       font-weight: 700;
+      font-size: 1.05rem;
       letter-spacing: -0.02em;
-      color: #fff;
+      color: var(--text-primary);
     }
 
-    .badge {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      padding: 0.2rem 0.5rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
+    .version-text {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
     }
 
-    .controls {
+    .controls-section {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
 
-    select, button {
-      background: #222d3d;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.45rem 0.85rem;
+    .btn {
+      appearance: none;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 0.38rem 0.75rem;
       border-radius: 6px;
-      font-size: 0.875rem;
       font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      outline: none;
+      text-decoration: none;
     }
 
-    select:hover, button:hover {
-      border-color: var(--accent);
+    .btn:hover {
+      border-color: var(--border-strong);
+      filter: brightness(1.08);
     }
 
-    button.primary {
+    .btn:focus {
+      border-color: var(--border-focus);
+    }
+
+    .btn.primary {
       background: var(--accent);
-      color: #0f141c;
+      color: #fff;
       font-weight: 600;
       border-color: var(--accent);
     }
 
-    button.primary:hover {
-      background: var(--accent-hover);
+    html[data-theme="dark"] .btn.primary {
+      color: #090d16;
     }
 
-    main {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+    .btn.primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn.icon-only {
+      padding: 0.38rem;
+    }
+
+    .btn.icon-only svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+
+    .divider-v {
+      width: 1px;
+      height: 18px;
+      background: var(--border-subtle);
+      margin: 0 0.15rem;
+    }
+
+    /* ----------------------------------------------------------------------- */
+    /* Resizable Split Pane                                                    */
+    /* ----------------------------------------------------------------------- */
+    .split-container {
       flex: 1;
-      height: calc(100vh - 65px);
+      display: flex;
       overflow: hidden;
+      --split-ratio: 46%;
     }
 
     .editor-pane {
+      width: var(--split-ratio);
+      min-width: 280px;
+      max-width: 75vw;
+      background: var(--bg-input);
       display: flex;
       flex-direction: column;
-      border-right: 1px solid var(--border);
-      background: #111827;
+      border-right: 1px solid var(--border-subtle);
+      position: relative;
     }
 
-    .pane-header {
-      padding: 0.6rem 1rem;
-      background: #1e293b;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .drag-handle {
+      width: 6px;
+      background: transparent;
+      cursor: col-resize;
+      position: relative;
+      z-index: 10;
+      transition: background 0.15s;
+      margin-left: -3px;
+      margin-right: -3px;
     }
 
-    textarea {
-      flex: 1;
-      width: 100%;
-      background: #111827;
-      border: none;
-      color: #f1f5f9;
-      font-family: var(--font-mono);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      padding: 1rem;
-      resize: none;
-      outline: none;
-      tab-size: 2;
+    .drag-handle:hover, .drag-handle:active {
+      background: var(--accent);
     }
 
     .preview-pane {
+      flex: 1;
+      min-width: 300px;
+      background: var(--bg-canvas);
       display: flex;
       flex-direction: column;
-      background: #0b0f17;
+      position: relative;
       overflow: hidden;
     }
 
-    .preview-canvas {
+    /* ----------------------------------------------------------------------- */
+    /* Pane Toolbars & Statusbars                                              */
+    /* ----------------------------------------------------------------------- */
+    .pane-toolbar {
+      height: 34px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.85rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+    }
+
+    .tool-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .tool-btn:hover {
+      color: var(--text-primary);
+      background: var(--border-subtle);
+    }
+
+    .pane-statusbar {
+      height: var(--footer-h);
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.85rem;
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .status-left, .status-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .perf-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.05rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+    }
+
+    .perf-badge.ok {
+      color: var(--success);
+      background: var(--success-subtle);
+    }
+
+    .perf-badge.error {
+      color: var(--error);
+      background: var(--error-subtle);
+    }
+
+    /* ----------------------------------------------------------------------- */
+    /* Code Editor with Line Gutter                                            */
+    /* ----------------------------------------------------------------------- */
+    .editor-wrapper {
       flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .line-gutter {
+      width: 42px;
+      padding: 0.85rem 0.5rem 0.85rem 0;
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: var(--gutter-num);
+      user-select: none;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    .gutter-line {
+      height: 1.55em;
+    }
+
+    .gutter-line.error {
+      color: var(--error);
+      font-weight: 700;
+    }
+
+    textarea.code-editor {
+      flex: 1;
+      height: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.55;
+      padding: 0.85rem 1rem;
+      resize: none;
+      outline: none;
+      tab-size: 2;
+      white-space: pre;
+      overflow: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+    }
+
+    textarea.code-editor::selection {
+      background: var(--accent-subtle);
+    }
+
+    /* Error Overlay Banner */
+    .error-banner {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(127, 29, 29, 0.95);
+      border-top: 1px solid #ef4444;
+      color: #fee2e2;
+      padding: 0.55rem 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      line-height: 1.4;
+      display: none;
+      backdrop-filter: blur(8px);
+      z-index: 15;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .error-banner.active {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .error-banner svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      stroke: #fca5a5;
+      margin-top: 1px;
+    }
+
+    /* ----------------------------------------------------------------------- */
+    /* Canvas Viewport & Pan-Zoom Stage                                        */
+    /* ----------------------------------------------------------------------- */
+    .canvas-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: auto;
-      padding: 2rem;
+      background-color: var(--bg-canvas);
     }
 
-    .preview-canvas svg {
-      max-width: 100%;
-      height: auto;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-      border-radius: 6px;
-      transition: transform 0.15s ease;
+    .canvas-viewport:active {
+      cursor: grabbing;
     }
 
-    .error-box {
-      background: #7f1d1d;
-      color: #fecaca;
-      border: 1px solid #dc2626;
-      padding: 0.75rem 1rem;
-      margin: 1rem;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      white-space: pre-wrap;
-      display: none;
+    .canvas-stage {
+      position: absolute;
+      transform-origin: 0 0;
+      transition: transform 0.05s ease-out;
+      pointer-events: auto;
     }
 
-    .error-box.active {
+    .canvas-stage svg {
       display: block;
+      box-shadow: var(--shadow-canvas);
+      border-radius: 4px;
+      outline: none;
+    }
+
+    /* Zoom HUD Control Bar */
+    .zoom-hud {
+      position: absolute;
+      bottom: 0.85rem;
+      right: 0.85rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.2rem 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.25);
+      z-index: 10;
+    }
+
+    .hud-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 0.25rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .hud-btn:hover {
+      background: var(--border-subtle);
+      color: var(--text-primary);
+    }
+
+    .hud-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .dim-badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      background: var(--accent-subtle);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+
+    /* ----------------------------------------------------------------------- */
+    /* Toast Notifications                                                     */
+    /* ----------------------------------------------------------------------- */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      padding: 0.55rem 1.1rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+
+    .toast.visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .toast.error {
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .toast.warn {
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .split-container {
+        flex-direction: column;
+      }
+      .editor-pane {
+        width: 100% !important;
+        height: 50%;
+        max-width: none;
+      }
+      .drag-handle {
+        width: 100%;
+        height: 6px;
+        cursor: row-resize;
+        margin: -3px 0;
+      }
+      .preview-pane {
+        height: 50%;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <h1>Wireloom</h1>
-      <span class="badge">v0.8.0 Release</span>
-    </div>
-    <div class="controls">
-      <label for="example-select" style="font-size: 0.85rem; color: var(--text-muted);">Examples:</label>
-      <select id="example-select">
-        <optgroup label="🌟 New v0.8.0 Features">
-          <option value="46" selected>46 — Cloud Observability & Service Hub (All v0.8 Features)</option>
-          <option value="41">41 — Simple Table & Sizing</option>
-          <option value="42">42 — Data Grid with Status Badges</option>
-          <option value="43">43 — Feature Matrix (Compact & Bordered)</option>
-          <option value="44">44 — Developer Dashboard (Code, Kbd, Tabs)</option>
-          <option value="45">45 — Reusable UI Macros (@Card)</option>
-        </optgroup>
-        <optgroup label="Mobile & Modern Navigation (v0.5+)">
-          <option value="31">31 — Spacer & Justify</option>
-          <option value="32">32 — Navbar Slots</option>
-          <option value="33">33 — Backbutton & Large Header</option>
-          <option value="34">34 — Tabbar Mobile Navigation</option>
-          <option value="36">36 — Bottom Sheet Modal</option>
-          <option value="39">39 — Segmented Control</option>
-        </optgroup>
-        <optgroup label="Widgets & Desktop (v0.4+)">
-          <option value="21">21 — Grid Matrix & Auto-Flow</option>
-          <option value="27">27 — Manual Annotations & Callouts</option>
-          <option value="28">28 — File Tree & Menubar</option>
-          <option value="29">29 — Form Controls (Toggle, Radio, Checkbox)</option>
-          <option value="30">30 — Status Indicators & Chips</option>
-        </optgroup>
-      </select>
 
-      <button id="theme-toggle">Theme: Light</button>
-      <button id="copy-svg-btn">Copy SVG</button>
+  <!-- Top Minimalist Bar -->
+  <header>
+    <div class="brand-section">
+      <span class="logo-title">Wireloom</span>
+      <span class="version-text">v0.8.0</span>
+    </div>
+
+    <div class="controls-section">
+      <!-- Light / Dark Mode Toggle Icon Button -->
+      <button id="theme-btn" class="btn icon-only" title="Toggle Light / Dark Mode">
+        <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+
+      <div class="divider-v"></div>
+
+      <!-- Action Buttons -->
+      <button id="copy-svg-btn" class="btn primary" title="Copy SVG code to clipboard">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        Copy SVG
+      </button>
+
+      <button id="download-svg-btn" class="btn" title="Download standalone SVG">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Download SVG
+      </button>
+
+      <button id="export-png-btn" class="btn" title="Export high-res PNG (2x)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        Export PNG
+      </button>
+
+      <div class="divider-v"></div>
+
+      <!-- GitHub Link -->
+      <a href="https://github.com/mannomannX/Wireloom" target="_blank" rel="noopener noreferrer" class="btn icon-only" title="GitHub Repository">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+      </a>
     </div>
   </header>
 
-  <main>
-    <section class="editor-pane">
-      <div class="pane-header">
-        <span>Wireloom DSL Input</span>
-        <span style="font-size: 0.75rem; text-transform: none; color: var(--text-muted);">Live Rendering</span>
+  <!-- Split Workspace -->
+  <div class="split-container" id="split-pane">
+    
+    <!-- Code Editor Section -->
+    <section class="editor-pane" id="editor-container">
+      <div class="pane-toolbar">
+        <span>SOURCE</span>
+        <div>
+          <button id="format-btn" class="tool-btn" title="Format indentation">Format</button>
+          <button id="clear-btn" class="tool-btn" title="Clear editor">Clear</button>
+        </div>
       </div>
-      <textarea id="dsl-input" spellcheck="false"></textarea>
-      <div id="error-display" class="error-box"></div>
+
+      <div class="editor-wrapper">
+        <div class="line-gutter" id="line-gutter"></div>
+        <textarea id="dsl-textarea" class="code-editor" spellcheck="false" placeholder="window:&#10;  text &quot;Hello Wireloom&quot;"></textarea>
+        
+        <div id="error-overlay" class="error-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span id="error-text"></span>
+        </div>
+      </div>
+
+      <div class="pane-statusbar">
+        <div class="status-left">
+          <span id="cursor-pos">Ln 1, Col 1</span>
+          <span>•</span>
+          <span id="doc-stats">0 lines</span>
+        </div>
+        <div class="status-right">
+          <span id="perf-badge" class="perf-badge ok">⚡ 0.0ms</span>
+        </div>
+      </div>
     </section>
 
-    <section class="preview-pane">
-      <div class="pane-header">
-        <span>Rendered SVG Canvas</span>
-        <span id="dimension-badge" style="font-size: 0.75rem; color: var(--text-muted);"></span>
+    <!-- Resizer Divider -->
+    <div class="drag-handle" id="drag-handle" title="Drag to resize"></div>
+
+    <!-- SVG Preview Canvas -->
+    <section class="preview-pane" id="preview-pane">
+      <div class="pane-toolbar">
+        <span>PREVIEW</span>
+        <div>
+          <span id="dim-badge" class="dim-badge">0 × 0 px</span>
+        </div>
       </div>
-      <div class="preview-canvas" id="canvas-container"></div>
+
+      <div class="canvas-viewport" id="canvas-viewport">
+        <div class="canvas-stage" id="canvas-stage"></div>
+
+        <!-- Zoom HUD -->
+        <div class="zoom-hud">
+          <button id="zoom-fit-btn" class="hud-btn" title="Fit to View">Fit</button>
+          <button id="zoom-reset-btn" class="hud-btn" title="100% Scale">1:1</button>
+          <button id="zoom-out-btn" class="hud-btn" title="Zoom Out">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+          <span id="zoom-badge" style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-secondary); padding: 0 0.25rem;">100%</span>
+          <button id="zoom-in-btn" class="hud-btn" title="Zoom In">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="pane-statusbar">
+        <div class="status-left">
+          <span>Pan: Drag canvas</span>
+          <span>•</span>
+          <span>Zoom: Scroll wheel</span>
+        </div>
+        <div class="status-right">
+          <span>Wireloom SVG Renderer</span>
+        </div>
+      </div>
     </section>
-  </main>
+  </div>
 
-  <script type="module">
-    import wireloom from './dist/index.js';
+  <div id="toast" class="toast"></div>
 
-    const EXAMPLES = {
-      "46": `define @MetricCard:
-  panel:
-    row:
-      icon name="$icon" accent=$accent
-      spacer
-      text "$trend" accent=$accent
-    text "$title" muted
-    text "$value" bold size=large
-
-define @ActionCard:
-  panel:
-    row:
-      text "$name" bold
-      spacer
-      status "$status" kind=$kind
-    text "$desc" muted
-    row justify=end:
-      button "$action"
-
-window "Cloud Platform & Cluster Observability":
-  header:
-    row:
-      text "Production Cluster: eu-central-1" bold size=large
-      spacer
-      chip "Cmd+K" variant=kbd
-      divider orientation=vertical
-      button "Deploy Service" primary
-
-  row:
-    use @MetricCard title="Total QPS" value="142.8k" trend="+14% /hr" icon="star" accent=success
-    use @MetricCard title="Avg Latency" value="18.4ms" trend="-2.1ms" icon="gear" accent=research
-    use @MetricCard title="Error Rate" value="0.04%" trend="Optimal" icon="check" accent=approval
-    use @MetricCard title="Memory Usage" value="84.2%" trend="Warning" icon="warning" accent=warning
-
-  tabs:
-    tab "Active Services" active:
-      table striped compact:
-        columns:
-          column "Service Name" w=160 align=left
-          column "Health Status" w=120 align=center
-          column "P99 Latency" w=100 align=right
-          column "Throughput" w=100 align=right
-          column "Runtime" w=90 align=center
-        tr:
-          td "auth-service"
-          status "Healthy" kind=success
-          td "12ms"
-          td "48.2k"
-          chip "Go" variant=kbd
-        tr:
-          td "billing-api"
-          status "Healthy" kind=success
-          td "24ms"
-          td "12.1k"
-          chip "Rust" variant=kbd
-        tr:
-          td "search-indexer"
-          status "Degraded" kind=warning
-          td "184ms"
-          td "32.0k"
-          chip "Java" variant=kbd
-        tr:
-          td "notification-hub"
-          status "Healthy" kind=success
-          td "9ms"
-          td "50.5k"
-          chip "Node" variant=kbd
-        foot:
-          td "4 Services Running (99.98% SLA)" span=3 align=left
-          td "142.8k req/s" span=2 align=right
-
-    tab "Config & Manifest":
-      code lang="yaml" lines:
-        text "apiVersion: apps/v1"
-        text "kind: Deployment"
-        text "metadata:"
-        text "  name: cluster-ingress-v2"
-        text "spec:"
-        text "  replicas: 8"
-        text "  strategy:"
-        text "    type: RollingUpdate"
-
-    tab "Maintenance & Ops":
-      row:
-        use @ActionCard name="DB Failover" status="Standby" kind=info desc="Switch active primary replica." action="Initiate"
-        use @ActionCard name="Cache Purge" status="Ready" kind=success desc="Evict distributed Redis keys." action="Flush All"
-
-  footer:
-    row:
-      status "Cluster Healthy" kind=success
-      divider orientation=vertical
-      text "Nodes: 16/16 Active" muted
-      divider orientation=vertical
-      text "Region: Frankfurt" muted
-      spacer
-      button "Refresh Metrics"
-      button "Export Report"`,
-
-      "41": `window "Pricing Table":
-  table striped:
-    columns:
-      column "Plan" w=120 align=left
-      column "Users" w=90 align=center
-      column "Storage" w=100 align=center
-      column "Price" w=100 align=right
-    tr:
-      td "Starter"
-      td "1-5"
-      td "10 GB"
-      td "$29/mo"
-    tr:
-      td "Professional"
-      td "Unlimited"
-      td "500 GB"
-      td "$99/mo"
-    foot:
-      td "Enterprise custom plans available on request" span=4 align=center`,
-
-      "42": `window "Order Management":
-  row:
-    input placeholder="Search orders..."
-    spacer
-    button "Filter"
-    button "Export" primary
-  table striped compact:
-    columns:
-      column "Order #" w=90 align=left
-      column "Customer" w=140 align=left
-      column "Status" w=100 align=center
-      column "Items" w=60 align=right
-      column "Total" w=90 align=right
-    tr:
-      td "#1042"
-      td "Alice Smith"
-      status "Shipped" kind=success
-      td "3"
-      td "$240.00"
-    tr:
-      td "#1043"
-      td "Bob Jones"
-      status "Processing" kind=info
-      td "1"
-      td "$85.50"
-    tr:
-      td "#1044"
-      td "Carol White"
-      status "Refunded" kind=error
-      td "2"
-      td "$120.00"
-    foot:
-      td "Total Revenue" span=4 align=right
-      td "$445.50"`,
-
-      "43": `window "Feature Matrix":
-  table bordered compact:
-    columns:
-      column "Feature" w=180 align=left
-      column "Free" w=70 align=center
-      column "Pro" w=70 align=center
-      column "Enterprise" w=90 align=center
-    tr:
-      td "Unlimited Projects"
-      icon name="minus"
-      icon name="check" accent=success
-      icon name="check" accent=success
-    tr:
-      td "Custom Domains"
-      icon name="minus"
-      icon name="check" accent=success
-      icon name="check" accent=success
-    tr:
-      td "24/7 SLA Support"
-      icon name="minus"
-      icon name="minus"
-      icon name="check" accent=success`,
-
-      "44": `window "API Explorer & Inspector":
-  header:
-    row:
-      text "GET /api/v2/deployments" bold
-      spacer
-      chip "Cmd+K" variant=kbd
-      button "Send Request" primary
-
-  tabs:
-    tab "Response" active:
-      code lang="json" lines:
-        text "{"
-        text "  \\"status\\": \\"healthy\\","
-        text "  \\"version\\": \\"v0.8.2\\","
-        text "  \\"nodes\\": 12"
-        text "}"
-    tab "Headers":
-      panel:
-        text "Authorization: Bearer <token>"
-        text "Content-Type: application/json"
-    tab "History":
-      table striped compact:
-        columns:
-          column "Time" w=70
-          column "Method" w=70
-          column "Status" w=80
-        tr:
-          td "12:04:02"
-          td "GET"
-          status "200 OK" kind=success
-        tr:
-          td "12:01:15"
-          td "POST"
-          status "201 Created" kind=success
-
-  footer:
-    row:
-      status "Connected" kind=success
-      divider orientation=vertical
-      text "Latency: 42ms" muted
-      spacer
-      button "Clear Console"`,
-
-      "45": `define @StatCard:
-  panel:
-    row:
-      text "$label" muted
-      spacer
-      icon name="star" accent=warning
-    text "$value" bold size=large
-    text "$change" accent=success
-
-define @ActionCard:
-  panel:
-    text "$title" bold
-    text "$desc"
-    row justify=end:
-      button "Configure"
-
-window "System Overview":
-  header:
-    text "Cluster Analytics" bold size=large
-
-  row:
-    use @StatCard label="Total Requests" value="1.4M" change="+18% vs last week"
-    use @StatCard label="Avg Response" value="84ms" change="-12ms improvement"
-
-  section "Quick Actions":
-    row:
-      use @ActionCard title="Backup Database" desc="Snapshot current production state."
-      use @ActionCard title="Deploy Cluster" desc="Roll out new container nodes."
-
-  footer:
-    button "Refresh Dashboard" primary`,
-
-      "31": `window "Dialog with Spacers":
-  panel:
-    row:
-      button "Cancel"
-      spacer
-      button "Done" primary
-    row justify=between:
-      text "Step 2 of 4" muted
-      text "Draft saved" muted`,
-
-      "32": `window "Note":
-  navbar:
-    leading:
-      backbutton "Notes"
-    trailing:
-      button "Share"
-      button "Done" primary
-  panel:
-    text "Body copy goes here."`,
-
-      "33": `window "Large Header":
-  header large:
-    text "Inbox"
-  panel:
-    text "Recent messages will appear here."`,
-
-      "34": `window "Mobile App":
-  header:
-    text "Home Feed" bold
-  list:
-    item "Welcome to Wireloom v0.8"
-    item "Fast SVG wireframing"
-  tabbar:
-    tabitem "Home" icon="planet" selected
-    tabitem "Messages" icon="policy" badge="3"
-    tabitem "Settings" icon="gear"`,
-
-      "36": `window "Photos":
-  header:
-    text "Vacation Album" bold
-  sheet title="Share via":
-    list:
-      item "AirDrop"
-      item "Messages"
-      item "Copy Link"
-    row justify=end:
-      button "Cancel"`,
-
-      "39": `window "Metrics":
-  panel:
-    segmented:
-      segment "Day"
-      segment "Week" selected
-      segment "Month"
-      segment "Year"
-    chart kind=line label="Traffic summary"`,
-
-      "21": `window "Grid Layout":
-  grid cols=3 rows=2:
-    cell "A1"
-    cell "A2"
-    cell "A3"
-    cell "B1" span=2
-    cell "B3"`,
-
-      "27": `window "Annotated Interface":
-  panel:
-    input placeholder="Search query..." id="search"
-    button "Search" primary id="btn-search"
-annotation "Enter keywords here" target="search" position=left
-annotation "Triggers live search" target="btn-search" position=right`,
-
-      "28": `window "Project Explorer":
-  menubar:
-    menu "File":
-      menuitem "New" shortcut="Ctrl+N"
-      menuitem "Open" shortcut="Ctrl+O"
-      separator
-      menuitem "Exit"
-  tree:
-    node "wireloom" icon="policy":
-      node "src" selected:
-        node "parser.ts"
-        node "renderer.ts"
-      node "README.md"`,
-
-      "29": `window "Settings":
-  section "Preferences":
-    toggle "Enable dark mode" on
-    radio "Compact layout" selected
-    radio "Comfortable layout"
-    checkbox "Automatically save drafts" checked`,
-
-      "30": `window "Deployment Status":
-  row:
-    status "Operational" kind=success
-    status "Syncing" kind=info
-    status "High Load" kind=warning
-  row:
-    chip "v0.8.0" accent=research
-    chip "Production"
-    chip "Delete" closable`
-    };
-
-    let currentTheme = 'default';
-    const textarea = document.getElementById('dsl-input');
-    const canvasContainer = document.getElementById('canvas-container');
-    const errorDisplay = document.getElementById('error-display');
-    const exampleSelect = document.getElementById('example-select');
-    const themeToggle = document.getElementById('theme-toggle');
-    const copySvgBtn = document.getElementById('copy-svg-btn');
-    const dimBadge = document.getElementById('dimension-badge');
-
-    async function updatePreview() {
-      const source = textarea.value;
-      try {
-        errorDisplay.classList.remove('active');
-        errorDisplay.textContent = '';
-        const res = await wireloom.render('preview', source, { theme: currentTheme });
-        canvasContainer.innerHTML = res.svg;
-        const svgEl = canvasContainer.querySelector('svg');
-        if (svgEl) {
-          const w = svgEl.getAttribute('width');
-          const h = svgEl.getAttribute('height');
-          dimBadge.textContent = `${w} × ${h} px`;
-        }
-      } catch (err) {
-        errorDisplay.textContent = err.message || String(err);
-        errorDisplay.classList.add('active');
-      }
-    }
-
-    textarea.addEventListener('input', updatePreview);
-
-    exampleSelect.addEventListener('change', (e) => {
-      const val = e.target.value;
-      if (EXAMPLES[val]) {
-        textarea.value = EXAMPLES[val];
-        updatePreview();
-      }
-    });
-
-    themeToggle.addEventListener('click', () => {
-      if (currentTheme === 'default') {
-        currentTheme = 'dark';
-        themeToggle.textContent = 'Theme: Dark';
-      } else {
-        currentTheme = 'default';
-        themeToggle.textContent = 'Theme: Light';
-      }
-      updatePreview();
-    });
-
-    copySvgBtn.addEventListener('click', () => {
-      const svg = canvasContainer.innerHTML;
-      if (svg) {
-        navigator.clipboard.writeText(svg).then(() => {
-          copySvgBtn.textContent = 'Copied!';
-          setTimeout(() => { copySvgBtn.textContent = 'Copy SVG'; }, 1500);
-        });
-      }
-    });
-
-    // Initialize with example 46 (showcase)
-    textarea.value = EXAMPLES["46"];
-    updatePreview();
-  </script>
+  <script type="module" src="./gallery.js"></script>
 </body>
 </html>
