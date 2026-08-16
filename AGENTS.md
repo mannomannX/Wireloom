@@ -44,7 +44,15 @@ Rendered: a bordered window containing the text.
 
 Every source must start with a single `window` root (optionally preceded by `define @Name:` macro definitions). In v0.4.1, one or more `annotation` nodes may follow the `window` as siblings to add user-manual-style callouts. v0.4.5 adds form controls, file trees, menubars, breadcrumbs, chips, avatars, and inline status indicators. v0.50 adds the mobile-navigation primitive set (`spacer`, `navbar`, `tabbar`, `tabitem`, `backbutton`, `sheet`, `segmented`, `segment`) plus `row justify=`, `header large`, and `chevron`. v0.8.0 adds the `table` primitive suite (`table`, `columns`, `column`, `tr`, `foot`, `td`), `code` viewports, reusable component macros (`define` / `use`), 1D scalar flex sizing, and devtool enhancements (`chip variant=kbd`, vertical dividers, active tab bodies).
 
-### Structural containers
+### Top-Level Declarations
+
+| Primitive    | Position | Children? | Purpose |
+|--------------|----------|-----------|---------|
+| `define`     | Before `window` | Yes (template body) | Top-level reusable component macro definition (e.g. `define @Card title="Default":`). |
+| `window`     | Root | Yes | Root wireframe container. Exactly one per source file. |
+| `annotation` | After `window` | No (leaf) | User-manual-style callout pointing at an `id="…"` target element. Lives *outside* the window tree; see [Annotations](#annotations-callouts--v041). |
+
+### Structural Containers
 
 | Primitive   | Children?                   | Positional args            | Purpose |
 |-------------|-----------------------------|----------------------------|---------|
@@ -64,13 +72,16 @@ Every source must start with a single `window` root (optionally preceded by `def
 | `tr`        | Yes (`td` or child widgets) | —                          | Table row. Automatically wraps non-`td` child widgets into cells. **v0.8** |
 | `foot`      | Yes (`td` children)         | —                          | Table summary footer row. **v0.8** |
 | `code`      | Yes (optional text lines)   | optional string content    | Monospace code viewport. `lang="<name>"`, `lines` flag. **v0.8** |
-| `define`    | Yes (template body)         | required `@Name` + params  | Top-level reusable component macro definition. **v0.8** |
 | `resourcebar` | Yes (`resource` children only) | —                      | Horizontal resource strip for game-UI headers. **v0.4** |
 | `stats`     | Yes (`stat` children only)  | —                          | Terse inline stat strip (LABEL value). **v0.4** |
 | `navbar`    | Yes (`leading:`/`trailing:` only) | —                    | Top chrome band with `leading:` and `trailing:` slots on one line. Direct child of `window` only, mutually exclusive with `header`. **v0.50** |
 | `tabbar`    | Yes (`tabitem` children only) | —                        | Bottom chrome band for primary mobile navigation. Direct child of `window` only, mutually exclusive with `footer`. **v0.50** |
 | `sheet`     | Yes                         | —                          | Modal overlay (bottom sheet by default, centered modal with `position=center`). Direct child of `window` only, at most one per window. Supports `position=bottom\|center`, `title="…"`. **v0.50** |
 | `segmented` | Yes (`segment` children only) | —                        | Rounded-pill segmented control for mutually-exclusive content filters. Inline content, never a direct child of `window`. **v0.50** |
+| `tree`      | Yes (`node` children only)  | —                          | Hierarchical collapsible file/node tree. **v0.4.5** |
+| `menubar`   | Yes (`menu` children only)  | —                          | Horizontal application menubar. **v0.4.5** |
+| `menu`      | Yes (`menuitem`/`separator`)| required title string      | Menu dropdown container. **v0.4.5** |
+| `breadcrumb`| Yes (`crumb` children only) | —                          | Path navigation strip with automatic `›` chevrons. **v0.4.5** |
 
 ### Leaves (no children)
 
@@ -80,6 +91,7 @@ Every source must start with a single `window` root (optionally preceded by `def
 | `item`      | required string text       | Bulleted list item. Supports `chevron` flag. |
 | `text`      | required string content    | Static text. Typography attrs. Optional `accent=` to mark polarity (good/bad/warn). **v0.5.2** |
 | `button`    | required string label      | Clickable action. `primary`, `disabled`, `badge="…"`, `accent=`, `icon="<name>"`. **v0.5.2** |
+| `backbutton`| required string label      | Chevron+label button (e.g., `‹ Notes`). Legal anywhere a `button` is. Flag: `disabled`. **v0.50** |
 | `input`     | —                          | Text input. `placeholder=`, `type=`, `disabled`. |
 | `combo`     | optional string label      | Dropdown. `value=`, `options=`, `disabled`. |
 | `slider`    | —                          | Range control. Required `range=N-M` and `value=K`. Optional `label=`. |
@@ -97,9 +109,41 @@ Every source must start with a single `window` root (optionally preceded by `def
 | `chart`     | —                          | Placeholder chart. `kind=bar\|line\|pie`, optional `label=`, `width=`, `height=`, `accent=`. **v0.4** |
 | `spacer`    | —                          | Flex gap inside a `row` or `col`. Consumes slack so siblings anchor to opposite ends. **v0.50 / v0.7** |
 | `tabitem`   | required string label      | Icon+label cell inside `tabbar`. Attributes: `icon="<name>"`, `badge="…"`. Flags: `selected`, `disabled`. **v0.50** |
-| `backbutton`| required string label      | Chevron+label button (e.g., `‹ Notes`). Legal anywhere a `button` is. Flag: `disabled`. **v0.50** |
 | `segment`   | required string label      | Cell inside `segmented`. Flags: `selected` (exactly one per `segmented`), `disabled`. **v0.50** |
-| `chip`      | required string label      | Pill badge. Flags: `closable`, `selected`. Attributes: `accent=`, `icon=`, `variant=kbd`. **v0.4.5 / v0.8** |
+| `checkbox`  | required string label      | Checkbox form control. Flags: `checked`, `disabled`, `label-right`. **v0.4.5** |
+| `radio`     | required string label      | Radio button control. Flags: `selected`, `disabled`, `label-right`. Attribute: `group=`. **v0.4.5** |
+| `toggle`    | required string label      | Switch toggle control. Flags: `on`, `off`, `disabled`, `label-right`. **v0.4.5** |
+| `chip`      | required string label      | Pill badge or keycap. Flags: `closable`, `selected`. Attributes: `accent=`, `icon=`, `variant=kbd`. **v0.4.5 / v0.8** |
+| `avatar`    | required initials string   | User avatar circle (max 2 chars). Attributes: `size=small\|medium\|large`, `accent=`. **v0.4.5** |
+| `spinner`   | optional string label      | Loading spinner indicator. **v0.4.5** |
+| `status`    | required string label      | Status badge indicator. Required attribute: `kind=success\|info\|warning\|error`. **v0.4.5** |
+| `node`      | required string label      | Item in a `tree`. Flags: `collapsed`, `selected`. Attribute: `icon=`. **v0.4.5** |
+| `menuitem`  | required string label      | Menu item inside `menu`. Flag: `disabled`. Attribute: `shortcut="…"`. **v0.4.5** |
+| `separator` | —                          | Menu divider line inside `menu`. **v0.4.5** |
+| `crumb`     | required string label      | Breadcrumb item inside `breadcrumb`. Attribute: `icon=`. **v0.4.5** |
+
+## Structural Rules
+
+- **`define`** may only appear at the top level, preceding the `window` root node.
+- **`window`** is the root container of the wireframe. It must not be nested, and there must be exactly one per document.
+- **`annotation`** may only appear at the top level, after the `window` node. Annotations are *not* children of `window`; they are siblings that reference into the window via `target="<id>"`.
+- **`header`** / **`footer`** may only appear as direct children of `window`. `footer` may also appear as the optional trailing child of a `slot`.
+- **`navbar`** / **`tabbar`** may only appear as direct children of `window`, mutually exclusive with `header` / `footer` respectively.
+- **`sheet`** may only appear as a direct child of `window` (at most one per window).
+- **`tabs`** may appear anywhere a container child is legal; its children must be only `tab` nodes. An active `tab` may optionally contain nested container/leaf children rendered as the tab body.
+- **`tab`** may only appear inside a `tabs` container.
+- **`table`** accepts only `columns`, `tr`, and `foot` children.
+- **`columns`** accepts only `column` children.
+- **`tr`** and **`foot`** accept `td` cells or auto-wrapped inline leaf widgets.
+- **`grid`** accepts only `cell` children.
+- **`tree`** accepts only `node` children (which can nest recursively).
+- **`menubar`** accepts only `menu` children; **`menu`** accepts only `menuitem` or `separator` children.
+- **`breadcrumb`** accepts only `crumb` children.
+- **`segmented`** accepts only `segment` children.
+- **`resourcebar`** accepts only `resource` children; **`stats`** accepts only `stat` children.
+- **`list`** may appear anywhere a container child is legal; its children must be only `item` or `slot` nodes.
+- **`item`** may only appear inside a `list`.
+- All other containers (`panel`, `section`, `row`, `col`, `slot`, `cell`) accept the full container-child set: other containers (except `header`/`footer`/`window`/`navbar`/`tabbar`/`sheet`/`tab`/`item`) plus leaves.
 
 ## Attributes and Flags
 
@@ -937,6 +981,81 @@ Don't use it for:
 | `Line N, col C: "segmented" allows at most one "segment" with the "selected" flag; pick exactly one` | Two or more `segment`s flagged `selected` | Remove `selected` from all but one segment |
 | `Line N, col C: "segmented" accepts only "segment" children (got "xyz")` | Non-`segment` child inside `segmented` | Wrap each option as `segment "Label"` |
 | `Line N, col C: "segment" may only appear inside "segmented"` | `segment` used outside `segmented` | Wrap in `segmented:` |
+| `Line N, col C: undefined macro "@Name" (defined: …)` | Invoked macro that was not declared in top-level `define` | Check spelling or add `define @Name:` at the top of the file |
+| `Line N, col C: "tr" may only appear inside "table"` | `tr` placed outside a table | Wrap in a `table:` container |
+| `Line N, col C: "column" may only appear inside "columns"` | `column` placed outside `columns` | Wrap in `columns:` within a `table:` |
+| `Line N, col C: "columns" may only appear inside "table"` | `columns` placed outside a table | Wrap in a `table:` container |
+| `Line N, col C: "foot" may only appear inside "table"` | `foot` placed outside a table | Wrap in a `table:` container |
+| `Line N, col C: "cell" may only appear inside "grid"` | `cell` placed outside a grid | Wrap in a `grid cols=N rows=M:` container |
+| `Line N, col C: "menu" may only appear inside "menubar"` | `menu` placed outside a menubar | Wrap in a `menubar:` container |
+| `Line N, col C: "menuitem" may only appear inside "menu"` | `menuitem` placed outside a menu | Wrap in a `menu "Title":` container |
+| `Line N, col C: "node" may only appear inside "tree"` | `node` placed outside a tree or parent node | Wrap in a `tree:` container |
+| `Line N, col C: "crumb" may only appear inside "breadcrumb"` | `crumb` placed outside a breadcrumb | Wrap in a `breadcrumb:` container |
+| `Line N, col C: "align" on "row" no longer accepts left\|center\|right — v0.8 moved "align" to the cross axis.` | Using legacy `align=left\|right` on `row` | Use `justify=start\|center\|end` along the row, or `align=start\|center\|end\|stretch` across the row |
+
+## Formal EBNF (v0.8.0)
+
+```ebnf
+document       ::= (blank | comment_line | macro_define | node)*
+
+macro_define   ::= "define" WS "@" IDENT (WS IDENT ("=" (STRING | IDENT))?)* ":" children
+
+node           ::= indent primitive positional_args? attributes? terminator
+                   children?
+
+primitive      ::= "window" | "header" | "footer" | "panel"
+                 | "section" | "tabs" | "tab"
+                 | "row" | "col"
+                 | "list" | "item" | "slot"
+                 | "grid" | "cell"
+                 | "table" | "columns" | "column" | "tr" | "foot" | "td"
+                 | "code" | "resourcebar" | "resource" | "stats" | "stat"
+                 | "navbar" | "tabbar" | "tabitem" | "backbutton" | "sheet"
+                 | "segmented" | "segment" | "tree" | "node"
+                 | "menubar" | "menu" | "menuitem" | "separator"
+                 | "breadcrumb" | "crumb" | "checkbox" | "radio" | "toggle"
+                 | "chip" | "avatar" | "spinner" | "status"
+                 | "text" | "button" | "input"
+                 | "combo" | "slider"
+                 | "kv" | "image" | "icon" | "divider" | "spacer"
+                 | "use"
+
+positional_args ::= positional_arg (WS positional_arg)*
+positional_arg ::= STRING
+                 | NUMBER
+                 | "@" IDENT              (* for macro define / use *)
+                 | "fill"                 (* only valid on col *)
+
+attributes     ::= WS attribute (WS attribute)*
+attribute      ::= IDENT "=" value
+                 | IDENT                  (* bare flag *)
+value          ::= STRING | NUMBER | RANGE | IDENT
+
+RANGE          ::= DIGIT+ "-" DIGIT+
+
+terminator     ::= ":" line_end
+                 | line_end
+
+children       ::= INDENT (blank | comment_line | node)+ DEDENT
+
+comment_line   ::= indent? "#" (any char except newline)* line_end
+line_end       ::= inline_comment? NEWLINE
+inline_comment ::= WS+ "#" (any char except newline)*
+blank          ::= WS* NEWLINE
+
+STRING         ::= '"' (ESCAPE | [^"\\\n])* '"'
+ESCAPE         ::= "\\" ( '"' | '\\' | 'n' )
+NUMBER         ::= DIGIT+ ("." DIGIT+)? UNIT?
+UNIT           ::= "px" | "%" | "fr"
+IDENT          ::= [a-zA-Z_@$] [a-zA-Z0-9_@$-]*
+DIGIT          ::= [0-9]
+
+WS             ::= (" ")+
+NEWLINE        ::= "\r"? "\n"
+indent         ::= ("  ")* | ("    ")*  (* 2 or 4 spaces per level, locked per file *)
+INDENT         ::= <synthetic, emitted when leading spaces increase by 1 indentation unit>
+DEDENT         ::= <synthetic, emitted when leading spaces decrease>
+```
 
 ## v0.8 Primitives & Features
 
