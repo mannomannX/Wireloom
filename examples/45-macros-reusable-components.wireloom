@@ -1,0 +1,31 @@
+define @StatCard:
+  panel:
+    row:
+      text "$label" muted
+      spacer
+      icon name="star" accent=warning
+    text "$value" bold size=large
+    text "$change" accent=success
+
+define @ActionCard:
+  panel:
+    text "$title" bold
+    text "$desc"
+    row justify=end:
+      button "Configure"
+
+window "System Overview":
+  header:
+    text "Cluster Analytics" bold size=large
+
+  row:
+    use @StatCard label="Total Requests" value="1.4M" change="+18% vs last week"
+    use @StatCard label="Avg Response" value="84ms" change="-12ms improvement"
+
+  section "Quick Actions":
+    row:
+      use @ActionCard title="Backup Database" desc="Snapshot current production state."
+      use @ActionCard title="Deploy Cluster" desc="Roll out new container nodes."
+
+  footer:
+    button "Refresh Dashboard" primary

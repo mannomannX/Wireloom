@@ -1,0 +1,774 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "input",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "placeholder",
+                "value": {
+                  "kind": "string",
+                  "value": "Search orders...",
+                  "position": {
+                    "line": 3,
+                    "column": 23
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 11
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "spacer",
+            "attributes": [],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Export",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "policy",
+                  "position": {
+                    "line": 5,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 21
+                }
+              }
+            ],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "New Order",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 6,
+                  "column": 24
+                }
+              }
+            ],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "table",
+        "rows": [
+          {
+            "kind": "tableRow",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 16,
+                  "column": 7
+                },
+                "content": "ORD-9421"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 17,
+                  "column": 7
+                },
+                "content": "Acme Corp"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "status",
+                    "label": "Shipped",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "kind",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "success",
+                          "position": {
+                            "line": 18,
+                            "column": 29
+                          }
+                        },
+                        "position": {
+                          "line": 18,
+                          "column": 24
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 18,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 18,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 19,
+                  "column": 7
+                },
+                "content": "8"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 20,
+                  "column": 7
+                },
+                "content": "$1,420.00"
+              }
+            ],
+            "position": {
+              "line": 15,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tableRow",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 22,
+                  "column": 7
+                },
+                "content": "ORD-9422"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 23,
+                  "column": 7
+                },
+                "content": "Cyberdyne Systems"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "status",
+                    "label": "Processing",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "kind",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "info",
+                          "position": {
+                            "line": 24,
+                            "column": 32
+                          }
+                        },
+                        "position": {
+                          "line": 24,
+                          "column": 27
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 24,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 24,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 25,
+                  "column": 7
+                },
+                "content": "3"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 26,
+                  "column": 7
+                },
+                "content": "$450.50"
+              }
+            ],
+            "position": {
+              "line": 21,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tableRow",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 28,
+                  "column": 7
+                },
+                "content": "ORD-9423"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 29,
+                  "column": 7
+                },
+                "content": "Wayne Enterprises"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "status",
+                    "label": "Delayed",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "kind",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "warning",
+                          "position": {
+                            "line": 30,
+                            "column": 29
+                          }
+                        },
+                        "position": {
+                          "line": 30,
+                          "column": 24
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 30,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 30,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 31,
+                  "column": 7
+                },
+                "content": "12"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 32,
+                  "column": 7
+                },
+                "content": "$3,890.00"
+              }
+            ],
+            "position": {
+              "line": 27,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tableRow",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 34,
+                  "column": 7
+                },
+                "content": "ORD-9424"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 35,
+                  "column": 7
+                },
+                "content": "Stark Industries"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "status",
+                    "label": "Cancelled",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "kind",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "error",
+                          "position": {
+                            "line": 36,
+                            "column": 31
+                          }
+                        },
+                        "position": {
+                          "line": 36,
+                          "column": 26
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 36,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 36,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 37,
+                  "column": 7
+                },
+                "content": "1"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 38,
+                  "column": 7
+                },
+                "content": "$120.00"
+              }
+            ],
+            "position": {
+              "line": 33,
+              "column": 5
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "kind": "flag",
+            "flag": "striped",
+            "position": {
+              "line": 8,
+              "column": 9
+            }
+          }
+        ],
+        "position": {
+          "line": 8,
+          "column": 3
+        },
+        "columns": {
+          "kind": "tableColumns",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "tableColumn",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "left",
+                    "position": {
+                      "line": 10,
+                      "column": 30
+                    }
+                  },
+                  "position": {
+                    "line": 10,
+                    "column": 24
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "w",
+                  "value": {
+                    "kind": "number",
+                    "value": 90,
+                    "unit": "px",
+                    "position": {
+                      "line": 10,
+                      "column": 37
+                    }
+                  },
+                  "position": {
+                    "line": 10,
+                    "column": 35
+                  }
+                }
+              ],
+              "position": {
+                "line": 10,
+                "column": 7
+              },
+              "title": "Order #",
+              "align": "left",
+              "width": {
+                "value": 90,
+                "unit": "px"
+              }
+            },
+            {
+              "kind": "tableColumn",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "left",
+                    "position": {
+                      "line": 11,
+                      "column": 31
+                    }
+                  },
+                  "position": {
+                    "line": 11,
+                    "column": 25
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "w",
+                  "value": {
+                    "kind": "number",
+                    "value": 140,
+                    "unit": "px",
+                    "position": {
+                      "line": 11,
+                      "column": 38
+                    }
+                  },
+                  "position": {
+                    "line": 11,
+                    "column": 36
+                  }
+                }
+              ],
+              "position": {
+                "line": 11,
+                "column": 7
+              },
+              "title": "Customer",
+              "align": "left",
+              "width": {
+                "value": 140,
+                "unit": "px"
+              }
+            },
+            {
+              "kind": "tableColumn",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "center",
+                    "position": {
+                      "line": 12,
+                      "column": 29
+                    }
+                  },
+                  "position": {
+                    "line": 12,
+                    "column": 23
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "w",
+                  "value": {
+                    "kind": "number",
+                    "value": 100,
+                    "unit": "px",
+                    "position": {
+                      "line": 12,
+                      "column": 38
+                    }
+                  },
+                  "position": {
+                    "line": 12,
+                    "column": 36
+                  }
+                }
+              ],
+              "position": {
+                "line": 12,
+                "column": 7
+              },
+              "title": "Status",
+              "align": "center",
+              "width": {
+                "value": 100,
+                "unit": "px"
+              }
+            },
+            {
+              "kind": "tableColumn",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "right",
+                    "position": {
+                      "line": 13,
+                      "column": 28
+                    }
+                  },
+                  "position": {
+                    "line": 13,
+                    "column": 22
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "w",
+                  "value": {
+                    "kind": "number",
+                    "value": 60,
+                    "unit": "px",
+                    "position": {
+                      "line": 13,
+                      "column": 36
+                    }
+                  },
+                  "position": {
+                    "line": 13,
+                    "column": 34
+                  }
+                }
+              ],
+              "position": {
+                "line": 13,
+                "column": 7
+              },
+              "title": "Items",
+              "align": "right",
+              "width": {
+                "value": 60,
+                "unit": "px"
+              }
+            },
+            {
+              "kind": "tableColumn",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "right",
+                    "position": {
+                      "line": 14,
+                      "column": 28
+                    }
+                  },
+                  "position": {
+                    "line": 14,
+                    "column": 22
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "w",
+                  "value": {
+                    "kind": "number",
+                    "value": 90,
+                    "unit": "px",
+                    "position": {
+                      "line": 14,
+                      "column": 36
+                    }
+                  },
+                  "position": {
+                    "line": 14,
+                    "column": 34
+                  }
+                }
+              ],
+              "position": {
+                "line": 14,
+                "column": 7
+              },
+              "title": "Total",
+              "align": "right",
+              "width": {
+                "value": 90,
+                "unit": "px"
+              }
+            }
+          ],
+          "position": {
+            "line": 9,
+            "column": 5
+          }
+        },
+        "foot": {
+          "kind": "tableFoot",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "tableCell",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "span",
+                  "value": {
+                    "kind": "number",
+                    "value": 3,
+                    "unit": "px",
+                    "position": {
+                      "line": 40,
+                      "column": 30
+                    }
+                  },
+                  "position": {
+                    "line": 40,
+                    "column": 25
+                  }
+                }
+              ],
+              "children": [],
+              "position": {
+                "line": 40,
+                "column": 7
+              },
+              "content": "Total Active",
+              "span": 3
+            },
+            {
+              "kind": "tableCell",
+              "attributes": [],
+              "children": [],
+              "position": {
+                "line": 41,
+                "column": 7
+              },
+              "content": "24"
+            },
+            {
+              "kind": "tableCell",
+              "attributes": [],
+              "children": [],
+              "position": {
+                "line": 42,
+                "column": 7
+              },
+              "content": "$5,880.50"
+            }
+          ],
+          "position": {
+            "line": 39,
+            "column": 5
+          }
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Order History"
+  },
+  "sourceLines": 43
+}

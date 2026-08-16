@@ -254,9 +254,9 @@ function tokenizeLineContent(rawLine, startColumn0, lineNo, tokens) {
       col++;
       continue;
     }
-    if (ch !== void 0 && /[a-zA-Z_]/.test(ch)) {
+    if (ch !== void 0 && /[a-zA-Z_@]/.test(ch)) {
       const start = col;
-      while (col < end && /[a-zA-Z0-9_-]/.test(rawLine[col] ?? "")) {
+      while (col < end && /[a-zA-Z0-9_@-]/.test(rawLine[col] ?? "")) {
         col++;
       }
       const ident = rawLine.slice(start, col);
@@ -280,8 +280,8 @@ function tokenizeLineContent(rawLine, startColumn0, lineNo, tokens) {
 // src/parser/parser.ts
 var WEIGHT_VALUES = ["light", "regular", "semibold", "bold"];
 var SIZE_VALUES = ["small", "regular", "large"];
-var ALIGN_VALUES = ["left", "center", "right"];
-var JUSTIFY_VALUES = ["start", "between", "around", "end"];
+var CROSS_ALIGN_VALUES = ["start", "center", "end", "stretch"];
+var JUSTIFY_VALUES = ["start", "center", "end", "between", "around", "evenly"];
 var INPUT_TYPE_VALUES = ["text", "password", "email", "search"];
 var ACCENT_VALUES = [
   "research",
@@ -304,16 +304,56 @@ var STATE_VALUES = [
   "withering",
   "cashed"
 ];
-var CHART_KIND_VALUES = ["bar", "line", "pie"];
+var CHART_KIND_VALUES = [
+  "bar",
+  "line",
+  "pie",
+  "sparkline",
+  "area",
+  "donut",
+  "stacked",
+  "scatter",
+  "heatmap"
+];
 var ANNOTATION_SIDE_VALUES = ["left", "right", "top", "bottom"];
 var AVATAR_SIZE_VALUES = ["small", "medium", "large"];
-var STATUS_KIND_VALUES = ["success", "info", "warning", "error"];
+var STATUS_KIND_VALUES = ["success", "info", "warning", "error", "neutral", "pending", "running"];
 var SHEET_POSITION_VALUES = ["bottom", "center"];
+var DIVIDER_ORIENTATION_VALUES = ["horizontal", "vertical"];
 var UNIVERSAL_ID_SPEC = { kind: "string" };
+var CONTAINER_SIZING_ATTRS = {
+  w: { kind: "length" },
+  h: { kind: "length" },
+  "min-w": { kind: "number" },
+  "max-w": { kind: "number" },
+  "min-h": { kind: "number" },
+  "max-h": { kind: "number" },
+  gap: { kind: "number" },
+  grow: { kind: "number" },
+  shrink: { kind: "number" },
+  "self-align": { kind: "enum", values: CROSS_ALIGN_VALUES }
+};
+var CHILD_SIZING_ATTRS = {
+  w: { kind: "length" },
+  h: { kind: "length" },
+  "min-w": { kind: "number" },
+  "max-w": { kind: "number" },
+  "min-h": { kind: "number" },
+  "max-h": { kind: "number" },
+  grow: { kind: "number" },
+  shrink: { kind: "number" },
+  "self-align": { kind: "enum", values: CROSS_ALIGN_VALUES }
+};
 var ATTR_RULES = {
   window: { attrs: {}, flags: [] },
-  header: { attrs: {}, flags: ["large"] },
-  footer: { attrs: {}, flags: [] },
+  header: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: ["large"] },
+  footer: {
+    attrs: {
+      justify: { kind: "enum", values: JUSTIFY_VALUES },
+      ...CONTAINER_SIZING_ATTRS
+    },
+    flags: []
+  },
   navbar: { attrs: {}, flags: [] },
   leading: { attrs: {}, flags: [] },
   center: { attrs: {}, flags: [] },
@@ -321,19 +361,21 @@ var ATTR_RULES = {
   sheet: {
     attrs: {
       position: { kind: "enum", values: SHEET_POSITION_VALUES },
-      title: { kind: "string" }
+      title: { kind: "string" },
+      ...CONTAINER_SIZING_ATTRS
     },
     flags: []
   },
-  panel: { attrs: {}, flags: [] },
+  panel: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: ["scroll"] },
   section: {
     attrs: {
       badge: { kind: "string" },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CONTAINER_SIZING_ATTRS
     },
     flags: []
   },
-  tabs: { attrs: {}, flags: [] },
+  tabs: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   tab: {
     attrs: { badge: { kind: "string" } },
     flags: ["active"]
@@ -348,32 +390,44 @@ var ATTR_RULES = {
   },
   row: {
     attrs: {
-      align: { kind: "enum", values: ALIGN_VALUES },
-      justify: { kind: "enum", values: JUSTIFY_VALUES }
+      align: { kind: "enum", values: CROSS_ALIGN_VALUES },
+      justify: { kind: "enum", values: JUSTIFY_VALUES },
+      ...CONTAINER_SIZING_ATTRS
     },
     flags: []
   },
-  spacer: { attrs: {}, flags: [] },
+  spacer: { attrs: { grow: { kind: "number" } }, flags: [] },
   col: {
     attrs: {
-      justify: { kind: "enum", values: JUSTIFY_VALUES }
+      align: { kind: "enum", values: CROSS_ALIGN_VALUES },
+      justify: { kind: "enum", values: JUSTIFY_VALUES },
+      ...CONTAINER_SIZING_ATTRS
     },
     flags: []
   },
-  list: { attrs: {}, flags: [] },
-  item: { attrs: {}, flags: ["chevron"] },
+  list: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: ["scroll"] },
+  item: { attrs: { ...CHILD_SIZING_ATTRS }, flags: ["chevron"] },
   slot: {
     attrs: {
       state: { kind: "enum", values: STATE_VALUES },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CONTAINER_SIZING_ATTRS
     },
     flags: ["active", "chevron"]
   },
-  slotFooter: { attrs: {}, flags: [] },
+  slotFooter: {
+    attrs: {
+      justify: { kind: "enum", values: JUSTIFY_VALUES },
+      ...CONTAINER_SIZING_ATTRS
+    },
+    flags: []
+  },
   grid: {
     attrs: {
       cols: { kind: "number" },
-      rows: { kind: "number" }
+      rows: { kind: "number" },
+      track: { kind: "enum", values: ["uniform", "auto"] },
+      ...CONTAINER_SIZING_ATTRS
     },
     flags: []
   },
@@ -381,12 +435,38 @@ var ATTR_RULES = {
     attrs: {
       row: { kind: "number" },
       col: { kind: "number" },
+      span: { kind: "number" },
+      rows: { kind: "number" },
       state: { kind: "enum", values: STATE_VALUES },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS
     },
     flags: []
   },
-  resourcebar: { attrs: {}, flags: [] },
+  table: {
+    attrs: { ...CONTAINER_SIZING_ATTRS },
+    flags: ["striped", "bordered", "compact"]
+  },
+  columns: { attrs: {}, flags: [] },
+  column: {
+    attrs: {
+      align: { kind: "enum", values: ["left", "center", "right"] },
+      w: { kind: "length" }
+    },
+    flags: []
+  },
+  tr: { attrs: {}, flags: [] },
+  foot: { attrs: {}, flags: [] },
+  td: {
+    attrs: {
+      span: { kind: "number" },
+      align: { kind: "enum", values: ["left", "center", "right"] },
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS
+    },
+    flags: []
+  },
+  resourcebar: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   resource: {
     attrs: {
       name: { kind: "string" },
@@ -395,7 +475,7 @@ var ATTR_RULES = {
     },
     flags: []
   },
-  stats: { attrs: {}, flags: [] },
+  stats: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   stat: {
     attrs: {
       icon: { kind: "string" },
@@ -407,7 +487,8 @@ var ATTR_RULES = {
     attrs: {
       weight: { kind: "enum", values: WEIGHT_VALUES },
       size: { kind: "enum", values: SIZE_VALUES },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS
     },
     flags: ["bold", "italic", "muted"]
   },
@@ -415,25 +496,28 @@ var ATTR_RULES = {
     attrs: {
       badge: { kind: "string" },
       icon: { kind: "string" },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS
     },
     flags: ["primary", "disabled"]
   },
   backbutton: {
-    attrs: {},
+    attrs: { ...CHILD_SIZING_ATTRS },
     flags: ["disabled"]
   },
   input: {
     attrs: {
       placeholder: { kind: "string" },
-      type: { kind: "enum", values: INPUT_TYPE_VALUES }
+      type: { kind: "enum", values: INPUT_TYPE_VALUES },
+      ...CHILD_SIZING_ATTRS
     },
     flags: ["disabled"]
   },
   combo: {
     attrs: {
       value: { kind: "string" },
-      options: { kind: "string" }
+      options: { kind: "string" },
+      ...CHILD_SIZING_ATTRS
     },
     flags: ["disabled"]
   },
@@ -441,7 +525,8 @@ var ATTR_RULES = {
     attrs: {
       range: { kind: "range" },
       value: { kind: "number" },
-      label: { kind: "string" }
+      label: { kind: "string" },
+      ...CHILD_SIZING_ATTRS
     },
     flags: ["disabled"]
   },
@@ -450,7 +535,8 @@ var ATTR_RULES = {
       weight: { kind: "enum", values: WEIGHT_VALUES },
       size: { kind: "enum", values: SIZE_VALUES },
       icon: { kind: "string" },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS
     },
     flags: ["bold", "italic", "muted"]
   },
@@ -458,24 +544,34 @@ var ATTR_RULES = {
     attrs: {
       label: { kind: "string" },
       width: { kind: "number" },
-      height: { kind: "number" }
+      height: { kind: "number" },
+      ...CHILD_SIZING_ATTRS
     },
     flags: []
   },
   icon: {
     attrs: {
       name: { kind: "string" },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS
     },
     flags: []
   },
-  divider: { attrs: {}, flags: [] },
+  divider: {
+    attrs: {
+      orientation: { kind: "enum", values: DIVIDER_ORIENTATION_VALUES },
+      ...CHILD_SIZING_ATTRS
+    },
+    flags: ["handle"]
+  },
   progress: {
     attrs: {
       value: { kind: "number" },
       max: { kind: "number" },
       label: { kind: "string" },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      kind: { kind: "enum", values: ["bar", "ring", "segmented"] },
+      ...CHILD_SIZING_ATTRS
     },
     flags: []
   },
@@ -485,7 +581,8 @@ var ATTR_RULES = {
       label: { kind: "string" },
       width: { kind: "number" },
       height: { kind: "number" },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS
     },
     flags: []
   },
@@ -496,25 +593,25 @@ var ATTR_RULES = {
     },
     flags: []
   },
-  tree: { attrs: {}, flags: [] },
+  tree: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   treeNode: {
     attrs: { icon: { kind: "string" } },
     flags: ["collapsed", "selected"]
   },
   checkbox: {
-    attrs: {},
+    attrs: { ...CHILD_SIZING_ATTRS },
     flags: ["checked", "disabled", "label-right"]
   },
   radio: {
-    attrs: { group: { kind: "string" } },
+    attrs: { group: { kind: "string" }, ...CHILD_SIZING_ATTRS },
     flags: ["selected", "disabled", "label-right"]
   },
   toggle: {
-    attrs: {},
+    attrs: { ...CHILD_SIZING_ATTRS },
     flags: ["on", "off", "disabled", "label-right"]
   },
-  menubar: { attrs: {}, flags: [] },
-  menu: { attrs: {}, flags: [] },
+  menubar: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
+  menu: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   menuitem: {
     attrs: { shortcut: { kind: "string" } },
     flags: ["disabled"]
@@ -523,34 +620,47 @@ var ATTR_RULES = {
   chip: {
     attrs: {
       icon: { kind: "string" },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      variant: { kind: "enum", values: ["default", "kbd"] },
+      ...CHILD_SIZING_ATTRS
     },
     flags: ["closable", "selected"]
   },
   avatar: {
     attrs: {
       size: { kind: "enum", values: AVATAR_SIZE_VALUES },
-      accent: { kind: "enum", values: ACCENT_VALUES }
+      accent: { kind: "enum", values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS
     },
     flags: []
   },
-  breadcrumb: { attrs: {}, flags: [] },
+  breadcrumb: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   crumb: {
     attrs: { icon: { kind: "string" } },
     flags: []
   },
-  spinner: { attrs: {}, flags: [] },
+  spinner: { attrs: { ...CHILD_SIZING_ATTRS }, flags: [] },
   status: {
     attrs: {
-      kind: { kind: "enum", values: STATUS_KIND_VALUES }
+      kind: { kind: "enum", values: STATUS_KIND_VALUES },
+      ...CHILD_SIZING_ATTRS
     },
     flags: []
   },
-  segmented: { attrs: {}, flags: [] },
+  segmented: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   segment: {
     attrs: {},
     flags: ["selected", "disabled"]
-  }
+  },
+  code: {
+    attrs: {
+      lang: { kind: "string" },
+      ...CHILD_SIZING_ATTRS
+    },
+    flags: ["lines"]
+  },
+  define: { attrs: {}, flags: [] },
+  use: { attrs: {}, flags: [] }
 };
 var VALID_PRIMITIVES = /* @__PURE__ */ new Set([
   ...Object.keys(ATTR_RULES).filter((k) => k !== "treeNode" && k !== "slotFooter"),
@@ -565,9 +675,12 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "list",
   "slot",
   "grid",
+  "table",
   "resourcebar",
   "stats",
   "text",
+  "code",
+  "use",
   "button",
   "backbutton",
   "input",
@@ -593,7 +706,7 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "segmented"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, navbar, leading, center, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, navbar, leading, center, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, table, columns, column, tr, foot, td, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -609,6 +722,10 @@ var Parser = class {
   parseDocument(sourceLines) {
     if (this.peek().kind === "eof") {
       return { kind: "document", sourceLines };
+    }
+    const macros = [];
+    while (this.peek().kind === "ident" && (this.peek().identValue === "define" || this.peek().raw === "define")) {
+      macros.push(this.parseDefine());
     }
     const head = this.peek();
     if (head.kind !== "ident") {
@@ -634,6 +751,10 @@ var Parser = class {
         annotations.push(this.parseAnnotation());
         continue;
       }
+      if (name === "define") {
+        macros.push(this.parseDefine());
+        continue;
+      }
       if (name === "window") {
         throw new WireloomError(
           'only one root "window" node is allowed',
@@ -656,8 +777,117 @@ var Parser = class {
       );
     }
     const doc = { kind: "document", root, sourceLines };
+    if (macros.length > 0) doc.macros = macros;
     if (annotations.length > 0) doc.annotations = annotations;
+    expandMacros(doc);
     return doc;
+  }
+  // --- Macros & Code (v0.8) ------------------------------------------------
+  parseDefine() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const nameToken = this.expectKind(
+      "ident",
+      '"define" requires a macro name (e.g. define @Card:)'
+    );
+    const name = nameToken.identValue ?? nameToken.raw;
+    const params = [];
+    while (this.peek().kind === "ident" && this.peek().identValue !== void 0) {
+      params.push(this.consume().identValue);
+    }
+    this.expectKind("colon", 'expected ":" after macro header');
+    this.expectKind("newline", 'expected newline after ":"');
+    this.expectKind("indent", 'expected indented block after ":"');
+    const template = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      template.push(this.parseContainerChild());
+    }
+    this.expectKind("dedent", "expected dedent at end of macro definition");
+    return { kind: "macroDefine", name, params, template, attributes: [], position };
+  }
+  parseUse() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const nameToken = this.expectKind(
+      "ident",
+      '"use" requires a macro name (e.g. use @Card title="My Title")'
+    );
+    const name = nameToken.identValue ?? nameToken.raw;
+    const attributes = [];
+    while (this.peek().kind !== "newline" && this.peek().kind !== "eof" && this.peek().kind !== "colon") {
+      const keyTok = this.expectKind("ident", 'expected attribute name on "use"');
+      const key = keyTok.identValue ?? keyTok.raw;
+      if (this.peek().kind === "equals") {
+        this.consume();
+        const valTok = this.consume();
+        if (valTok.kind === "string") {
+          attributes.push({
+            kind: "pair",
+            key,
+            value: {
+              kind: "string",
+              value: valTok.stringValue ?? "",
+              position: positionOf(valTok)
+            },
+            position: positionOf(keyTok)
+          });
+        } else if (valTok.kind === "ident") {
+          attributes.push({
+            kind: "pair",
+            key,
+            value: {
+              kind: "identifier",
+              value: valTok.identValue ?? valTok.raw,
+              position: positionOf(valTok)
+            },
+            position: positionOf(keyTok)
+          });
+        } else if (valTok.kind === "number") {
+          attributes.push({
+            kind: "pair",
+            key,
+            value: {
+              kind: "number",
+              value: valTok.numericValue ?? 0,
+              unit: valTok.unit ?? "px",
+              position: positionOf(valTok)
+            },
+            position: positionOf(keyTok)
+          });
+        }
+      } else {
+        attributes.push({ kind: "flag", flag: key, position: positionOf(keyTok) });
+      }
+    }
+    this.parseLeafTerminator("use", head);
+    return { kind: "macroUse", name, attributes, position };
+  }
+  parseCode() {
+    const head = this.consume();
+    const position = positionOf(head);
+    let content;
+    if (this.peek().kind === "string") {
+      content = this.consume().stringValue ?? "";
+    }
+    const attributes = this.parseAttributes("code");
+    const lang = getAttrStringValue(attributes, "lang");
+    const children = [];
+    if (this.peek().kind === "colon") {
+      const hasChildren = this.parseTerminator("code", head);
+      if (hasChildren) {
+        children.push(...this.parseContainerChildren());
+      }
+    } else {
+      this.parseLeafTerminator("code", head);
+    }
+    return {
+      kind: "code",
+      content,
+      lang,
+      children,
+      attributes,
+      position
+    };
   }
   // --- Annotation -----------------------------------------------------------
   parseAnnotation() {
@@ -1135,6 +1365,8 @@ var Parser = class {
         return this.parseDivider();
       case "grid":
         return this.parseGrid();
+      case "table":
+        return this.parseTable();
       case "resourcebar":
         return this.parseResourceBar();
       case "stats":
@@ -1167,6 +1399,10 @@ var Parser = class {
         return this.parseStatus();
       case "segmented":
         return this.parseSegmented();
+      case "code":
+        return this.parseCode();
+      case "use":
+        return this.parseUse();
       default: {
         const head = this.peek();
         throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
@@ -1282,8 +1518,14 @@ var Parser = class {
       '"tab" requires a string label (e.g., tab "Government")'
     ).stringValue ?? "";
     const attributes = this.parseAttributes("tab");
-    this.parseLeafTerminator("tab", head);
-    return { kind: "tab", label, attributes, position };
+    let children;
+    if (this.peek().kind === "colon") {
+      const hasChildren = this.parseTerminator("tab", head);
+      children = hasChildren ? this.parseContainerChildren() : [];
+    } else {
+      this.parseLeafTerminator("tab", head);
+    }
+    return { kind: "tab", label, attributes, children, position };
   }
   parseRow() {
     const head = this.consume();
@@ -1291,14 +1533,6 @@ var Parser = class {
     const attributes = this.parseAttributes("row");
     const hasChildren = this.parseTerminator("row", head);
     const children = hasChildren ? this.parseChildrenAllowingSpacer() : [];
-    const alignAttr = getAttrIdentValue(attributes, "align");
-    if ((alignAttr === "right" || alignAttr === "center") && children.some((c) => c.kind === "spacer")) {
-      throw new WireloomError(
-        `"row" cannot combine align=${alignAttr} with a "spacer" child \u2014 a spacer already spreads children to both ends; remove one`,
-        head.line,
-        head.column
-      );
-    }
     return { kind: "row", attributes, children, position };
   }
   /**
@@ -1599,9 +1833,14 @@ var Parser = class {
         head.column
       );
     }
+    const trackAttr = getAttrIdentValue(attributes, "track");
     const hasChildren = this.parseTerminator("grid", head);
     const children = hasChildren ? this.parseGridChildren() : [];
-    return { kind: "grid", cols, rows, attributes, children, position };
+    const node = { kind: "grid", cols, rows, attributes, children, position };
+    if (trackAttr === "uniform" || trackAttr === "auto") {
+      node.track = trackAttr;
+    }
+    return node;
   }
   parseGridChildren() {
     const children = [];
@@ -1637,12 +1876,192 @@ var Parser = class {
     const attributes = this.parseAttributes("cell");
     const rowAttr = getAttrNumberValue(attributes, "row");
     const colAttr = getAttrNumberValue(attributes, "col");
+    const spanAttr = getAttrNumberValue(attributes, "span");
+    const rowsAttr = getAttrNumberValue(attributes, "rows");
     const hasChildren = this.parseTerminator("cell", head);
     const children = hasChildren ? this.parseContainerChildren() : [];
     const node = { kind: "cell", attributes, children, position };
     if (label !== void 0) node.label = label;
     if (rowAttr !== void 0) node.row = rowAttr;
     if (colAttr !== void 0) node.col = colAttr;
+    if (spanAttr !== void 0) node.span = spanAttr;
+    if (rowsAttr !== void 0) node.rows = rowsAttr;
+    return node;
+  }
+  // --- Table (v0.8) --------------------------------------------------------
+  parseTable() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("table");
+    const hasChildren = this.parseTerminator("table", head);
+    const { columns, rows, foot } = hasChildren ? this.parseTableChildren() : { columns: void 0, rows: [], foot: void 0 };
+    const node = {
+      kind: "table",
+      rows,
+      attributes,
+      position
+    };
+    if (columns) node.columns = columns;
+    if (foot) node.foot = foot;
+    return node;
+  }
+  parseTableChildren() {
+    let columns;
+    const rows = [];
+    let foot;
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "columns", "tr", or "foot", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name === "columns") {
+        if (columns !== void 0) {
+          throw new WireloomError(
+            '"table" can only have one "columns" block',
+            head.line,
+            head.column
+          );
+        }
+        if (rows.length > 0 || foot !== void 0) {
+          throw new WireloomError(
+            '"columns" block must appear before "tr" rows in "table"',
+            head.line,
+            head.column
+          );
+        }
+        columns = this.parseTableColumns();
+      } else if (name === "tr") {
+        if (foot !== void 0) {
+          throw new WireloomError(
+            '"tr" cannot appear after "foot" block in "table"',
+            head.line,
+            head.column
+          );
+        }
+        rows.push(this.parseTableRow());
+      } else if (name === "foot") {
+        if (foot !== void 0) {
+          throw new WireloomError(
+            '"table" can only have one "foot" block',
+            head.line,
+            head.column
+          );
+        }
+        foot = this.parseTableFoot();
+      } else {
+        throw new WireloomError(
+          `"table" accepts only "columns", "tr", or "foot" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+    }
+    this.expectKind("dedent", "table block did not close cleanly");
+    return { columns, rows, foot };
+  }
+  parseTableColumns() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("columns");
+    const hasChildren = this.parseTerminator("columns", head);
+    const children = [];
+    if (hasChildren) {
+      while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+        const childHead = this.peek();
+        const name = childHead.kind === "ident" ? childHead.identValue ?? childHead.raw : void 0;
+        if (name !== "column") {
+          throw new WireloomError(
+            `"columns" accepts only "column" children (got "${name ?? describeToken(childHead)}")`,
+            childHead.line,
+            childHead.column
+          );
+        }
+        children.push(this.parseTableColumn());
+      }
+      this.expectKind("dedent", "columns block did not close cleanly");
+    }
+    return { kind: "tableColumns", attributes, children, position };
+  }
+  parseTableColumn() {
+    const head = this.consume();
+    const position = positionOf(head);
+    let title;
+    if (this.peek().kind === "string") {
+      title = this.consume().stringValue;
+    }
+    const attributes = this.parseAttributes("column");
+    const alignAttr = getAttrIdentValue(attributes, "align");
+    const widthAttr = getAttrLengthValue(attributes, "w");
+    this.parseLeafTerminator("column", head);
+    const node = { kind: "tableColumn", attributes, position };
+    if (title !== void 0) node.title = title;
+    if (alignAttr !== void 0) node.align = alignAttr;
+    if (widthAttr !== void 0) node.width = widthAttr;
+    return node;
+  }
+  parseTableRow() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("tr");
+    const hasChildren = this.parseTerminator("tr", head);
+    const children = [];
+    if (hasChildren) {
+      while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+        children.push(this.parseTableCellOrImplicit());
+      }
+      this.expectKind("dedent", "tr block did not close cleanly");
+    }
+    return { kind: "tableRow", attributes, children, position };
+  }
+  parseTableFoot() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("foot");
+    const hasChildren = this.parseTerminator("foot", head);
+    const children = [];
+    if (hasChildren) {
+      while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+        children.push(this.parseTableCellOrImplicit());
+      }
+      this.expectKind("dedent", "foot block did not close cleanly");
+    }
+    return { kind: "tableFoot", attributes, children, position };
+  }
+  parseTableCellOrImplicit() {
+    const head = this.peek();
+    const name = head.kind === "ident" ? head.identValue ?? head.raw : void 0;
+    if (name === "td") {
+      return this.parseTableCell();
+    }
+    const child = this.parseContainerChild();
+    return {
+      kind: "tableCell",
+      attributes: [],
+      children: [child],
+      position: child.position
+    };
+  }
+  parseTableCell() {
+    const head = this.consume();
+    const position = positionOf(head);
+    let content;
+    if (this.peek().kind === "string") {
+      content = this.consume().stringValue;
+    }
+    const attributes = this.parseAttributes("td");
+    const spanAttr = getAttrNumberValue(attributes, "span");
+    const alignAttr = getAttrIdentValue(attributes, "align");
+    const hasChildren = this.parseTerminator("td", head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const node = { kind: "tableCell", attributes, children, position };
+    if (content !== void 0) node.content = content;
+    if (spanAttr !== void 0) node.span = spanAttr;
+    if (alignAttr !== void 0) node.align = alignAttr;
     return node;
   }
   // --- ResourceBar / Resource ----------------------------------------------
@@ -2258,6 +2677,32 @@ function coerceAttributeValue(token, spec, key, primitive) {
         unit: token.unit ?? "px",
         position
       };
+    case "length": {
+      if (token.kind === "number") {
+        return {
+          kind: "number",
+          value: token.numericValue ?? 0,
+          unit: token.unit ?? "px",
+          position
+        };
+      }
+      if (token.kind === "ident") {
+        const value = token.identValue ?? token.raw;
+        if (value === "fill" || value === "hug") {
+          return { kind: "identifier", value, position };
+        }
+        throw new WireloomError(
+          `length attribute "${key}" on "${primitive}" expects a number or "fill"|"hug", got "${value}"`,
+          token.line,
+          token.column
+        );
+      }
+      throw new WireloomError(
+        `attribute "${key}" on "${primitive}" expects a length value (e.g. 320, 50%, 1fr, fill, hug), got ${describeToken(token)}`,
+        token.line,
+        token.column
+      );
+    }
     case "range":
       if (token.kind !== "range") {
         throw new WireloomError(
@@ -2302,6 +2747,15 @@ function coerceAttributeValue(token, spec, key, primitive) {
       }
       const value = token.identValue ?? token.raw;
       if (!spec.values.includes(value)) {
+        if (primitive === "row" && key === "align" && (value === "left" || value === "right")) {
+          throw new WireloomError(
+            `"align" on "row" no longer accepts left|center|right \u2014 v0.8 moved "align" to the cross axis.
+  \xB7 to distribute children ALONG the row:   justify=start|center|end
+  \xB7 to align them ACROSS the row:           align=start|center|end|stretch`,
+            token.line,
+            token.column
+          );
+        }
         const suggestion = suggestMatch(value, spec.values);
         const hint = suggestion ? ` Did you mean "${suggestion}"?` : "";
         throw new WireloomError(
@@ -2356,9 +2810,27 @@ function placementErrorFor(name) {
       return '"separator" may only appear inside "menu"';
     case "crumb":
       return '"crumb" may only appear inside "breadcrumb"';
+    case "columns":
+    case "tr":
+    case "foot":
+      return `"${name}" may only appear inside "table"`;
+    case "column":
+      return '"column" may only appear inside "columns"';
+    case "td":
+      return '"td" may only appear inside "tr" or "foot"';
     default:
       return `"${name}" is not allowed here`;
   }
+}
+function getAttrLengthValue(attrs, key) {
+  for (const a of attrs) {
+    if (a.kind === "pair" && a.key === key) {
+      if (a.value.kind === "number") {
+        return { value: a.value.value, unit: a.value.unit ?? "px" };
+      }
+    }
+  }
+  return void 0;
 }
 function unknownPrimitiveMessage(name) {
   const suggestion = suggestMatch(name, [...VALID_PRIMITIVES]);
@@ -2401,22 +2873,112 @@ function levenshtein(a, b) {
   }
   return prev[n] ?? 0;
 }
+function expandMacros(doc) {
+  if (!doc.root) return;
+  const macroMap = /* @__PURE__ */ new Map();
+  if (doc.macros) {
+    for (const m of doc.macros) {
+      macroMap.set(m.name, m);
+      if (m.name.startsWith("@")) macroMap.set(m.name.slice(1), m);
+    }
+  }
+  function substituteString(str, args) {
+    let res = str;
+    for (const [k, v] of args.entries()) {
+      res = res.split(`$${k}`).join(v);
+    }
+    return res;
+  }
+  function cloneAndSubstitute(node, args) {
+    const clone = JSON.parse(JSON.stringify(node));
+    function walk(n) {
+      if ("title" in n && typeof n.title === "string") {
+        n.title = substituteString(n.title, args);
+      }
+      if ("label" in n && typeof n.label === "string") {
+        n.label = substituteString(n.label, args);
+      }
+      if ("text" in n && typeof n.text === "string") {
+        n.text = substituteString(n.text, args);
+      }
+      if ("content" in n && typeof n.content === "string") {
+        n.content = substituteString(n.content, args);
+      }
+      if ("value" in n && typeof n.value === "string") {
+        n.value = substituteString(n.value, args);
+      }
+      if ("attributes" in n && Array.isArray(n.attributes)) {
+        for (const attr of n.attributes) {
+          if (attr.kind === "pair" && attr.value.kind === "string") {
+            attr.value.value = substituteString(attr.value.value, args);
+          }
+        }
+      }
+      if ("children" in n && Array.isArray(n.children)) {
+        for (const c of n.children) walk(c);
+      }
+    }
+    walk(clone);
+    return clone;
+  }
+  function expandList(list) {
+    const res = [];
+    for (const item of list) {
+      if (item.kind === "macroUse") {
+        const macro = macroMap.get(item.name);
+        if (!macro) {
+          throw new WireloomError(
+            `undefined macro "${item.name}" (defined: ${[...macroMap.keys()].filter((k) => k.startsWith("@")).join(", ")})`,
+            item.position.line,
+            item.position.column
+          );
+        }
+        const args = /* @__PURE__ */ new Map();
+        for (const a of item.attributes) {
+          if (a.kind === "pair") {
+            if (a.value.kind === "string") args.set(a.key, a.value.value);
+            else if (a.value.kind === "identifier") args.set(a.key, a.value.value);
+            else if (a.value.kind === "number") args.set(a.key, String(a.value.value));
+          }
+        }
+        for (const tmpl of macro.template) {
+          res.push(cloneAndSubstitute(tmpl, args));
+        }
+      } else {
+        if ("children" in item && Array.isArray(item.children)) {
+          item.children = expandList(
+            item.children
+          );
+        }
+        res.push(item);
+      }
+    }
+    return res;
+  }
+  doc.root.children = expandList(doc.root.children);
+}
 
 // src/parser/serializer.ts
 function serialize(doc) {
-  if (!doc.root) return "";
   const lines = [];
-  serializeNode(doc.root, 0, lines);
+  if (doc.macros) {
+    for (const m of doc.macros) {
+      serializeNode(m, 0, lines);
+    }
+  }
+  if (doc.root) {
+    serializeNode(doc.root, 0, lines);
+  }
   if (doc.annotations) {
     for (const a of doc.annotations) {
       serializeNode(a, 0, lines);
     }
   }
-  return lines.join("\n") + "\n";
+  return lines.length > 0 ? lines.join("\n") + "\n" : "";
 }
 function serializeNode(node, depth, out) {
   const indent = "  ".repeat(depth);
-  const keyword = node.kind === "slotFooter" ? "footer" : node.kind === "treeNode" ? "node" : node.kind === "navbarLeading" ? "leading" : node.kind === "navbarCenter" ? "center" : node.kind === "navbarTrailing" ? "trailing" : node.kind;
+  const keyword = node.kind === "slotFooter" ? "footer" : node.kind === "treeNode" ? "node" : node.kind === "navbarLeading" ? "leading" : node.kind === "navbarCenter" ? "center" : node.kind === "navbarTrailing" ? "trailing" : node.kind === "tableColumns" ? "columns" : node.kind === "tableColumn" ? "column" : node.kind === "tableRow" ? "tr" : node.kind === "tableFoot" ? "foot" : node.kind === "tableCell" ? "td" : node.kind === "macroDefine" ? "define" : node.kind === "macroUse" ? "use" : node.kind;
   const parts = [keyword];
   switch (node.kind) {
     case "window":
@@ -2441,6 +3003,18 @@ function serializeNode(node, depth, out) {
       break;
     case "text":
       parts.push(quoteString(node.content));
+      break;
+    case "code":
+      if (node.content !== void 0) {
+        parts.push(quoteString(node.content));
+      }
+      break;
+    case "macroDefine":
+      parts.push(node.name);
+      for (const p of node.params) parts.push(p);
+      break;
+    case "macroUse":
+      parts.push(node.name);
       break;
     case "button":
       parts.push(quoteString(node.label));
@@ -2516,6 +3090,16 @@ function serializeNode(node, depth, out) {
     case "segment":
       parts.push(quoteString(node.label));
       break;
+    case "tableColumn":
+      if (node.title !== void 0) {
+        parts.push(quoteString(node.title));
+      }
+      break;
+    case "tableCell":
+      if (node.content !== void 0) {
+        parts.push(quoteString(node.content));
+      }
+      break;
   }
   for (const attr of node.attributes) {
     parts.push(serializeAttribute(attr));
@@ -2545,6 +3129,21 @@ function nodeChildren(node) {
     if (navbar.trailing) kids.push(navbar.trailing);
     return kids;
   }
+  if (node.kind === "table") {
+    const table = node;
+    const kids = [];
+    if (table.columns) kids.push(table.columns);
+    kids.push(...table.rows);
+    if (table.foot) kids.push(table.foot);
+    return kids;
+  }
+  if (node.kind === "tableColumns") return node.children;
+  if (node.kind === "tableRow") return node.children;
+  if (node.kind === "tableFoot") return node.children;
+  if (node.kind === "tableCell") return node.children;
+  if (node.kind === "tab") return node.children ?? [];
+  if (node.kind === "code") return node.children;
+  if (node.kind === "macroDefine") return node.template;
   if (node.kind === "grid") return node.children;
   if (node.kind === "resource") return [];
   if ("children" in node && Array.isArray(node.children)) {
@@ -2786,6 +3385,24 @@ var DEFAULT_THEME = Object.freeze({
   sheetCenterMinWidth: 260,
   sheetCenterMinHeight: 120,
   sheetCenterMargin: 24,
+  tableHeaderBg: "#f5f5f5",
+  tableHeaderBorder: "#e0e0e0",
+  tableRowHeight: 28,
+  tableHeaderHeight: 30,
+  tablePaddingX: 10,
+  tablePaddingY: 6,
+  tableCompactPaddingX: 6,
+  tableCompactPaddingY: 3,
+  tableStripedBg: "#fafafa",
+  tableBorderColor: "#e0e0e0",
+  tableDividerColor: "#e8e8e8",
+  codeBg: "#f6f8fa",
+  codeBorder: "#d0d7de",
+  codeTextColor: "#24292f",
+  codeGutterColor: "#8c959f",
+  codeFontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+  codePadding: 10,
+  codeLineHeight: 18,
   accents: Object.freeze({
     research: "#3f7cc2",
     military: "#b55442",
@@ -2934,6 +3551,24 @@ var DARK_THEME = Object.freeze({
   sheetBg: "#2a2a2a",
   sheetBorder: "#6b6b6b",
   sheetGrabberColor: "#555a62",
+  tableHeaderBg: "#2a2a2a",
+  tableHeaderBorder: "#3a3a3a",
+  tableRowHeight: 28,
+  tableHeaderHeight: 30,
+  tablePaddingX: 10,
+  tablePaddingY: 6,
+  tableCompactPaddingX: 6,
+  tableCompactPaddingY: 3,
+  tableStripedBg: "#222222",
+  tableBorderColor: "#383838",
+  tableDividerColor: "#333333",
+  codeBg: "#1e1e1e",
+  codeBorder: "#333333",
+  codeTextColor: "#d4d4d4",
+  codeGutterColor: "#6e7681",
+  codeFontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+  codePadding: 10,
+  codeLineHeight: 18,
   accents: Object.freeze({
     research: "#6ba4e8",
     military: "#d47967",
@@ -2998,6 +3633,451 @@ var DARK_THEME = Object.freeze({
 });
 function getTheme(name) {
   return name === "dark" ? DARK_THEME : DEFAULT_THEME;
+}
+
+// src/renderer/axis.ts
+var EPS = 1e-9;
+function clamp(v, lo, hi) {
+  return Math.min(Math.max(v, lo), hi);
+}
+function validateInput(input) {
+  if (!Number.isFinite(input.available) || input.available < 0) {
+    throw new RangeError(`available must be a non-negative finite number, got ${input.available}`);
+  }
+  if (!Number.isFinite(input.gap) || input.gap < 0) {
+    throw new RangeError(`gap must be a non-negative finite number, got ${input.gap}`);
+  }
+  for (let i = 0; i < input.items.length; i++) {
+    const item = input.items[i];
+    if (!Number.isFinite(item.basis) || item.basis < 0) {
+      throw new RangeError(`items[${i}].basis must be finite and >= 0, got ${item.basis}`);
+    }
+    if (!Number.isFinite(item.grow) || item.grow < 0) {
+      throw new RangeError(`items[${i}].grow must be finite and >= 0, got ${item.grow}`);
+    }
+    if (!Number.isFinite(item.shrink) || item.shrink < 0) {
+      throw new RangeError(`items[${i}].shrink must be finite and >= 0, got ${item.shrink}`);
+    }
+    if (!Number.isFinite(item.min) || item.min < 0) {
+      throw new RangeError(`items[${i}].min must be finite and >= 0, got ${item.min}`);
+    }
+    if (Number.isNaN(item.max) || item.max < item.min) {
+      throw new RangeError(`items[${i}].max must be >= min (${item.min}), got ${item.max}`);
+    }
+  }
+}
+function layoutAxis(input) {
+  validateInput(input);
+  const n = input.items.length;
+  if (n === 0) {
+    return { sizes: [], offsets: [], content: 0, overflow: 0 };
+  }
+  const totalGap = input.gap * Math.max(0, n - 1);
+  const inner = input.available - totalGap;
+  const h = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const it = input.items[i];
+    h[i] = clamp(it.basis, it.min, it.max);
+  }
+  let sumHypothetical = 0;
+  for (let i = 0; i < n; i++) sumHypothetical += h[i];
+  const free = inner - sumHypothetical;
+  const size = new Array(n);
+  const frozen = new Array(n).fill(false);
+  if (Math.abs(free) <= EPS) {
+    for (let i = 0; i < n; i++) size[i] = h[i];
+  } else {
+    const growing = free > 0;
+    for (let i = 0; i < n; i++) {
+      const it = input.items[i];
+      if (growing && it.grow <= EPS || !growing && it.shrink <= EPS || growing && it.basis > h[i] || !growing && it.basis < h[i]) {
+        frozen[i] = true;
+        size[i] = h[i];
+      }
+    }
+    const unclamped = new Array(n);
+    const clampedArr = new Array(n);
+    const violation = new Array(n).fill(0);
+    while (true) {
+      let unfrozenCount = 0;
+      let sumFrozenSizes = 0;
+      let sumUnfrozenBasis = 0;
+      let totalFactor = 0;
+      let totalScaledShrink = 0;
+      for (let i = 0; i < n; i++) {
+        if (frozen[i]) {
+          sumFrozenSizes += size[i];
+        } else {
+          unfrozenCount++;
+          const it = input.items[i];
+          sumUnfrozenBasis += it.basis;
+          if (growing) {
+            totalFactor += it.grow;
+          } else {
+            totalScaledShrink += it.shrink * it.basis;
+          }
+        }
+      }
+      if (unfrozenCount === 0) break;
+      const remaining = inner - sumFrozenSizes - sumUnfrozenBasis;
+      if (Math.abs(remaining) <= EPS) {
+        for (let i = 0; i < n; i++) {
+          if (!frozen[i]) {
+            size[i] = input.items[i].basis;
+            frozen[i] = true;
+          }
+        }
+        break;
+      }
+      if (growing) {
+        if (totalFactor <= EPS) {
+          for (let i = 0; i < n; i++) {
+            if (!frozen[i]) {
+              size[i] = input.items[i].basis;
+              frozen[i] = true;
+            }
+          }
+          break;
+        }
+        for (let i = 0; i < n; i++) {
+          if (!frozen[i]) {
+            const it = input.items[i];
+            unclamped[i] = it.basis + remaining * it.grow / totalFactor;
+          }
+        }
+      } else {
+        if (totalScaledShrink <= EPS) {
+          for (let i = 0; i < n; i++) {
+            if (!frozen[i]) {
+              size[i] = input.items[i].basis;
+              frozen[i] = true;
+            }
+          }
+          break;
+        }
+        for (let i = 0; i < n; i++) {
+          if (!frozen[i]) {
+            const it = input.items[i];
+            unclamped[i] = it.basis + remaining * (it.shrink * it.basis) / totalScaledShrink;
+          }
+        }
+      }
+      let totalViolation = 0;
+      for (let i = 0; i < n; i++) {
+        if (!frozen[i]) {
+          const it = input.items[i];
+          clampedArr[i] = clamp(unclamped[i], it.min, it.max);
+          violation[i] = clampedArr[i] - unclamped[i];
+          size[i] = clampedArr[i];
+          totalViolation += violation[i];
+        }
+      }
+      if (Math.abs(totalViolation) <= EPS) {
+        for (let i = 0; i < n; i++) {
+          if (!frozen[i]) frozen[i] = true;
+        }
+        break;
+      }
+      if (totalViolation > 0) {
+        for (let i = 0; i < n; i++) {
+          if (!frozen[i] && violation[i] > EPS) {
+            frozen[i] = true;
+          }
+        }
+      } else {
+        for (let i = 0; i < n; i++) {
+          if (!frozen[i] && violation[i] < -EPS) {
+            frozen[i] = true;
+          }
+        }
+      }
+    }
+  }
+  let sumSizes = 0;
+  for (let i = 0; i < n; i++) sumSizes += size[i];
+  const content = sumSizes + totalGap;
+  const slack = Math.max(0, input.available - content);
+  const overflow = Math.max(0, content - input.available);
+  let leading = 0;
+  let between = 0;
+  if (slack > EPS) {
+    switch (input.justify) {
+      case "start":
+        leading = 0;
+        between = 0;
+        break;
+      case "center":
+        leading = slack / 2;
+        between = 0;
+        break;
+      case "end":
+        leading = slack;
+        between = 0;
+        break;
+      case "between":
+        leading = 0;
+        between = n > 1 ? slack / (n - 1) : 0;
+        break;
+      case "around":
+        leading = n > 0 ? slack / (2 * n) : 0;
+        between = n > 0 ? slack / n : 0;
+        break;
+      case "evenly":
+        leading = slack / (n + 1);
+        between = slack / (n + 1);
+        break;
+    }
+  }
+  const offsets = new Array(n);
+  offsets[0] = leading;
+  for (let i = 1; i < n; i++) {
+    offsets[i] = offsets[i - 1] + size[i - 1] + input.gap + between;
+  }
+  return {
+    sizes: size,
+    offsets,
+    content,
+    overflow
+  };
+}
+function alignCross(itemSize, lineSize, align) {
+  if (!Number.isFinite(itemSize) || itemSize < 0) {
+    throw new RangeError(`itemSize must be finite and >= 0, got ${itemSize}`);
+  }
+  if (!Number.isFinite(lineSize) || lineSize < 0) {
+    throw new RangeError(`lineSize must be finite and >= 0, got ${lineSize}`);
+  }
+  switch (align) {
+    case "start":
+      return { offset: 0, size: itemSize };
+    case "center":
+      return { offset: (lineSize - itemSize) / 2, size: itemSize };
+    case "end":
+      return { offset: lineSize - itemSize, size: itemSize };
+    case "stretch":
+      return { offset: 0, size: lineSize };
+  }
+}
+
+// src/renderer/sizing.ts
+function getAttrNumber(attrs, key) {
+  for (const a of attrs) {
+    if (a.kind === "pair" && a.key === key && a.value.kind === "number") {
+      return a.value.value;
+    }
+  }
+  return void 0;
+}
+function parseLengthAttr(attrs, key) {
+  for (const a of attrs) {
+    if (a.kind !== "pair" || a.key !== key) continue;
+    if (a.value.kind === "number") {
+      if (a.value.unit === "percent") {
+        return { mode: "percent", value: a.value.value };
+      }
+      if (a.value.unit === "fr") {
+        return { mode: "fraction", value: a.value.value };
+      }
+      return { mode: "fixed", value: a.value.value };
+    }
+    if (a.value.kind === "identifier") {
+      if (a.value.value === "fill") return { mode: "fill", value: 1 };
+      if (a.value.value === "hug") return { mode: "hug", value: 0 };
+    }
+  }
+  return void 0;
+}
+function resolveToAxisItem(opts) {
+  const { node, intrinsic, parentExtent, axis } = opts;
+  const attrs = node.attributes ?? [];
+  if (node.kind === "spacer") {
+    const grow2 = getAttrNumber(attrs, "grow") ?? 1;
+    return {
+      basis: 0,
+      grow: grow2,
+      shrink: 0,
+      min: 0,
+      max: Infinity
+    };
+  }
+  const lengthKey = axis === "x" ? "w" : "h";
+  const minKey = axis === "x" ? "min-w" : "min-h";
+  const maxKey = axis === "x" ? "max-w" : "max-h";
+  const len = parseLengthAttr(attrs, lengthKey);
+  const minVal = getAttrNumber(attrs, minKey);
+  const maxVal = getAttrNumber(attrs, maxKey);
+  const customGrow = getAttrNumber(attrs, "grow");
+  const customShrink = getAttrNumber(attrs, "shrink");
+  if (node.kind === "col" && axis === "x" && !len) {
+    if (node.width.kind === "fill") {
+      const min2 = Math.max(0, minVal ?? intrinsic);
+      const max2 = Math.max(min2, maxVal ?? Infinity);
+      return {
+        basis: intrinsic,
+        grow: customGrow ?? 1,
+        shrink: customShrink ?? 0,
+        min: min2,
+        max: max2
+      };
+    }
+    if (node.width.kind === "length" && node.width.unit === "px") {
+      const fixed = node.width.value;
+      const min2 = Math.max(0, minVal ?? fixed);
+      const max2 = Math.max(min2, maxVal ?? fixed);
+      return {
+        basis: fixed,
+        grow: customGrow ?? 0,
+        shrink: customShrink ?? 0,
+        min: min2,
+        max: max2
+      };
+    }
+  }
+  const mode = len?.mode ?? opts.defaultMode ?? "hug";
+  let basis = intrinsic;
+  let grow = customGrow ?? 0;
+  let shrink = customShrink ?? 0;
+  let min = Math.max(0, minVal ?? (mode === "fixed" || mode === "percent" ? 0 : intrinsic));
+  let max = Math.max(min, maxVal ?? (mode === "fixed" || mode === "percent" ? 0 : Infinity));
+  if (mode === "fixed") {
+    basis = len.value;
+    min = Math.max(0, minVal ?? basis);
+    max = Math.max(min, maxVal ?? basis);
+  } else if (mode === "percent") {
+    basis = Math.max(0, parentExtent * len.value / 100);
+    min = Math.max(0, minVal ?? basis);
+    max = Math.max(min, maxVal ?? basis);
+  } else if (mode === "fraction") {
+    basis = intrinsic;
+    grow = customGrow ?? len.value;
+    min = Math.max(0, minVal ?? intrinsic);
+    max = Math.max(min, maxVal ?? Infinity);
+  } else if (mode === "fill") {
+    basis = intrinsic;
+    grow = customGrow ?? 1;
+    min = Math.max(0, minVal ?? intrinsic);
+    max = Math.max(min, maxVal ?? Infinity);
+  } else {
+    basis = intrinsic;
+    min = Math.max(0, minVal ?? intrinsic);
+    max = Math.max(min, maxVal ?? Infinity);
+  }
+  return {
+    basis,
+    grow,
+    shrink,
+    min,
+    max
+  };
+}
+
+// src/renderer/tracks.ts
+function validateTrackInput(input) {
+  if (!Number.isFinite(input.available) || input.available < 0) {
+    throw new RangeError(`available must be a non-negative finite number, got ${input.available}`);
+  }
+  if (!Number.isFinite(input.gap) || input.gap < 0) {
+    throw new RangeError(`gap must be a non-negative finite number, got ${input.gap}`);
+  }
+  for (let i = 0; i < input.definitions.length; i++) {
+    const def = input.definitions[i];
+    if (!Number.isFinite(def.value) || def.value < 0) {
+      throw new RangeError(
+        `track definition ${i} value must be a non-negative finite number, got ${def.value}`
+      );
+    }
+  }
+}
+function resolveTracks(input) {
+  validateTrackInput(input);
+  const n = input.definitions.length;
+  if (n === 0) {
+    return { sizes: [], offsets: [], total: 0 };
+  }
+  const gapTotal = (n - 1) * input.gap;
+  const availableTrackSpace = Math.max(0, input.available - gapTotal);
+  const sizes = new Array(n).fill(0);
+  const minSizes = input.minSizes ?? new Array(n).fill(0);
+  const maxSizes = input.maxSizes ?? new Array(n).fill(0);
+  let nonFrSpace = 0;
+  for (let i = 0; i < n; i++) {
+    const def = input.definitions[i];
+    if (def.sizing === "fixed") {
+      sizes[i] = def.value;
+      nonFrSpace += sizes[i];
+    } else if (def.sizing === "auto") {
+      const autoSize = Math.max(minSizes[i] ?? 0, maxSizes[i] ?? 0);
+      sizes[i] = autoSize;
+      nonFrSpace += sizes[i];
+    }
+  }
+  let remainingForFr = availableTrackSpace - nonFrSpace;
+  const frIndices = [];
+  let totalFr = 0;
+  for (let i = 0; i < n; i++) {
+    const def = input.definitions[i];
+    if (def.sizing === "fr") {
+      frIndices.push(i);
+      totalFr += Math.max(0, def.value);
+    }
+  }
+  if (frIndices.length > 0) {
+    if (remainingForFr > 0 && totalFr > 0) {
+      const unconstrained = new Set(frIndices);
+      let spaceToDistribute = remainingForFr;
+      let frSum = totalFr;
+      let changed = true;
+      while (changed && unconstrained.size > 0) {
+        changed = false;
+        const unit = frSum > 0 ? spaceToDistribute / frSum : 0;
+        for (const i of Array.from(unconstrained)) {
+          const def = input.definitions[i];
+          const raw = def.value * unit;
+          const min = minSizes[i] ?? 0;
+          if (raw < min) {
+            sizes[i] = min;
+            spaceToDistribute -= min;
+            frSum -= def.value;
+            unconstrained.delete(i);
+            changed = true;
+          }
+        }
+      }
+      if (unconstrained.size > 0 && frSum > 0) {
+        const finalUnit = Math.max(0, spaceToDistribute) / frSum;
+        for (const i of unconstrained) {
+          const def = input.definitions[i];
+          sizes[i] = Math.max(minSizes[i] ?? 0, def.value * finalUnit);
+        }
+      }
+    } else {
+      for (const i of frIndices) {
+        sizes[i] = minSizes[i] ?? 0;
+      }
+    }
+  }
+  const totalAllocated = sizes.reduce((acc, s) => acc + s, 0);
+  if (totalAllocated > availableTrackSpace && availableTrackSpace > 0) {
+    let excess = totalAllocated - availableTrackSpace;
+    for (let i = 0; i < n && excess > 0; i++) {
+      const def = input.definitions[i];
+      if (def.sizing === "auto") {
+        const min = minSizes[i] ?? 0;
+        const reducible = Math.max(0, sizes[i] - min);
+        const reduction = Math.min(excess, reducible);
+        sizes[i] -= reduction;
+        excess -= reduction;
+      }
+    }
+  }
+  const offsets = new Array(n).fill(0);
+  let cursor = 0;
+  for (let i = 0; i < n; i++) {
+    offsets[i] = cursor;
+    cursor += sizes[i] + input.gap;
+  }
+  const total = cursor > 0 ? cursor - input.gap : 0;
+  return { sizes, offsets, total };
 }
 
 // src/renderer/layout.ts
@@ -3091,7 +4171,7 @@ function measureChild(node, theme) {
     case "input":
       return measureInput(node, theme);
     case "divider":
-      return measureDivider(theme);
+      return measureDivider(node, theme);
     case "spacer":
       return measureSpacer();
     case "panel":
@@ -3152,6 +4232,12 @@ function measureChild(node, theme) {
       return measureStatus(node, theme);
     case "segmented":
       return measureSegmented(node, theme);
+    case "table":
+      return measureTable(node, theme);
+    case "code":
+      return measureCode(node, theme);
+    case "macroUse":
+      return { width: 0, height: 0 };
   }
 }
 function measureTree(node, theme) {
@@ -3301,8 +4387,30 @@ function measureInput(node, theme) {
     height: theme.inputHeight
   };
 }
-function measureDivider(theme) {
+function measureDivider(node, theme) {
+  if (getAttrIdent(node.attributes, "orientation") === "vertical") {
+    return { width: theme.dividerStrokeWidth, height: theme.lineHeight };
+  }
   return { width: 0, height: theme.dividerHeight };
+}
+function measureCode(node, theme) {
+  const lines = [];
+  if (node.content !== void 0) {
+    lines.push(...node.content.split("\n"));
+  }
+  for (const c of node.children) {
+    if (c.kind === "text") lines.push(c.content);
+  }
+  if (lines.length === 0) lines.push("");
+  const lineCount = lines.length;
+  const hasLines = hasFlagAttr(node.attributes, "lines");
+  const gutterW = hasLines ? (String(lineCount).length + 2) * theme.averageCharWidth : 0;
+  const maxLineLen = Math.max(...lines.map((l) => l.length), node.lang ? node.lang.length + 4 : 0);
+  const headerH = node.lang ? 22 : 0;
+  return {
+    width: gutterW + maxLineLen * theme.averageCharWidth + theme.codePadding * 2,
+    height: headerH + lineCount * theme.codeLineHeight + theme.codePadding * 2
+  };
 }
 function measureSpacer() {
   return { width: 0, height: 0 };
@@ -3325,7 +4433,15 @@ function measureSection(node, theme) {
 function measureTabs(node, theme) {
   const sizes = node.children.map((t) => measureTab(t, theme));
   const total = sizes.reduce((acc, s) => acc + s.width, 0) + Math.max(0, node.children.length - 1) * theme.tabGap;
-  return { width: total, height: theme.tabHeight };
+  const activeTab = node.children.find((t) => hasFlagAttr(t.attributes, "active")) ?? node.children[0];
+  let contentHeight = 0;
+  let contentWidth = 0;
+  if (activeTab && activeTab.children && activeTab.children.length > 0) {
+    const stack = measureStack(activeTab.children, theme, "vertical");
+    contentHeight = stack.height + theme.colGap;
+    contentWidth = stack.width;
+  }
+  return { width: Math.max(total, contentWidth), height: theme.tabHeight + contentHeight };
 }
 function measureTab(node, theme) {
   const labelW = node.label.length * theme.averageCharWidth;
@@ -3387,11 +4503,136 @@ function measureSlot(node, theme) {
 function measureSlotFooter(node, theme) {
   return measureStack(node.children, theme, "horizontal");
 }
+function placeGridCells(node, theme) {
+  const claimed = /* @__PURE__ */ new Set();
+  const markClaimed = (r, c, span, rows) => {
+    for (let dr = 0; dr < rows; dr++) {
+      for (let dc = 0; dc < span; dc++) {
+        claimed.add(`${r + dr}:${c + dc}`);
+      }
+    }
+  };
+  const isClaimed = (r, c, span, rows) => {
+    for (let dr = 0; dr < rows; dr++) {
+      for (let dc = 0; dc < span; dc++) {
+        if (claimed.has(`${r + dr}:${c + dc}`)) return true;
+      }
+    }
+    return false;
+  };
+  for (const cell of node.children) {
+    if (cell.row !== void 0 && cell.col !== void 0) {
+      const span = cell.span ?? 1;
+      const rows = cell.rows ?? 1;
+      markClaimed(cell.row, cell.col, span, rows);
+    }
+  }
+  let flowRow = 1;
+  let flowCol = 1;
+  const advanceFlow = (span, rows) => {
+    while (true) {
+      if (flowCol + span - 1 > node.cols) {
+        flowCol = 1;
+        flowRow++;
+      }
+      if (flowRow > node.rows) {
+        return { r: flowRow, c: flowCol };
+      }
+      if (!isClaimed(flowRow, flowCol, span, rows)) {
+        return { r: flowRow, c: flowCol };
+      }
+      flowCol++;
+    }
+  };
+  const placed = [];
+  for (const cell of node.children) {
+    const span = Math.min(Math.max(1, cell.span ?? 1), node.cols);
+    const rows = Math.min(Math.max(1, cell.rows ?? 1), node.rows);
+    let r = cell.row;
+    let c = cell.col;
+    if (r === void 0 || c === void 0) {
+      const next = advanceFlow(span, rows);
+      r = next.r;
+      c = next.c;
+      markClaimed(r, c, span, rows);
+      flowCol += span;
+    }
+    const clampedR = Math.min(Math.max(1, r), node.rows);
+    const clampedC = Math.min(Math.max(1, c), node.cols);
+    const size = measureCell(cell, theme);
+    placed.push({ cell, row: clampedR, col: clampedC, span, rows, size });
+  }
+  return placed;
+}
+function measureGridTracks(node, placed, theme) {
+  const isAuto = node.track === "auto";
+  if (!isAuto) {
+    const cellSize = preferredCellSize(node, theme);
+    const colSizes = new Array(node.cols).fill(cellSize.width);
+    const rowSizes = new Array(node.rows).fill(cellSize.height);
+    const colOffsets = colSizes.map((_, i) => i * (cellSize.width + theme.rowGap));
+    const rowOffsets = rowSizes.map((_, i) => i * (cellSize.height + theme.colGap));
+    const width = node.cols * cellSize.width + (node.cols - 1) * theme.rowGap;
+    const height = node.rows * cellSize.height + (node.rows - 1) * theme.colGap;
+    return { colSizes, colOffsets, rowSizes, rowOffsets, width, height };
+  }
+  const colMax = new Array(node.cols).fill(theme.cellMinSize);
+  const rowMax = new Array(node.rows).fill(theme.cellMinSize);
+  for (const p of placed) {
+    if (p.span === 1 && p.col <= node.cols) {
+      colMax[p.col - 1] = Math.max(colMax[p.col - 1], p.size.width);
+    }
+    if (p.rows === 1 && p.row <= node.rows) {
+      rowMax[p.row - 1] = Math.max(rowMax[p.row - 1], p.size.height);
+    }
+  }
+  for (const p of placed) {
+    if (p.span > 1) {
+      let currentSpanW = 0;
+      for (let c = 0; c < p.span && p.col - 1 + c < node.cols; c++) {
+        currentSpanW += colMax[p.col - 1 + c];
+      }
+      currentSpanW += (p.span - 1) * theme.rowGap;
+      if (p.size.width > currentSpanW) {
+        const extraPerCol = (p.size.width - currentSpanW) / p.span;
+        for (let c = 0; c < p.span && p.col - 1 + c < node.cols; c++) {
+          colMax[p.col - 1 + c] += extraPerCol;
+        }
+      }
+    }
+    if (p.rows > 1) {
+      let currentSpanH = 0;
+      for (let r = 0; r < p.rows && p.row - 1 + r < node.rows; r++) {
+        currentSpanH += rowMax[p.row - 1 + r];
+      }
+      currentSpanH += (p.rows - 1) * theme.colGap;
+      if (p.size.height > currentSpanH) {
+        const extraPerRow = (p.size.height - currentSpanH) / p.rows;
+        for (let r = 0; r < p.rows && p.row - 1 + r < node.rows; r++) {
+          rowMax[p.row - 1 + r] += extraPerRow;
+        }
+      }
+    }
+  }
+  const colSum = colMax.reduce((acc, w) => acc + w, 0) + (node.cols - 1) * theme.rowGap;
+  const rowSum = rowMax.reduce((acc, h) => acc + h, 0) + (node.rows - 1) * theme.colGap;
+  const colDefs = colMax.map((w) => ({ sizing: "fixed", value: w }));
+  const rowDefs = rowMax.map((h) => ({ sizing: "fixed", value: h }));
+  const colRes = resolveTracks({ definitions: colDefs, available: colSum, gap: theme.rowGap });
+  const rowRes = resolveTracks({ definitions: rowDefs, available: rowSum, gap: theme.colGap });
+  return {
+    colSizes: colRes.sizes,
+    colOffsets: colRes.offsets,
+    rowSizes: rowRes.sizes,
+    rowOffsets: rowRes.offsets,
+    width: colRes.total,
+    height: rowRes.total
+  };
+}
 function measureGrid(node, theme) {
-  const cellSize = preferredCellSize(node, theme);
-  const width = node.cols * cellSize.width + (node.cols - 1) * theme.rowGap;
-  const height = node.rows * cellSize.height + (node.rows - 1) * theme.colGap;
-  return { width, height };
+  const placed = placeGridCells(node, theme);
+  const tracks = measureGridTracks(node, placed, theme);
+  return { width: tracks.width, height: tracks.height };
 }
 function preferredCellSize(node, theme) {
   let maxW = theme.cellMinSize;
@@ -3411,6 +4652,153 @@ function measureCell(node, theme) {
     width: Math.max(inner.width, labelW) + theme.cellPadding * 2,
     height: inner.height + labelH + theme.cellPadding * 2
   };
+}
+function getTablePadding(node, theme) {
+  const compact = hasFlagAttr(node.attributes, "compact");
+  return {
+    padX: compact ? theme.tableCompactPaddingX : theme.tablePaddingX,
+    padY: compact ? theme.tableCompactPaddingY : theme.tablePaddingY
+  };
+}
+function getTableColumnCount(node) {
+  let count = node.columns ? node.columns.children.length : 0;
+  for (const row of node.rows) {
+    let rowCells = 0;
+    for (const cell of row.children) {
+      rowCells += cell.span ?? 1;
+    }
+    if (rowCells > count) count = rowCells;
+  }
+  if (node.foot) {
+    let footCells = 0;
+    for (const cell of node.foot.children) {
+      footCells += cell.span ?? 1;
+    }
+    if (footCells > count) count = footCells;
+  }
+  return Math.max(1, count);
+}
+function computeTableTracks(node, availableWidth, theme) {
+  const { padX, padY } = getTablePadding(node, theme);
+  const numCols = getTableColumnCount(node);
+  const minSizes = new Array(numCols).fill(0);
+  const maxSizes = new Array(numCols).fill(0);
+  if (node.columns) {
+    for (let c = 0; c < node.columns.children.length && c < numCols; c++) {
+      const col = node.columns.children[c];
+      if (col.title) {
+        const titleW = col.title.length * theme.averageCharWidth + padX * 2;
+        minSizes[c] = Math.max(minSizes[c], titleW);
+        maxSizes[c] = Math.max(maxSizes[c], titleW);
+      }
+    }
+  }
+  const rowHeights = [];
+  for (const row of node.rows) {
+    let colIdx = 0;
+    let maxRowH = theme.tableRowHeight;
+    for (const cell of row.children) {
+      const span = cell.span ?? 1;
+      let cellW = 0;
+      let cellH = theme.tableRowHeight;
+      if (cell.content !== void 0) {
+        cellW = cell.content.length * theme.averageCharWidth + padX * 2;
+        cellH = Math.max(cellH, theme.lineHeight + padY * 2);
+      } else if (cell.children.length > 0) {
+        const stack = measureStack(cell.children, theme, "horizontal");
+        cellW = stack.width + padX * 2;
+        cellH = Math.max(cellH, stack.height + padY * 2);
+      }
+      if (cellH > maxRowH) maxRowH = cellH;
+      if (span === 1 && colIdx < numCols) {
+        minSizes[colIdx] = Math.max(minSizes[colIdx], cellW);
+        maxSizes[colIdx] = Math.max(maxSizes[colIdx], cellW);
+      } else if (span > 1) {
+        let currentW = 0;
+        for (let s = 0; s < span && colIdx + s < numCols; s++) {
+          currentW += maxSizes[colIdx + s];
+        }
+        if (cellW > currentW) {
+          const extra = (cellW - currentW) / span;
+          for (let s = 0; s < span && colIdx + s < numCols; s++) {
+            maxSizes[colIdx + s] += extra;
+            minSizes[colIdx + s] += extra;
+          }
+        }
+      }
+      colIdx += span;
+    }
+    rowHeights.push(maxRowH);
+  }
+  let footHeight = 0;
+  if (node.foot) {
+    footHeight = theme.tableRowHeight;
+    let colIdx = 0;
+    for (const cell of node.foot.children) {
+      const span = cell.span ?? 1;
+      let cellW = 0;
+      let cellH = theme.tableRowHeight;
+      if (cell.content !== void 0) {
+        cellW = cell.content.length * theme.averageCharWidth + padX * 2;
+        cellH = Math.max(cellH, theme.lineHeight + padY * 2);
+      } else if (cell.children.length > 0) {
+        const stack = measureStack(cell.children, theme, "horizontal");
+        cellW = stack.width + padX * 2;
+        cellH = Math.max(cellH, stack.height + padY * 2);
+      }
+      if (cellH > footHeight) footHeight = cellH;
+      if (span === 1 && colIdx < numCols) {
+        minSizes[colIdx] = Math.max(minSizes[colIdx], cellW);
+        maxSizes[colIdx] = Math.max(maxSizes[colIdx], cellW);
+      }
+      colIdx += span;
+    }
+  }
+  const headerHeight = node.columns ? theme.tableHeaderHeight : 0;
+  const totalHeight = headerHeight + rowHeights.reduce((acc, h) => acc + h, 0) + footHeight;
+  const definitions = [];
+  for (let c = 0; c < numCols; c++) {
+    const colNode = node.columns?.children[c];
+    if (colNode?.width) {
+      const w = colNode.width;
+      if (w.unit === "px") {
+        definitions.push({ sizing: "fixed", value: w.value });
+      } else if (w.unit === "fr") {
+        definitions.push({ sizing: "fr", value: w.value });
+      } else if (w.unit === "percent") {
+        const px = w.value / 100 * availableWidth;
+        definitions.push({ sizing: "fixed", value: px });
+      } else {
+        definitions.push({ sizing: "fixed", value: w.value });
+      }
+    } else {
+      definitions.push({ sizing: "auto", value: 0 });
+    }
+  }
+  const naturalWidth = maxSizes.reduce((acc, s) => acc + s, 0);
+  const targetAvailable = Math.max(availableWidth, naturalWidth);
+  const res = resolveTracks({
+    definitions,
+    available: targetAvailable,
+    gap: 0,
+    minSizes,
+    maxSizes
+  });
+  return {
+    colSizes: res.sizes,
+    colOffsets: res.offsets,
+    totalWidth: res.total,
+    rowHeights,
+    headerHeight,
+    footHeight,
+    totalHeight,
+    padX,
+    padY
+  };
+}
+function measureTable(node, theme) {
+  const tracks = computeTableTracks(node, 0, theme);
+  return { width: tracks.totalWidth, height: tracks.totalHeight };
 }
 function measureResourceBar(node, theme) {
   if (node.children.length === 0) {
@@ -3454,8 +4842,8 @@ function measureProgress(node, theme) {
   };
 }
 function measureChart(node, theme) {
-  const width = getAttrNumber(node.attributes, "width") ?? theme.chartDefaultWidth;
-  const height = getAttrNumber(node.attributes, "height") ?? theme.chartDefaultHeight;
+  const width = getAttrNumber2(node.attributes, "width") ?? theme.chartDefaultWidth;
+  const height = getAttrNumber2(node.attributes, "height") ?? theme.chartDefaultHeight;
   return { width, height };
 }
 function measureKv(node, theme) {
@@ -3482,8 +4870,8 @@ function measureSlider(theme) {
   };
 }
 function measureImage(node, theme) {
-  const width = getAttrNumber(node.attributes, "width") ?? theme.imageDefaultWidth;
-  const height = getAttrNumber(node.attributes, "height") ?? theme.imageDefaultHeight;
+  const width = getAttrNumber2(node.attributes, "width") ?? theme.imageDefaultWidth;
+  const height = getAttrNumber2(node.attributes, "height") ?? theme.imageDefaultHeight;
   return { width, height };
 }
 function measureIcon(theme) {
@@ -3520,26 +4908,35 @@ function measureTabItem(node, theme) {
   return { width: minItemWidth, height: theme.tabbarHeight };
 }
 function positionTabBar(node, x, y, width, height, _theme) {
-  const n = node.children.length;
+  const items = node.children.map(() => ({
+    basis: 0,
+    grow: 1,
+    shrink: 1,
+    min: 0,
+    max: Infinity
+  }));
+  const res = layoutAxis({
+    items,
+    available: width,
+    gap: 0,
+    justify: "start"
+  });
   const children = [];
-  if (n > 0) {
-    const itemWidth = width / n;
-    for (let i = 0; i < n; i++) {
-      const item = node.children[i];
-      children.push({
-        node: item,
-        x: x + i * itemWidth,
-        y,
-        width: itemWidth,
-        height,
-        children: []
-      });
-    }
+  for (let i = 0; i < node.children.length; i++) {
+    const item = node.children[i];
+    children.push({
+      node: item,
+      x: x + res.offsets[i],
+      y,
+      width: res.sizes[i],
+      height,
+      children: []
+    });
   }
   return { node, x, y, width, height, children };
 }
 function measureWindow(node, theme) {
-  const { header, navbar, footer, tabbar, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, tabbar, sheet, bodyChildren } = classifyWindowChildren(node);
   const bodyStack = measureStack(bodyChildren, theme, "vertical");
   let bodyWidth = bodyStack.width;
   let bodyHeight = bodyStack.height;
@@ -3566,6 +4963,13 @@ function measureWindow(node, theme) {
     const ts = measureTabBar(tabbar, theme);
     tabbarHeight = ts.height;
     bodyWidth = Math.max(bodyWidth, ts.width);
+  }
+  if (sheet) {
+    const ss = measureStack(sheet.children, theme, "vertical");
+    const sheetMinWidth = sheet.placement === "center" ? Math.max(theme.sheetCenterMinWidth, ss.width + theme.sheetPadding * 2) + theme.sheetCenterMargin * 2 : ss.width + theme.sheetPadding * 2;
+    bodyWidth = Math.max(bodyWidth, sheetMinWidth);
+    const sheetMinHeight = ss.height + theme.sheetPadding * 2 + (sheet.title !== void 0 ? theme.sheetTitleHeight : 0) + (sheet.placement === "bottom" ? theme.sheetGrabberHeight + theme.sheetGrabberGap : 0);
+    bodyHeight = Math.max(bodyHeight, sheetMinHeight);
   }
   const hasTitleBar = node.title !== void 0;
   const padding = theme.windowPadding;
@@ -3826,45 +5230,62 @@ function positionHeaderOrFooter(node, kind, x, y, width, height, theme) {
   const innerX = x + theme.windowPadding;
   const innerY = y + padY;
   const innerWidth = width - theme.windowPadding * 2;
+  const innerHeight = height - padY * 2;
   const children = [];
   if (horizontal) {
-    const sizes = node.children.map((c) => measureChild(c, theme));
-    const gaps = Math.max(0, node.children.length - 1) * theme.rowGap;
-    const intrinsicTotal = sizes.reduce((acc, s) => acc + s.width, 0) + gaps;
-    let spacerCount = 0;
-    for (const c of node.children) if (c.kind === "spacer") spacerCount++;
-    if (spacerCount > 0) {
-      const slack = Math.max(0, innerWidth - intrinsicTotal);
-      const spacerWidth = slack / spacerCount;
-      let cursorX = innerX;
-      for (let i = 0; i < node.children.length; i++) {
-        const child = node.children[i];
-        const w = child.kind === "spacer" ? spacerWidth : sizes[i].width;
-        children.push(positionContainerChild(child, cursorX, innerY, w, theme));
-        cursorX += w + theme.rowGap;
-      }
-    } else if (node.children.length === 1 && node.children[0].kind === "row" && rowUsesHorizontalSlack(node.children[0])) {
+    if (node.children.length === 1 && node.children[0].kind === "row" && rowUsesHorizontalSlack(node.children[0])) {
       children.push(positionContainerChild(node.children[0], innerX, innerY, innerWidth, theme));
     } else {
-      let cursorX = innerX + innerWidth - intrinsicTotal;
+      const childSizes = node.children.map((c) => measureChild(c, theme));
+      const items = node.children.map(
+        (child, i) => resolveToAxisItem({
+          node: child,
+          intrinsic: childSizes[i].width,
+          parentExtent: innerWidth,
+          axis: "x"
+        })
+      );
+      const defaultJustify = kind === "footer" ? "end" : "start";
+      const justify = getJustify(node.attributes) !== "start" ? getJustify(node.attributes) : defaultJustify;
+      const res = layoutAxis({
+        items,
+        available: innerWidth,
+        gap: theme.rowGap,
+        justify
+      });
       for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i];
-        const size = sizes[i];
-        children.push(positionContainerChild(child, cursorX, innerY, size.width, theme));
-        cursorX += size.width + theme.rowGap;
+        const itemW = res.sizes[i];
+        const itemX = innerX + res.offsets[i];
+        const childSize = childSizes[i];
+        const childY = innerY + (innerHeight - childSize.height) / 2;
+        children.push(positionContainerChild(child, itemX, childY, itemW, theme));
       }
     }
   } else {
-    let cursorY = innerY;
+    const childSizes = node.children.map((c) => measureChild(c, theme));
+    const items = node.children.map(
+      (child, i) => resolveToAxisItem({
+        node: child,
+        intrinsic: childSizes[i].height,
+        parentExtent: innerHeight,
+        axis: "y"
+      })
+    );
+    const res = layoutAxis({
+      items,
+      available: innerHeight,
+      gap: theme.colGap,
+      justify: "start"
+    });
     for (let i = 0; i < node.children.length; i++) {
       const child = node.children[i];
-      const size = measureChild(child, theme);
+      const size = childSizes[i];
       const childX = kind === "header" ? innerX + (innerWidth - size.width) / 2 : innerX;
       const childWidth = kind === "header" ? size.width : innerWidth;
-      const laidChild = positionContainerChild(child, childX, cursorY, childWidth, theme);
+      const itemY = innerY + res.offsets[i];
+      const laidChild = positionContainerChild(child, childX, itemY, childWidth, theme);
       children.push(laidChild);
-      cursorY += laidChild.height;
-      if (i < node.children.length - 1) cursorY += theme.colGap;
     }
   }
   return { node, x, y, width, height, children };
@@ -3896,18 +5317,31 @@ function positionNavbar(node, x, y, width, height, theme) {
   return { node, x, y, width, height, children: slotChildren };
 }
 function positionNavbarSlot(node, anchorX, innerY, innerHeight, theme, anchor) {
-  const sizes = node.children.map((c) => measureChild(c, theme));
-  const totalChildWidth = sizes.reduce((acc, s) => acc + s.width, 0) + Math.max(0, node.children.length - 1) * theme.rowGap;
-  let cursorX = anchor === "left" ? anchorX : anchorX - totalChildWidth;
-  const slotX = cursorX;
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const totalChildWidth = childSizes.reduce((acc, s) => acc + s.width, 0) + Math.max(0, node.children.length - 1) * theme.rowGap;
+  const items = node.children.map(
+    (child, i) => resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i].width,
+      parentExtent: totalChildWidth,
+      axis: "x"
+    })
+  );
+  const res = layoutAxis({
+    items,
+    available: totalChildWidth,
+    gap: theme.rowGap,
+    justify: "start"
+  });
+  const slotX = anchor === "left" ? anchorX : anchorX - totalChildWidth;
   const childrenLaid = [];
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
-    const size = sizes[i];
+    const size = childSizes[i];
+    const itemW = res.sizes[i];
+    const itemX = slotX + res.offsets[i];
     const childY = innerY + (innerHeight - size.height) / 2;
-    childrenLaid.push(positionContainerChild(child, cursorX, childY, size.width, theme));
-    cursorX += size.width;
-    if (i < node.children.length - 1) cursorX += theme.rowGap;
+    childrenLaid.push(positionContainerChild(child, itemX, childY, itemW, theme));
   }
   return {
     node,
@@ -3918,18 +5352,18 @@ function positionNavbarSlot(node, anchorX, innerY, innerHeight, theme, anchor) {
     children: childrenLaid
   };
 }
-function positionContainerChild(child, x, y, width, theme) {
+function positionContainerChild(child, x, y, width, theme, height) {
   switch (child.kind) {
     case "panel":
-      return positionPanel(child, x, y, width, theme);
+      return positionPanel(child, x, y, width, theme, height);
     case "section":
-      return positionSection(child, x, y, width, theme);
+      return positionSection(child, x, y, width, theme, height);
     case "tabs":
       return positionTabs(child, x, y, width, theme);
     case "row":
-      return positionRow(child, x, y, width, theme);
+      return positionRow(child, x, y, width, theme, height);
     case "col":
-      return positionCol(child, x, y, width, theme);
+      return positionCol(child, x, y, width, theme, height);
     case "list":
       return positionList(child, x, y, width, theme);
     case "slot":
@@ -3990,6 +5424,12 @@ function positionContainerChild(child, x, y, width, theme) {
       return positionLeaf(child, x, y, measureStatus(child, theme));
     case "segmented":
       return positionSegmented(child, x, y, width, theme);
+    case "table":
+      return positionTable(child, x, y, width, theme, height);
+    case "code":
+      return positionCode(child, x, y, width, theme, height);
+    case "macroUse":
+      return positionLeaf(child, x, y, { width: 0, height: 0 });
   }
 }
 function positionLeaf(node, x, y, size) {
@@ -4053,16 +5493,27 @@ function positionMenu(node, x, y, width, theme) {
 }
 function positionSegmented(node, x, y, width, theme) {
   const size = measureSegmented(node, theme);
-  const n = node.children.length;
-  const segW = n > 0 ? size.width / n : 0;
+  const items = node.children.map(() => ({
+    basis: 0,
+    grow: 1,
+    shrink: 1,
+    min: 0,
+    max: Infinity
+  }));
+  const res = layoutAxis({
+    items,
+    available: size.width,
+    gap: 0,
+    justify: "start"
+  });
   const children = [];
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < node.children.length; i++) {
     const seg = node.children[i];
     children.push({
       node: seg,
-      x: x + i * segW,
+      x: x + res.offsets[i],
       y,
-      width: segW,
+      width: res.sizes[i],
       height: theme.segmentedHeight,
       children: []
     });
@@ -4096,37 +5547,74 @@ function positionBreadcrumb(node, x, y, width, theme) {
     children
   };
 }
-function positionPanel(node, x, y, width, theme) {
+function positionPanel(node, x, y, width, theme, height) {
   const innerX = x + theme.panelPadding;
   const innerY = y + theme.panelPadding;
   const innerWidth = width - theme.panelPadding * 2;
+  const gap = getAttrNumber2(node.attributes, "gap") ?? theme.colGap;
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const naturalH = childSizes.reduce((acc, s) => acc + s.height, 0) + Math.max(0, node.children.length - 1) * gap;
+  const explicitH = getAttrNumber2(node.attributes, "h");
+  const targetH = height !== void 0 ? height - theme.panelPadding * 2 : explicitH !== void 0 ? explicitH - theme.panelPadding * 2 : naturalH;
+  const items = node.children.map(
+    (child, i) => resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i].height,
+      parentExtent: targetH,
+      axis: "y"
+    })
+  );
+  const res = layoutAxis({
+    items,
+    available: targetH,
+    gap,
+    justify: getJustify(node.attributes)
+  });
   const children = [];
-  let cursorY = innerY;
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
-    const laidChild = positionContainerChild(child, innerX, cursorY, innerWidth, theme);
+    const itemH = res.sizes[i];
+    const itemY = innerY + res.offsets[i];
+    const laidChild = positionContainerChild(child, innerX, itemY, innerWidth, theme, itemH);
     children.push(laidChild);
-    cursorY += laidChild.height;
-    if (i < node.children.length - 1) cursorY += theme.colGap;
   }
-  const height = cursorY - y + theme.panelPadding;
-  return { node, x, y, width, height, children };
+  const finalHeight = height ?? explicitH ?? res.content + theme.panelPadding * 2;
+  return { node, x, y, width, height: finalHeight, children };
 }
-function positionSection(node, x, y, width, theme) {
+function positionSection(node, x, y, width, theme, height) {
   const innerX = x;
-  const innerY = y + theme.sectionTitleHeight + theme.sectionTitlePaddingBottom;
+  const topChromeH = theme.sectionTitleHeight + theme.sectionTitlePaddingBottom;
+  const innerY = y + topChromeH;
   const innerWidth = width;
+  const gap = getAttrNumber2(node.attributes, "gap") ?? theme.colGap;
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const naturalH = childSizes.reduce((acc, s) => acc + s.height, 0) + Math.max(0, node.children.length - 1) * gap;
+  const explicitH = getAttrNumber2(node.attributes, "h");
+  const targetH = height !== void 0 ? height - topChromeH - theme.panelPadding : explicitH !== void 0 ? explicitH - topChromeH - theme.panelPadding : naturalH;
+  const items = node.children.map(
+    (child, i) => resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i].height,
+      parentExtent: targetH,
+      axis: "y"
+    })
+  );
+  const res = layoutAxis({
+    items,
+    available: targetH,
+    gap,
+    justify: getJustify(node.attributes)
+  });
   const children = [];
-  let cursorY = innerY;
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
-    const laidChild = positionContainerChild(child, innerX, cursorY, innerWidth, theme);
+    const itemH = res.sizes[i];
+    const itemY = innerY + res.offsets[i];
+    const laidChild = positionContainerChild(child, innerX, itemY, innerWidth, theme, itemH);
     children.push(laidChild);
-    cursorY += laidChild.height;
-    if (i < node.children.length - 1) cursorY += theme.colGap;
   }
-  const height = cursorY - y + theme.panelPadding;
-  return { node, x, y, width, height, children };
+  const finalHeight = height ?? explicitH ?? topChromeH + res.content + theme.panelPadding;
+  return { node, x, y, width, height: finalHeight, children };
 }
 function positionTabs(node, x, y, width, theme) {
   const children = [];
@@ -4144,98 +5632,22 @@ function positionTabs(node, x, y, width, theme) {
     });
     cursorX += size.width + theme.tabGap;
   }
-  return { node, x, y, width, height: theme.tabHeight, children };
-}
-function rowUsesHorizontalSlack(node) {
-  if (node.children.some((c) => c.kind === "spacer")) return true;
-  if (node.children.some((c) => c.kind === "col" && c.width.kind === "fill")) return true;
-  if (getAlign(node.attributes) !== "left") return true;
-  return getJustify(node.attributes) !== "start";
-}
-function positionRow(node, x, y, width, theme) {
-  const baseWidths = [];
-  let fillCount = 0;
-  let spacerCount = 0;
-  for (const child of node.children) {
-    if (child.kind === "col" && child.width.kind === "fill") {
-      baseWidths.push(0);
-      fillCount++;
-    } else if (child.kind === "col" && child.width.kind === "length" && child.width.unit === "px") {
-      baseWidths.push(child.width.value);
-    } else if (child.kind === "spacer") {
-      baseWidths.push(0);
-      spacerCount++;
-    } else {
-      baseWidths.push(measureChild(child, theme).width);
+  const activeTab = node.children.find((t) => hasFlagAttr(t.attributes, "active")) ?? node.children[0];
+  if (activeTab && activeTab.children && activeTab.children.length > 0) {
+    let cursorY = y + theme.tabHeight + theme.colGap;
+    for (const child of activeTab.children) {
+      const laidChild = positionContainerChild(child, x, cursorY, width, theme);
+      children.push(laidChild);
+      cursorY += laidChild.height + theme.colGap;
     }
   }
-  const gapTotal = Math.max(0, node.children.length - 1) * theme.rowGap;
-  const fixedTotal = baseWidths.reduce((acc, w) => acc + w, 0);
-  const available = Math.max(0, width - fixedTotal - gapTotal);
-  const fillWidth = fillCount > 0 ? available / fillCount : 0;
-  const spacerWidth = fillCount === 0 && spacerCount > 0 ? available / spacerCount : 0;
-  const assignedWidths = node.children.map((child, i) => {
-    if (child.kind === "col" && child.width.kind === "fill") {
-      return Math.max(fillWidth, theme.colFillMinWidth);
-    }
-    if (child.kind === "spacer") {
-      return Math.max(spacerWidth, 0);
-    }
-    return baseWidths[i] ?? 0;
-  });
-  const effectiveWidth = assignedWidths.reduce((acc, w) => acc + w, 0) + gapTotal;
-  const justify = getJustify(node.attributes);
-  const align = getAlign(node.attributes);
-  const justifyActive = fillCount === 0 && spacerCount === 0 && justify !== "start";
-  const slack = Math.max(0, width - effectiveWidth);
-  let cursorX;
-  let extraGapBetween = 0;
-  if (fillCount > 0 || spacerCount > 0) {
-    cursorX = x;
-  } else if (justifyActive) {
-    const n = node.children.length;
-    if (justify === "end") {
-      cursorX = x + slack;
-    } else if (justify === "between") {
-      cursorX = x;
-      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
-    } else {
-      const unit = n > 0 ? slack / (2 * n) : 0;
-      cursorX = x + unit;
-      extraGapBetween = 2 * unit;
-    }
-  } else if (align === "right") {
-    cursorX = x + width - effectiveWidth;
-  } else if (align === "center") {
-    cursorX = x + (width - effectiveWidth) / 2;
-  } else {
-    cursorX = x;
-  }
-  const children = [];
-  const childXs = [];
-  let maxHeight = 0;
-  for (let i = 0; i < node.children.length; i++) {
-    const child = node.children[i];
-    const childWidth = assignedWidths[i] ?? 0;
-    const laidChild = positionContainerChild(child, cursorX, y, childWidth, theme);
-    children.push(laidChild);
-    childXs.push(cursorX);
-    cursorX += childWidth;
-    if (laidChild.height > maxHeight) maxHeight = laidChild.height;
-    if (i < node.children.length - 1) cursorX += theme.rowGap + extraGapBetween;
-  }
-  for (let i = 0; i < node.children.length; i++) {
-    const child = node.children[i];
-    if (child.kind === "col" && colUsesVerticalSlack(child) && maxHeight > (children[i]?.height ?? 0)) {
-      children[i] = positionCol(child, childXs[i] ?? x, y, assignedWidths[i] ?? 0, theme, maxHeight);
-    }
-  }
+  const measured = measureTabs(node, theme);
   return {
     node,
     x,
     y,
-    width: Math.max(width, effectiveWidth),
-    height: maxHeight,
+    width: Math.max(width, measured.width),
+    height: measured.height,
     children
   };
 }
@@ -4243,52 +5655,103 @@ function colUsesVerticalSlack(node) {
   if (node.children.some((c) => c.kind === "spacer")) return true;
   return getJustify(node.attributes) !== "start";
 }
-function positionCol(node, x, y, width, theme, availableHeight) {
-  const colWidth = node.width.kind === "length" && node.width.unit === "px" ? node.width.value : width;
-  const baseHeights = node.children.map(
-    (c) => c.kind === "spacer" ? 0 : measureChild(c, theme).height
-  );
-  let spacerCount = 0;
-  for (const c of node.children) if (c.kind === "spacer") spacerCount++;
-  const gapTotal = Math.max(0, node.children.length - 1) * theme.colGap;
-  const contentHeight = baseHeights.reduce((acc, h) => acc + h, 0) + gapTotal;
-  const target = Math.max(availableHeight ?? 0, contentHeight);
-  const slack = Math.max(0, target - contentHeight);
+function rowUsesHorizontalSlack(node) {
+  if (node.children.some((c) => c.kind === "spacer")) return true;
+  if (node.children.some((c) => c.kind === "col" && c.width.kind === "fill")) return true;
+  return getJustify(node.attributes) !== "start";
+}
+function positionRow(node, x, y, width, theme, height) {
+  const gap = getAttrNumber2(node.attributes, "gap") ?? theme.rowGap;
   const justify = getJustify(node.attributes);
-  const spacerHeight = spacerCount > 0 ? slack / spacerCount : 0;
-  const justifyActive = spacerCount === 0 && justify !== "start" && slack > 0;
-  let cursorY = y;
-  let extraGapBetween = 0;
-  if (spacerCount > 0) {
-    cursorY = y;
-  } else if (justifyActive) {
-    const n = node.children.length;
-    if (justify === "end") {
-      cursorY = y + slack;
-    } else if (justify === "between") {
-      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
-    } else {
-      const unit = n > 0 ? slack / (2 * n) : 0;
-      cursorY = y + unit;
-      extraGapBetween = 2 * unit;
+  const containerAlign = getCrossAlign(node.attributes, "start");
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const hasFillCol = node.children.some((c) => c.kind === "col" && c.width.kind === "fill");
+  const items = node.children.map((child, i) => {
+    if (child.kind === "spacer" && hasFillCol) {
+      return { basis: 0, grow: 0, shrink: 0, min: 0, max: 0 };
     }
+    return resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i].width,
+      parentExtent: width,
+      axis: "x"
+    });
+  });
+  const res = layoutAxis({ items, available: width, gap, justify });
+  let maxChildH = 0;
+  for (const s of childSizes) {
+    if (s.height > maxChildH) maxChildH = s.height;
   }
+  const explicitH = getAttrNumber2(node.attributes, "h");
+  const rowHeight = height ?? explicitH ?? maxChildH;
   const children = [];
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
-    if (child.kind === "spacer") {
-      children.push(positionContainerChild(child, x, cursorY, colWidth, theme));
-      cursorY += spacerHeight;
-    } else {
-      const laidChild = positionContainerChild(child, x, cursorY, colWidth, theme);
-      children.push(laidChild);
-      cursorY += laidChild.height;
+    const childSize = childSizes[i];
+    const itemW = res.sizes[i];
+    const itemX = x + res.offsets[i];
+    let childAlign = getSelfAlign(child.attributes);
+    if (!childAlign) {
+      if (child.kind === "col" && colUsesVerticalSlack(child)) {
+        childAlign = "stretch";
+      } else {
+        childAlign = containerAlign;
+      }
     }
-    if (i < node.children.length - 1) cursorY += theme.colGap + extraGapBetween;
+    const cross = alignCross(childSize.height, rowHeight, childAlign);
+    const itemY = y + cross.offset;
+    const itemH = cross.size;
+    children.push(positionContainerChild(child, itemX, itemY, itemW, theme, itemH));
   }
-  return { node, x, y, width: colWidth, height: Math.max(target, cursorY - y), children };
+  return {
+    node,
+    x,
+    y,
+    width: Math.max(width, res.content),
+    height: rowHeight,
+    children
+  };
 }
-function positionList(node, x, y, width, theme) {
+function positionCol(node, x, y, width, theme, availableHeight) {
+  const gap = getAttrNumber2(node.attributes, "gap") ?? theme.colGap;
+  const justify = getJustify(node.attributes);
+  const containerAlign = getCrossAlign(node.attributes, "stretch");
+  const colWidth = node.width.kind === "length" && node.width.unit === "px" ? node.width.value : width;
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const naturalContentH = childSizes.reduce((acc, s) => acc + s.height, 0) + Math.max(0, node.children.length - 1) * gap;
+  const explicitH = getAttrNumber2(node.attributes, "h");
+  const targetH = availableHeight ?? explicitH ?? naturalContentH;
+  const items = node.children.map(
+    (child, i) => resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i].height,
+      parentExtent: targetH,
+      axis: "y"
+    })
+  );
+  const res = layoutAxis({ items, available: targetH, gap, justify });
+  const children = [];
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    const childSize = childSizes[i];
+    const itemH = res.sizes[i];
+    const itemY = y + res.offsets[i];
+    const childAlign = getSelfAlign(child.attributes) ?? containerAlign;
+    const cross = alignCross(childSize.width, colWidth, childAlign);
+    const itemX = x + cross.offset;
+    const itemW = cross.size;
+    children.push(positionContainerChild(child, itemX, itemY, itemW, theme, itemH));
+  }
+  return {
+    node,
+    x,
+    y,
+    width: colWidth,
+    height: Math.max(targetH, res.content),
+    children
+  };
+}
+function positionList(node, x, y, width, theme, height) {
   const children = [];
   let cursorY = y;
   for (let i = 0; i < node.children.length; i++) {
@@ -4339,64 +5802,61 @@ function positionSlot(node, x, y, width, theme) {
   return { node, x, y, width, height, children };
 }
 function positionSlotFooter(node, x, y, width, theme) {
-  const sizes = node.children.map((c) => measureChild(c, theme));
-  const totalWidth = sizes.reduce((acc, s) => acc + s.width, 0) + Math.max(0, node.children.length - 1) * theme.rowGap;
-  let cursorX = x + width - totalWidth;
-  const children = [];
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const items = node.children.map(
+    (child, i) => resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i].width,
+      parentExtent: width,
+      axis: "x"
+    })
+  );
+  const justify = getJustify(node.attributes) !== "start" ? getJustify(node.attributes) : "end";
+  const res = layoutAxis({
+    items,
+    available: width,
+    gap: theme.rowGap,
+    justify
+  });
   let maxH = 0;
+  const children = [];
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
-    const size = sizes[i];
-    const laid = positionContainerChild(child, cursorX, y, size.width, theme);
+    const itemW = res.sizes[i];
+    const itemX = x + res.offsets[i];
+    const laid = positionContainerChild(child, itemX, y, itemW, theme);
     children.push(laid);
     if (laid.height > maxH) maxH = laid.height;
-    cursorX += size.width + theme.rowGap;
   }
   return { node, x, y, width, height: maxH, children };
 }
 function positionGrid(node, x, y, width, theme) {
-  const cellSize = preferredCellSize(node, theme);
+  const placed = placeGridCells(node, theme);
+  const tracks = measureGridTracks(node, placed, theme);
   const children = [];
-  const claimed = /* @__PURE__ */ new Set();
-  for (const c of node.children) {
-    if (c.row !== void 0 && c.col !== void 0) {
-      claimed.add(`${c.row}:${c.col}`);
+  for (const p of placed) {
+    const colIdx = p.col - 1;
+    const rowIdx = p.row - 1;
+    const cellX = x + (tracks.colOffsets[colIdx] ?? 0);
+    const cellY = y + (tracks.rowOffsets[rowIdx] ?? 0);
+    let cellW = 0;
+    for (let c = 0; c < p.span && colIdx + c < tracks.colSizes.length; c++) {
+      cellW += tracks.colSizes[colIdx + c];
     }
-  }
-  let flowRow = 1;
-  let flowCol = 1;
-  const advanceFlow = () => {
-    while (true) {
-      if (flowCol > node.cols) {
-        flowCol = 1;
-        flowRow++;
-      }
-      if (flowRow > node.rows) return;
-      if (!claimed.has(`${flowRow}:${flowCol}`)) return;
-      flowCol++;
+    cellW += Math.max(0, p.span - 1) * theme.rowGap;
+    let cellH = 0;
+    for (let r = 0; r < p.rows && rowIdx + r < tracks.rowSizes.length; r++) {
+      cellH += tracks.rowSizes[rowIdx + r];
     }
-  };
-  for (const cell of node.children) {
-    let r = cell.row;
-    let c = cell.col;
-    if (r === void 0 || c === void 0) {
-      advanceFlow();
-      r = flowRow;
-      c = flowCol;
-      flowCol++;
-    }
-    const clampedR = Math.min(Math.max(1, r), node.rows);
-    const clampedC = Math.min(Math.max(1, c), node.cols);
-    const cellX = x + (clampedC - 1) * (cellSize.width + theme.rowGap);
-    const cellY = y + (clampedR - 1) * (cellSize.height + theme.colGap);
-    children.push(positionCell(cell, cellX, cellY, cellSize.width, cellSize.height, theme));
+    cellH += Math.max(0, p.rows - 1) * theme.colGap;
+    children.push(positionCell(p.cell, cellX, cellY, cellW, cellH, theme));
   }
   return {
     node,
     x,
     y,
-    width: node.cols * cellSize.width + (node.cols - 1) * theme.rowGap,
-    height: node.rows * cellSize.height + (node.rows - 1) * theme.colGap,
+    width: tracks.width,
+    height: tracks.height,
     children
   };
 }
@@ -4416,6 +5876,129 @@ function positionCell(node, x, y, width, height, theme) {
     if (i < node.children.length - 1) cursorY += theme.colGap;
   }
   return { node, x, y, width, height, children };
+}
+function positionTable(node, x, y, width, theme, height) {
+  const tracks = computeTableTracks(node, width, theme);
+  const tableWidth = Math.max(width, tracks.totalWidth);
+  const tableHeight = height ?? tracks.totalHeight;
+  const children = [];
+  let cursorY = y;
+  if (node.columns) {
+    const colChildren = [];
+    for (let c = 0; c < node.columns.children.length && c < tracks.colSizes.length; c++) {
+      const col = node.columns.children[c];
+      const colX = x + tracks.colOffsets[c];
+      const colW = tracks.colSizes[c];
+      colChildren.push({
+        node: col,
+        x: colX,
+        y: cursorY,
+        width: colW,
+        height: tracks.headerHeight,
+        children: []
+      });
+    }
+    children.push({
+      node: node.columns,
+      x,
+      y: cursorY,
+      width: tableWidth,
+      height: tracks.headerHeight,
+      children: colChildren
+    });
+    cursorY += tracks.headerHeight;
+  }
+  for (let r = 0; r < node.rows.length; r++) {
+    const rowNode = node.rows[r];
+    const rowH = tracks.rowHeights[r];
+    const cellChildren = [];
+    let colIdx = 0;
+    for (const cell of rowNode.children) {
+      const span = cell.span ?? 1;
+      const cellX = x + (tracks.colOffsets[colIdx] ?? 0);
+      let cellW = 0;
+      for (let s = 0; s < span && colIdx + s < tracks.colSizes.length; s++) {
+        cellW += tracks.colSizes[colIdx + s];
+      }
+      const cellContentChildren = [];
+      if (cell.children.length > 0) {
+        const innerX = cellX + tracks.padX;
+        const innerW = Math.max(0, cellW - tracks.padX * 2);
+        let childCursorY = cursorY + tracks.padY;
+        for (const ch of cell.children) {
+          const laidChild = positionContainerChild(ch, innerX, childCursorY, innerW, theme);
+          cellContentChildren.push(laidChild);
+          childCursorY += laidChild.height + theme.colGap;
+        }
+      }
+      cellChildren.push({
+        node: cell,
+        x: cellX,
+        y: cursorY,
+        width: cellW,
+        height: rowH,
+        children: cellContentChildren
+      });
+      colIdx += span;
+    }
+    children.push({
+      node: rowNode,
+      x,
+      y: cursorY,
+      width: tableWidth,
+      height: rowH,
+      children: cellChildren
+    });
+    cursorY += rowH;
+  }
+  if (node.foot) {
+    const cellChildren = [];
+    let colIdx = 0;
+    for (const cell of node.foot.children) {
+      const span = cell.span ?? 1;
+      const cellX = x + (tracks.colOffsets[colIdx] ?? 0);
+      let cellW = 0;
+      for (let s = 0; s < span && colIdx + s < tracks.colSizes.length; s++) {
+        cellW += tracks.colSizes[colIdx + s];
+      }
+      const cellContentChildren = [];
+      if (cell.children.length > 0) {
+        const innerX = cellX + tracks.padX;
+        const innerW = Math.max(0, cellW - tracks.padX * 2);
+        let childCursorY = cursorY + tracks.padY;
+        for (const ch of cell.children) {
+          const laidChild = positionContainerChild(ch, innerX, childCursorY, innerW, theme);
+          cellContentChildren.push(laidChild);
+          childCursorY += laidChild.height + theme.colGap;
+        }
+      }
+      cellChildren.push({
+        node: cell,
+        x: cellX,
+        y: cursorY,
+        width: cellW,
+        height: tracks.footHeight,
+        children: cellContentChildren
+      });
+      colIdx += span;
+    }
+    children.push({
+      node: node.foot,
+      x,
+      y: cursorY,
+      width: tableWidth,
+      height: tracks.footHeight,
+      children: cellChildren
+    });
+  }
+  return {
+    node,
+    x,
+    y,
+    width: tableWidth,
+    height: tableHeight,
+    children
+  };
 }
 function positionResourceBar(node, x, y, width, theme) {
   const sizes = node.children.map((r) => measureResource(r, theme));
@@ -4542,8 +6125,29 @@ function positionImage(node, x, y, theme) {
 function positionIcon(node, x, y, theme) {
   return { node, x, y, width: theme.iconSize, height: theme.iconSize, children: [] };
 }
-function positionDivider(node, x, y, width, theme) {
+function positionDivider(node, x, y, width, theme, height) {
+  if (getAttrIdent(node.attributes, "orientation") === "vertical") {
+    return {
+      node,
+      x,
+      y,
+      width: theme.dividerStrokeWidth,
+      height: height ?? theme.lineHeight,
+      children: []
+    };
+  }
   return { node, x, y, width, height: theme.dividerHeight, children: [] };
+}
+function positionCode(node, x, y, width, theme, height) {
+  const measured = measureCode(node, theme);
+  return {
+    node,
+    x,
+    y,
+    width: Math.max(width, measured.width),
+    height: height ?? measured.height,
+    children: []
+  };
 }
 function positionSpacer(node, x, y, width) {
   return { node, x, y, width, height: 0, children: [] };
@@ -4559,7 +6163,7 @@ function getAttrString(attrs, key) {
   const v = getAttr(attrs, key);
   return v?.kind === "string" ? v.value : void 0;
 }
-function getAttrNumber(attrs, key) {
+function getAttrNumber2(attrs, key) {
   const v = getAttr(attrs, key);
   return v?.kind === "number" ? v.value : void 0;
 }
@@ -4574,15 +6178,26 @@ function hasFlagAttr(attrs, flag) {
   }
   return false;
 }
-function getAlign(attrs) {
-  const v = getAttrIdent(attrs, "align");
-  if (v === "center" || v === "right" || v === "left") return v;
-  return "left";
-}
 function getJustify(attrs) {
   const v = getAttrIdent(attrs, "justify");
-  if (v === "between" || v === "around" || v === "end" || v === "start") return v;
+  if (v === "start" || v === "center" || v === "end" || v === "between" || v === "around" || v === "evenly") {
+    return v;
+  }
   return "start";
+}
+function getCrossAlign(attrs, defaultAlign = "start") {
+  const v = getAttrIdent(attrs, "align");
+  if (v === "start" || v === "center" || v === "end" || v === "stretch") {
+    return v;
+  }
+  return defaultAlign;
+}
+function getSelfAlign(attrs) {
+  const v = getAttrIdent(attrs, "self-align");
+  if (v === "start" || v === "center" || v === "end" || v === "stretch") {
+    return v;
+  }
+  return void 0;
 }
 function textSizeScale(attrs, theme) {
   const size = getAttrIdent(attrs, "size");
@@ -4905,6 +6520,18 @@ function emitNode(laid, theme, out) {
       break;
     case "cell":
       emitCell(laid, theme, out);
+      break;
+    case "table":
+      emitTable(laid, theme, out);
+      break;
+    case "code":
+      emitCode(laid, theme, out);
+      break;
+    case "tableColumns":
+    case "tableColumn":
+    case "tableRow":
+    case "tableFoot":
+    case "tableCell":
       break;
     case "resourcebar":
       emitResourceBar(laid, theme, out);
@@ -5295,6 +6922,8 @@ function emitChip(laid, theme, out) {
   const closable = hasFlag(node.attributes, "closable");
   const accent = getAccent(node.attributes, theme);
   const iconName = getAttrString2(node.attributes, "icon");
+  const variant = getAttrIdent2(node.attributes, "variant");
+  const isKbd = variant === "kbd";
   let bg;
   let border;
   let textColor;
@@ -5302,14 +6931,24 @@ function emitChip(laid, theme, out) {
     bg = accent ?? theme.chipSelectedBg;
     border = accent ?? theme.chipSelectedBorder;
     textColor = theme.chipSelectedText;
+  } else if (isKbd) {
+    bg = theme.tableHeaderBg;
+    border = theme.tableBorderColor;
+    textColor = theme.textColor;
   } else {
     bg = theme.chipBg;
     border = accent ?? theme.chipBorder;
     textColor = accent ?? theme.chipText;
   }
+  const rx = isKbd ? 3 : laid.height / 2;
   out.push(
-    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" rx="${laid.height / 2}" fill="${bg}" stroke="${border}" stroke-width="1" />`
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" rx="${rx}" fill="${bg}" stroke="${border}" stroke-width="1" />`
   );
+  if (isKbd) {
+    out.push(
+      `<line x1="${laid.x + 2}" y1="${laid.y + laid.height - 1.5}" x2="${laid.x + laid.width - 2}" y2="${laid.y + laid.height - 1.5}" stroke="${border}" stroke-width="1.5" />`
+    );
+  }
   let cursorX = laid.x + theme.chipPaddingX;
   const midY = laid.y + laid.height / 2;
   if (iconName && hasIcon(iconName)) {
@@ -5324,8 +6963,9 @@ function emitChip(laid, theme, out) {
     if (iconMarkup) out.push(iconMarkup);
     cursorX += iconSize + 4;
   }
+  const fontAttr = isKbd ? ` font-family="${theme.codeFontFamily}" font-weight="600"` : "";
   out.push(
-    `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}" fill="${textColor}">${escapeText(node.label)}</text>`
+    `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}"${fontAttr} fill="${textColor}">${escapeText(node.label)}</text>`
   );
   if (closable) {
     const cx = laid.x + laid.width - theme.chipPaddingX - 4;
@@ -5333,6 +6973,55 @@ function emitChip(laid, theme, out) {
       `<line x1="${cx - 4}" y1="${midY - 4}" x2="${cx + 4}" y2="${midY + 4}" stroke="${textColor}" stroke-width="1.2" stroke-linecap="round" />`,
       `<line x1="${cx + 4}" y1="${midY - 4}" x2="${cx - 4}" y2="${midY + 4}" stroke="${textColor}" stroke-width="1.2" stroke-linecap="round" />`
     );
+  }
+}
+function emitCode(laid, theme, out) {
+  const node = laid.node;
+  const { x, y, width, height } = laid;
+  const hasLines = hasFlag(node.attributes, "lines");
+  out.push(
+    `<rect x="${x + 0.5}" y="${y + 0.5}" width="${width - 1}" height="${height - 1}" rx="4" fill="${theme.codeBg}" stroke="${theme.codeBorder}" stroke-width="1" />`
+  );
+  let cursorY = y;
+  if (node.lang) {
+    out.push(
+      `<rect x="${x + 0.5}" y="${y + 0.5}" width="${width - 1}" height="22" rx="4" fill="${theme.tableHeaderBg}" />`,
+      `<line x1="${x}" y1="${y + 22}" x2="${x + width}" y2="${y + 22}" stroke="${theme.codeBorder}" stroke-width="1" />`,
+      `<text x="${x + 8}" y="${y + 15}" font-size="${theme.smallFontSize}" font-family="${theme.codeFontFamily}" font-weight="600" fill="${theme.mutedTextColor}">${escapeText(node.lang)}</text>`
+    );
+    cursorY += 22;
+  }
+  const lines = [];
+  if (node.content !== void 0) {
+    lines.push(...node.content.split("\n"));
+  }
+  for (const c of node.children) {
+    if (c.kind === "text") lines.push(c.content);
+  }
+  if (lines.length === 0) lines.push("");
+  const lineCount = lines.length;
+  const gutterDigits = String(lineCount).length;
+  const gutterW = hasLines ? (gutterDigits + 2) * theme.averageCharWidth : 0;
+  if (hasLines) {
+    const gutterX = x + gutterW + theme.codePadding;
+    out.push(
+      `<line x1="${gutterX}" y1="${cursorY}" x2="${gutterX}" y2="${y + height}" stroke="${theme.codeBorder}" stroke-width="0.5" opacity="0.5" />`
+    );
+  }
+  let textY = cursorY + theme.codePadding + theme.fontSize;
+  for (let i = 0; i < lines.length; i++) {
+    const lineText = lines[i];
+    if (hasLines) {
+      const lineNoStr = String(i + 1).padStart(gutterDigits, " ");
+      out.push(
+        `<text x="${x + theme.codePadding}" y="${textY}" font-family="${theme.codeFontFamily}" font-size="${theme.fontSize}" fill="${theme.codeGutterColor}">${escapeText(lineNoStr)}</text>`
+      );
+    }
+    const codeX = x + theme.codePadding + (hasLines ? gutterW + 8 : 0);
+    out.push(
+      `<text x="${codeX}" y="${textY}" font-family="${theme.codeFontFamily}" font-size="${theme.fontSize}" fill="${theme.codeTextColor}">${escapeText(lineText)}</text>`
+    );
+    textY += theme.codeLineHeight;
   }
 }
 function emitAvatar(laid, theme, out) {
@@ -5785,7 +7474,7 @@ function emitCombo(laid, theme, out) {
 function emitSlider(laid, theme, out) {
   const node = laid.node;
   const range = getAttrRange(node.attributes, "range") ?? { min: 0, max: 100 };
-  const value = getAttrNumber2(node.attributes, "value") ?? range.min;
+  const value = getAttrNumber3(node.attributes, "value") ?? range.min;
   const label = getAttrString2(node.attributes, "label");
   const trackX = laid.x;
   const trackY = laid.y + laid.height / 2 - theme.sliderTrackHeight / 2;
@@ -5877,10 +7566,19 @@ function emitIcon(laid, theme, out) {
   );
 }
 function emitDivider(laid, theme, out) {
-  const y = laid.y + laid.height / 2;
-  out.push(
-    `<line x1="${laid.x}" y1="${y}" x2="${laid.x + laid.width}" y2="${y}" stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" />`
-  );
+  const node = laid.node;
+  const isVertical = getAttrIdent2(node.attributes, "orientation") === "vertical";
+  if (isVertical) {
+    const x = laid.x + laid.width / 2;
+    out.push(
+      `<line x1="${x}" y1="${laid.y}" x2="${x}" y2="${laid.y + laid.height}" stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" />`
+    );
+  } else {
+    const y = laid.y + laid.height / 2;
+    out.push(
+      `<line x1="${laid.x}" y1="${y}" x2="${laid.x + laid.width}" y2="${y}" stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" />`
+    );
+  }
 }
 function emitGrid(laid, theme, out) {
   for (const c of laid.children) emitNode(c, theme, out);
@@ -5924,6 +7622,130 @@ function emitCell(laid, theme, out) {
     if (iconMarkup) out.push(iconMarkup);
   }
   for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitTable(laid, theme, out) {
+  const node = laid.node;
+  const { x, y, width, height } = laid;
+  const isCompact = hasFlag(node.attributes, "compact");
+  const isStriped = hasFlag(node.attributes, "striped");
+  const isBordered = hasFlag(node.attributes, "bordered");
+  const padX = isCompact ? theme.tableCompactPaddingX : theme.tablePaddingX;
+  if (isBordered) {
+    out.push(
+      `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${theme.background}" stroke="${theme.tableBorderColor}" stroke-width="1" rx="4" />`
+    );
+  }
+  let rowIndex = 0;
+  for (const child of laid.children) {
+    if (child.node.kind === "tableColumns") {
+      out.push(
+        `<rect x="${child.x}" y="${child.y}" width="${child.width}" height="${child.height}" fill="${theme.tableHeaderBg}" />`
+      );
+      out.push(
+        `<line x1="${child.x}" y1="${child.y + child.height}" x2="${child.x + child.width}" y2="${child.y + child.height}" stroke="${theme.tableHeaderBorder}" stroke-width="1" />`
+      );
+      for (const colLaid of child.children) {
+        const colNode = colLaid.node;
+        if (colNode.title) {
+          const align = colNode.align ?? "left";
+          const maxTextW = Math.max(0, colLaid.width - padX * 2);
+          const truncated = truncateText(colNode.title, maxTextW, theme);
+          let textX = colLaid.x + padX;
+          let textAnchor = "start";
+          if (align === "center") {
+            textX = colLaid.x + colLaid.width / 2;
+            textAnchor = "middle";
+          } else if (align === "right") {
+            textX = colLaid.x + colLaid.width - padX;
+            textAnchor = "end";
+          }
+          const textY = colLaid.y + colLaid.height / 2 + theme.fontSize * 0.35;
+          const anchorAttr = textAnchor !== "start" ? ` text-anchor="${textAnchor}"` : "";
+          out.push(
+            `<text x="${textX}" y="${textY}"${anchorAttr} font-weight="600" fill="${theme.textColor}">${escapeText(truncated)}</text>`
+          );
+        }
+      }
+    } else if (child.node.kind === "tableRow") {
+      const rowLaid = child;
+      const isEven = rowIndex % 2 === 1;
+      if (isStriped && isEven) {
+        out.push(
+          `<rect x="${rowLaid.x}" y="${rowLaid.y}" width="${rowLaid.width}" height="${rowLaid.height}" fill="${theme.tableStripedBg}" />`
+        );
+      }
+      out.push(
+        `<line x1="${rowLaid.x}" y1="${rowLaid.y + rowLaid.height}" x2="${rowLaid.x + rowLaid.width}" y2="${rowLaid.y + rowLaid.height}" stroke="${theme.tableDividerColor}" stroke-width="1" />`
+      );
+      for (const cellLaid of rowLaid.children) {
+        const cellNode = cellLaid.node;
+        emitTableCell(cellLaid, cellNode, padX, theme, out);
+      }
+      rowIndex++;
+    } else if (child.node.kind === "tableFoot") {
+      const footLaid = child;
+      out.push(
+        `<line x1="${footLaid.x}" y1="${footLaid.y}" x2="${footLaid.x + footLaid.width}" y2="${footLaid.y}" stroke="${theme.tableHeaderBorder}" stroke-width="1.5" />`
+      );
+      out.push(
+        `<rect x="${footLaid.x}" y="${footLaid.y}" width="${footLaid.width}" height="${footLaid.height}" fill="${theme.tableHeaderBg}" opacity="0.6" />`
+      );
+      for (const cellLaid of footLaid.children) {
+        const cellNode = cellLaid.node;
+        emitTableCell(cellLaid, cellNode, padX, theme, out, true);
+      }
+    }
+  }
+  if (isBordered && laid.children.length > 0) {
+    const firstRow = laid.children[0];
+    for (let c = 0; c < firstRow.children.length - 1; c++) {
+      const colCell = firstRow.children[c];
+      const colX = colCell.x + colCell.width;
+      out.push(
+        `<line x1="${colX}" y1="${y}" x2="${colX}" y2="${y + height}" stroke="${theme.tableBorderColor}" stroke-width="1" />`
+      );
+    }
+  }
+}
+function emitTableCell(cellLaid, cellNode, padX, theme, out, isFoot = false) {
+  const accentAttr = getAttrIdent2(cellNode.attributes, "accent");
+  let textColor = isFoot ? theme.textColor : theme.textColor;
+  if (accentAttr && theme.accents[accentAttr]) {
+    textColor = theme.accents[accentAttr];
+  }
+  if (cellNode.content !== void 0) {
+    const align = cellNode.align ?? "left";
+    const maxTextW = Math.max(0, cellLaid.width - padX * 2);
+    const truncated = truncateText(cellNode.content, maxTextW, theme);
+    let textX = cellLaid.x + padX;
+    let textAnchor = "start";
+    if (align === "center") {
+      textX = cellLaid.x + cellLaid.width / 2;
+      textAnchor = "middle";
+    } else if (align === "right") {
+      textX = cellLaid.x + cellLaid.width - padX;
+      textAnchor = "end";
+    }
+    const textY = cellLaid.y + cellLaid.height / 2 + theme.fontSize * 0.35;
+    const anchorAttr = textAnchor !== "start" ? ` text-anchor="${textAnchor}"` : "";
+    const weightAttr = isFoot ? ' font-weight="600"' : "";
+    out.push(
+      `<text x="${textX}" y="${textY}"${anchorAttr}${weightAttr} fill="${textColor}">${escapeText(truncated)}</text>`
+    );
+  }
+  for (const c of cellLaid.children) {
+    emitNode(c, theme, out);
+  }
+}
+function truncateText(content, maxWidth, theme) {
+  const fullWidth = content.length * theme.averageCharWidth;
+  if (fullWidth <= maxWidth || maxWidth <= 0) return content;
+  const ellipsis = "\u2026";
+  const ellipsisW = ellipsis.length * theme.averageCharWidth;
+  const targetW = maxWidth - ellipsisW;
+  if (targetW <= 0) return ellipsis;
+  const numChars = Math.floor(targetW / theme.averageCharWidth);
+  return content.slice(0, Math.max(1, numChars)) + ellipsis;
 }
 function emitResourceBar(laid, theme, out) {
   out.push(
@@ -6012,8 +7834,8 @@ function emitProgress(laid, theme, out) {
   const node = laid.node;
   const label = getAttrString2(node.attributes, "label");
   const accent = getAccent(node.attributes, theme);
-  const value = getAttrNumber2(node.attributes, "value") ?? 0;
-  const max = Math.max(1, getAttrNumber2(node.attributes, "max") ?? 100);
+  const value = getAttrNumber3(node.attributes, "value") ?? 0;
+  const max = Math.max(1, getAttrNumber3(node.attributes, "max") ?? 100);
   const frac = clamp01(value / max);
   const barY = label !== void 0 ? laid.y + theme.smallFontSize + 4 : laid.y;
   const barHeight = theme.progressHeight;
@@ -6160,7 +7982,7 @@ function getAttrString2(attrs, key) {
   const v = getAttr2(attrs, key);
   return v?.kind === "string" ? v.value : void 0;
 }
-function getAttrNumber2(attrs, key) {
+function getAttrNumber3(attrs, key) {
   const v = getAttr2(attrs, key);
   return v?.kind === "number" ? v.value : void 0;
 }

@@ -37,23 +37,38 @@ import type {
   SpinnerNode,
   StatNode,
   StatusNode,
+  TableNode,
+  TableColumnsNode,
+  TableColumnNode,
+  TableRowNode,
+  TableFootNode,
+  TableCellNode,
   TabNode,
   TextNode,
   ToggleNode,
   TreeItemNode,
+  CodeNode,
+  MacroDefineNode,
+  MacroUseNode,
   WindowNode,
 } from './ast.js';
 
 export function serialize(doc: Document): string {
-  if (!doc.root) return '';
   const lines: string[] = [];
-  serializeNode(doc.root, 0, lines);
+  if (doc.macros) {
+    for (const m of doc.macros) {
+      serializeNode(m, 0, lines);
+    }
+  }
+  if (doc.root) {
+    serializeNode(doc.root, 0, lines);
+  }
   if (doc.annotations) {
     for (const a of doc.annotations) {
       serializeNode(a, 0, lines);
     }
   }
-  return lines.join('\n') + '\n';
+  return lines.length > 0 ? lines.join('\n') + '\n' : '';
 }
 
 function serializeNode(node: AnyNode, depth: number, out: string[]): void {
@@ -69,7 +84,21 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
             ? 'center'
             : node.kind === 'navbarTrailing'
               ? 'trailing'
-              : node.kind;
+              : node.kind === 'tableColumns'
+                ? 'columns'
+                : node.kind === 'tableColumn'
+                  ? 'column'
+                  : node.kind === 'tableRow'
+                    ? 'tr'
+                    : node.kind === 'tableFoot'
+                      ? 'foot'
+                      : node.kind === 'tableCell'
+                        ? 'td'
+                        : node.kind === 'macroDefine'
+                          ? 'define'
+                          : node.kind === 'macroUse'
+                            ? 'use'
+                            : node.kind;
   const parts: string[] = [keyword];
 
   // Positional args by kind.
@@ -96,6 +125,18 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
       break;
     case 'text':
       parts.push(quoteString((node as TextNode).content));
+      break;
+    case 'code':
+      if ((node as CodeNode).content !== undefined) {
+        parts.push(quoteString((node as CodeNode).content!));
+      }
+      break;
+    case 'macroDefine':
+      parts.push((node as MacroDefineNode).name);
+      for (const p of (node as MacroDefineNode).params) parts.push(p);
+      break;
+    case 'macroUse':
+      parts.push((node as MacroUseNode).name);
       break;
     case 'button':
       parts.push(quoteString(node.label));
@@ -172,9 +213,19 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
     case 'segment':
       parts.push(quoteString((node as SegmentNode).label));
       break;
+    case 'tableColumn':
+      if ((node as TableColumnNode).title !== undefined) {
+        parts.push(quoteString((node as TableColumnNode).title!));
+      }
+      break;
+    case 'tableCell':
+      if ((node as TableCellNode).content !== undefined) {
+        parts.push(quoteString((node as TableCellNode).content!));
+      }
+      break;
     default:
       // No positional args for header/footer/panel/tabs/row/list/input/slider/image/icon/divider/
-      // grid/resourcebar/resource/stats/progress/chart/slotFooter.
+      // grid/table/columns/tr/foot/resourcebar/resource/stats/progress/chart/slotFooter.
       break;
   }
 
@@ -202,8 +253,6 @@ function nodeChildren(node: AnyNode): AnyNode[] {
     return kids;
   }
   if (node.kind === 'navbar') {
-    // navbar's "children" in source order are leading then trailing — the AST
-    // shape stores them as named optional fields rather than a flat array.
     const navbar = node as NavbarNode;
     const kids: AnyNode[] = [];
     if (navbar.leading) kids.push(navbar.leading);
@@ -211,6 +260,21 @@ function nodeChildren(node: AnyNode): AnyNode[] {
     if (navbar.trailing) kids.push(navbar.trailing);
     return kids;
   }
+  if (node.kind === 'table') {
+    const table = node as TableNode;
+    const kids: AnyNode[] = [];
+    if (table.columns) kids.push(table.columns);
+    kids.push(...table.rows);
+    if (table.foot) kids.push(table.foot);
+    return kids;
+  }
+  if (node.kind === 'tableColumns') return (node as TableColumnsNode).children;
+  if (node.kind === 'tableRow') return (node as TableRowNode).children;
+  if (node.kind === 'tableFoot') return (node as TableFootNode).children;
+  if (node.kind === 'tableCell') return (node as TableCellNode).children;
+  if (node.kind === 'tab') return (node as TabNode).children ?? [];
+  if (node.kind === 'code') return (node as CodeNode).children;
+  if (node.kind === 'macroDefine') return (node as MacroDefineNode).template;
   if (node.kind === 'grid') return (node as GridNode).children;
   if (node.kind === 'resource') return [];
   // Most other branches just forward their children array.

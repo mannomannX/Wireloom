@@ -29,3 +29,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 *.tgz
+
+# Export dumps
+project_export.txt
+

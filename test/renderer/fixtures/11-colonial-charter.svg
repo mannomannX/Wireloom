@@ -58,45 +58,45 @@
 <text x="356" y="757.0000000000001" text-anchor="end" font-weight="700" font-size="18" fill="#2d2d2d">+235 bc</text>
 <text x="16" y="786.4285714285714" fill="#2d2d2d">Treasury</text>
 <text x="356" y="786.4285714285714" text-anchor="end" fill="#2d2d2d">4,250 bc</text>
-<text x="16" y="829.4285714285714" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">CIVILIZATION</text>
-<line x1="16" y1="833.4285714285714" x2="356" y2="833.4285714285714" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
-<text x="16" y="856.4285714285714" fill="#2d2d2d">Government</text>
-<text x="356" y="856.4285714285714" text-anchor="end" fill="#2d2d2d">Colonial Charter</text>
-<text x="16" y="884.4285714285714" fill="#2d2d2d">Colonies</text>
-<text x="356" y="884.4285714285714" text-anchor="end" fill="#2d2d2d">12</text>
-<text x="16" y="912.4285714285714" fill="#2d2d2d">Citizens</text>
-<text x="356" y="912.4285714285714" text-anchor="end" fill="#2d2d2d">24.5B</text>
+<text x="16" y="829.4285714285716" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">CIVILIZATION</text>
+<line x1="16" y1="833.4285714285716" x2="356" y2="833.4285714285716" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<text x="16" y="856.4285714285716" fill="#2d2d2d">Government</text>
+<text x="356" y="856.4285714285716" text-anchor="end" fill="#2d2d2d">Colonial Charter</text>
+<text x="16" y="884.4285714285716" fill="#2d2d2d">Colonies</text>
+<text x="356" y="884.4285714285716" text-anchor="end" fill="#2d2d2d">12</text>
+<text x="16" y="912.4285714285716" fill="#2d2d2d">Citizens</text>
+<text x="356" y="912.4285714285716" text-anchor="end" fill="#2d2d2d">24.5B</text>
 <text x="364" y="159.71428571428572" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">ENACTED POLICIES</text>
 <rect x="546.9714285714285" y="143.71428571428572" width="117.82857142857144" height="18" rx="9" fill="#eef0f3" />
 <text x="605.8857142857142" y="156.38095238095238" text-anchor="middle" font-size="11" font-weight="600" fill="#505560">4 / 7 slots filled</text>
 <line x1="364" y1="163.71428571428572" x2="664.8" y2="163.71428571428572" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
-<rect x="364.5" y="172.21428571428572" width="299.79999999999995" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<rect x="364.5" y="172.21428571428572" width="299.8" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
 <text x="374" y="197.11428571428573" font-weight="600" fill="#2d2d2d">Colonial Defense Pact</text>
 <text x="374" y="226.71428571428572" fill="#2d2d2d">+15% Planetary Defense</text>
 <text x="374" y="254.71428571428572" fill="#7a7f87">All colonies gain defensive bonuses</text>
-<rect x="364.5" y="276.2142857142857" width="299.79999999999995" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<rect x="364.5" y="276.2142857142857" width="299.8" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
 <text x="374" y="301.1142857142857" font-weight="600" fill="#2d2d2d">Free Market Initiative</text>
 <text x="374" y="330.7142857142857" fill="#2d2d2d">+10% Income, -5% Approval</text>
 <text x="374" y="358.7142857142857" fill="#7a7f87">Deregulated trade increases revenue</text>
-<rect x="364.5" y="380.2142857142857" width="299.79999999999995" height="137" fill="#fafbfc" stroke="#3a3a3a" stroke-width="1.5" rx="4" />
+<rect x="364.5" y="380.2142857142857" width="299.8" height="137" fill="#fafbfc" stroke="#3a3a3a" stroke-width="1.5" rx="4" />
 <text x="374" y="405.1142857142857" font-weight="600" fill="#2d2d2d">Research Subsidies</text>
 <text x="374" y="434.7142857142857" fill="#2d2d2d">+20% Research Output</text>
 <text x="374" y="462.7142857142857" fill="#7a7f87">Government funded research programs</text>
 <g opacity="1">
-<rect x="580.0999999999999" y="476.2142857142857" width="74.2" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
-<text x="617.1999999999999" y="496.3809523809524" text-anchor="middle" font-weight="500" fill="#2d2d2d">Revoke</text>
+<rect x="580.1" y="476.2142857142857" width="74.2" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="617.2" y="496.3809523809524" text-anchor="middle" font-weight="500" fill="#2d2d2d">Revoke</text>
 </g>
-<rect x="364.5" y="524.2142857142858" width="299.79999999999995" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<rect x="364.5" y="524.2142857142858" width="299.8" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
 <text x="374" y="549.1142857142858" font-weight="600" fill="#2d2d2d">Cultural Exchange</text>
 <text x="374" y="578.7142857142858" fill="#2d2d2d">+10% Influence, +5% Tourism</text>
 <text x="374" y="606.7142857142858" fill="#7a7f87">Interstellar cultural programs</text>
-<rect x="364.5" y="628.2142857142858" width="299.79999999999995" height="69" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<rect x="364.5" y="628.2142857142858" width="299.8" height="69" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
 <text x="374" y="653.1142857142858" font-weight="600" fill="#2d2d2d">Empty Policy Slot</text>
 <text x="374" y="682.7142857142858" font-style="italic" fill="#7a7f87">Choose a policy from the available list</text>
-<rect x="364.5" y="704.2142857142858" width="299.79999999999995" height="69" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<rect x="364.5" y="704.2142857142858" width="299.8" height="69" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
 <text x="374" y="729.1142857142858" font-weight="600" fill="#2d2d2d">Empty Policy Slot</text>
 <text x="374" y="758.7142857142858" font-style="italic" fill="#7a7f87">Choose a policy from the available list</text>
-<rect x="364.5" y="780.2142857142858" width="299.79999999999995" height="69" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<rect x="364.5" y="780.2142857142858" width="299.8" height="69" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
 <text x="374" y="805.1142857142858" font-weight="600" fill="#2d2d2d">Empty Policy Slot</text>
 <text x="374" y="834.7142857142858" font-style="italic" fill="#7a7f87">Choose a policy from the available list</text>
 <text x="672.8" y="159.71428571428572" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">AVAILABLE POLICIES</text>
@@ -156,7 +156,7 @@
 <text x="886.8" y="1048.3809523809525" text-anchor="middle" font-weight="500" fill="#2d2d2d">Change Government</text>
 </g>
 <g opacity="1">
-<rect x="972.5" y="1028.2142857142858" width="59.8" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
-<text x="1002.4" y="1048.3809523809525" text-anchor="middle" font-weight="500" fill="#ffffff">Done</text>
+<rect x="972.4999999999999" y="1028.2142857142858" width="59.8" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="1002.3999999999999" y="1048.3809523809525" text-anchor="middle" font-weight="500" fill="#ffffff">Done</text>
 </g>
 </svg>

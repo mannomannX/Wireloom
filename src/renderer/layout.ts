@@ -28,6 +28,7 @@ import type {
   ChipNode,
   ColNode,
   ComboNode,
+  CodeNode,
   ContainerChild,
   CrumbNode,
   DividerNode,
@@ -64,6 +65,7 @@ import type {
   StatusNode,
   TabNode,
   TabsNode,
+  TableNode,
   TextNode,
   ToggleNode,
   TreeItemNode,
@@ -71,6 +73,17 @@ import type {
   WindowNode,
 } from '../parser/ast.js';
 import type { Theme } from './themes.js';
+import {
+  layoutAxis,
+  alignCross,
+  type AxisItem,
+  type Justify,
+  type CrossAlign,
+} from './axis.js';
+import {
+  resolveToAxisItem,
+} from './sizing.js';
+import { resolveTracks, type TrackDef } from './tracks.js';
 
 export interface LaidOutNode {
   node: AnyNode;
@@ -241,7 +254,7 @@ function measureChild(node: ContainerChild, theme: Theme): Size {
     case 'input':
       return measureInput(node, theme);
     case 'divider':
-      return measureDivider(theme);
+      return measureDivider(node, theme);
     case 'spacer':
       return measureSpacer();
     case 'panel':
@@ -302,6 +315,12 @@ function measureChild(node: ContainerChild, theme: Theme): Size {
       return measureStatus(node, theme);
     case 'segmented':
       return measureSegmented(node, theme);
+    case 'table':
+      return measureTable(node, theme);
+    case 'code':
+      return measureCode(node, theme);
+    case 'macroUse':
+      return { width: 0, height: 0 };
   }
 }
 
@@ -484,8 +503,32 @@ function measureInput(node: InputNode, theme: Theme): Size {
   };
 }
 
-function measureDivider(theme: Theme): Size {
+function measureDivider(node: DividerNode, theme: Theme): Size {
+  if (getAttrIdent(node.attributes, 'orientation') === 'vertical') {
+    return { width: theme.dividerStrokeWidth, height: theme.lineHeight };
+  }
   return { width: 0, height: theme.dividerHeight };
+}
+
+function measureCode(node: CodeNode, theme: Theme): Size {
+  const lines: string[] = [];
+  if (node.content !== undefined) {
+    lines.push(...node.content.split('\n'));
+  }
+  for (const c of node.children) {
+    if (c.kind === 'text') lines.push(c.content);
+  }
+  if (lines.length === 0) lines.push('');
+  const lineCount = lines.length;
+  const hasLines = hasFlagAttr(node.attributes, 'lines');
+  const gutterW = hasLines ? (String(lineCount).length + 2) * theme.averageCharWidth : 0;
+  const maxLineLen = Math.max(...lines.map((l) => l.length), node.lang ? node.lang.length + 4 : 0);
+  const headerH = node.lang ? 22 : 0;
+
+  return {
+    width: gutterW + maxLineLen * theme.averageCharWidth + theme.codePadding * 2,
+    height: headerH + lineCount * theme.codeLineHeight + theme.codePadding * 2,
+  };
 }
 
 function measureSpacer(): Size {
@@ -521,9 +564,19 @@ function measureSection(node: SectionNode, theme: Theme): Size {
 
 function measureTabs(node: TabsNode, theme: Theme): Size {
   const sizes = node.children.map((t) => measureTab(t, theme));
-  const total = sizes.reduce((acc, s) => acc + s.width, 0) +
+  const total =
+    sizes.reduce((acc, s) => acc + s.width, 0) +
     Math.max(0, node.children.length - 1) * theme.tabGap;
-  return { width: total, height: theme.tabHeight };
+  const activeTab =
+    node.children.find((t) => hasFlagAttr(t.attributes, 'active')) ?? node.children[0];
+  let contentHeight = 0;
+  let contentWidth = 0;
+  if (activeTab && activeTab.children && activeTab.children.length > 0) {
+    const stack = measureStack(activeTab.children, theme, 'vertical');
+    contentHeight = stack.height + theme.colGap;
+    contentWidth = stack.width;
+  }
+  return { width: Math.max(total, contentWidth), height: theme.tabHeight + contentHeight };
 }
 
 function measureTab(node: TabNode, theme: Theme): Size {
@@ -602,11 +655,168 @@ function measureSlotFooter(node: SlotFooterNode, theme: Theme): Size {
 
 // --- Grid / Cell ----------------------------------------------------------
 
+interface PlacedGridCell {
+  cell: CellNode;
+  row: number; // 1-indexed
+  col: number; // 1-indexed
+  span: number;
+  rows: number;
+  size: Size;
+}
+
+function placeGridCells(node: GridNode, theme: Theme): PlacedGridCell[] {
+  const claimed = new Set<string>();
+  const markClaimed = (r: number, c: number, span: number, rows: number) => {
+    for (let dr = 0; dr < rows; dr++) {
+      for (let dc = 0; dc < span; dc++) {
+        claimed.add(`${r + dr}:${c + dc}`);
+      }
+    }
+  };
+
+  const isClaimed = (r: number, c: number, span: number, rows: number) => {
+    for (let dr = 0; dr < rows; dr++) {
+      for (let dc = 0; dc < span; dc++) {
+        if (claimed.has(`${r + dr}:${c + dc}`)) return true;
+      }
+    }
+    return false;
+  };
+
+  for (const cell of node.children) {
+    if (cell.row !== undefined && cell.col !== undefined) {
+      const span = cell.span ?? 1;
+      const rows = cell.rows ?? 1;
+      markClaimed(cell.row, cell.col, span, rows);
+    }
+  }
+
+  let flowRow = 1;
+  let flowCol = 1;
+  const advanceFlow = (span: number, rows: number): { r: number; c: number } => {
+    while (true) {
+      if (flowCol + span - 1 > node.cols) {
+        flowCol = 1;
+        flowRow++;
+      }
+      if (flowRow > node.rows) {
+        return { r: flowRow, c: flowCol };
+      }
+      if (!isClaimed(flowRow, flowCol, span, rows)) {
+        return { r: flowRow, c: flowCol };
+      }
+      flowCol++;
+    }
+  };
+
+  const placed: PlacedGridCell[] = [];
+  for (const cell of node.children) {
+    const span = Math.min(Math.max(1, cell.span ?? 1), node.cols);
+    const rows = Math.min(Math.max(1, cell.rows ?? 1), node.rows);
+    let r = cell.row;
+    let c = cell.col;
+    if (r === undefined || c === undefined) {
+      const next = advanceFlow(span, rows);
+      r = next.r;
+      c = next.c;
+      markClaimed(r, c, span, rows);
+      flowCol += span;
+    }
+    const clampedR = Math.min(Math.max(1, r), node.rows);
+    const clampedC = Math.min(Math.max(1, c), node.cols);
+    const size = measureCell(cell, theme);
+    placed.push({ cell, row: clampedR, col: clampedC, span, rows, size });
+  }
+
+  return placed;
+}
+
+function measureGridTracks(
+  node: GridNode,
+  placed: PlacedGridCell[],
+  theme: Theme,
+): {
+  colSizes: number[];
+  colOffsets: number[];
+  rowSizes: number[];
+  rowOffsets: number[];
+  width: number;
+  height: number;
+} {
+  const isAuto = node.track === 'auto';
+  if (!isAuto) {
+    const cellSize = preferredCellSize(node, theme);
+    const colSizes = new Array<number>(node.cols).fill(cellSize.width);
+    const rowSizes = new Array<number>(node.rows).fill(cellSize.height);
+    const colOffsets = colSizes.map((_, i) => i * (cellSize.width + theme.rowGap));
+    const rowOffsets = rowSizes.map((_, i) => i * (cellSize.height + theme.colGap));
+    const width = node.cols * cellSize.width + (node.cols - 1) * theme.rowGap;
+    const height = node.rows * cellSize.height + (node.rows - 1) * theme.colGap;
+    return { colSizes, colOffsets, rowSizes, rowOffsets, width, height };
+  }
+
+  const colMax = new Array<number>(node.cols).fill(theme.cellMinSize);
+  const rowMax = new Array<number>(node.rows).fill(theme.cellMinSize);
+
+  for (const p of placed) {
+    if (p.span === 1 && p.col <= node.cols) {
+      colMax[p.col - 1] = Math.max(colMax[p.col - 1]!, p.size.width);
+    }
+    if (p.rows === 1 && p.row <= node.rows) {
+      rowMax[p.row - 1] = Math.max(rowMax[p.row - 1]!, p.size.height);
+    }
+  }
+
+  for (const p of placed) {
+    if (p.span > 1) {
+      let currentSpanW = 0;
+      for (let c = 0; c < p.span && p.col - 1 + c < node.cols; c++) {
+        currentSpanW += colMax[p.col - 1 + c]!;
+      }
+      currentSpanW += (p.span - 1) * theme.rowGap;
+      if (p.size.width > currentSpanW) {
+        const extraPerCol = (p.size.width - currentSpanW) / p.span;
+        for (let c = 0; c < p.span && p.col - 1 + c < node.cols; c++) {
+          colMax[p.col - 1 + c]! += extraPerCol;
+        }
+      }
+    }
+    if (p.rows > 1) {
+      let currentSpanH = 0;
+      for (let r = 0; r < p.rows && p.row - 1 + r < node.rows; r++) {
+        currentSpanH += rowMax[p.row - 1 + r]!;
+      }
+      currentSpanH += (p.rows - 1) * theme.colGap;
+      if (p.size.height > currentSpanH) {
+        const extraPerRow = (p.size.height - currentSpanH) / p.rows;
+        for (let r = 0; r < p.rows && p.row - 1 + r < node.rows; r++) {
+          rowMax[p.row - 1 + r]! += extraPerRow;
+        }
+      }
+    }
+  }
+
+  const colSum = colMax.reduce((acc, w) => acc + w, 0) + (node.cols - 1) * theme.rowGap;
+  const rowSum = rowMax.reduce((acc, h) => acc + h, 0) + (node.rows - 1) * theme.colGap;
+  const colDefs: TrackDef[] = colMax.map((w) => ({ sizing: 'fixed', value: w }));
+  const rowDefs: TrackDef[] = rowMax.map((h) => ({ sizing: 'fixed', value: h }));
+  const colRes = resolveTracks({ definitions: colDefs, available: colSum, gap: theme.rowGap });
+  const rowRes = resolveTracks({ definitions: rowDefs, available: rowSum, gap: theme.colGap });
+
+  return {
+    colSizes: colRes.sizes,
+    colOffsets: colRes.offsets,
+    rowSizes: rowRes.sizes,
+    rowOffsets: rowRes.offsets,
+    width: colRes.total,
+    height: rowRes.total,
+  };
+}
+
 function measureGrid(node: GridNode, theme: Theme): Size {
-  const cellSize = preferredCellSize(node, theme);
-  const width = node.cols * cellSize.width + (node.cols - 1) * theme.rowGap;
-  const height = node.rows * cellSize.height + (node.rows - 1) * theme.colGap;
-  return { width, height };
+  const placed = placeGridCells(node, theme);
+  const tracks = measureGridTracks(node, placed, theme);
+  return { width: tracks.width, height: tracks.height };
 }
 
 function preferredCellSize(node: GridNode, theme: Theme): Size {
@@ -630,6 +840,187 @@ function measureCell(node: CellNode, theme: Theme): Size {
     width: Math.max(inner.width, labelW) + theme.cellPadding * 2,
     height: inner.height + labelH + theme.cellPadding * 2,
   };
+}
+
+// --- Table (v0.8) ---------------------------------------------------------
+
+function getTablePadding(node: TableNode, theme: Theme): { padX: number; padY: number } {
+  const compact = hasFlagAttr(node.attributes, 'compact');
+  return {
+    padX: compact ? theme.tableCompactPaddingX : theme.tablePaddingX,
+    padY: compact ? theme.tableCompactPaddingY : theme.tablePaddingY,
+  };
+}
+
+function getTableColumnCount(node: TableNode): number {
+  let count = node.columns ? node.columns.children.length : 0;
+  for (const row of node.rows) {
+    let rowCells = 0;
+    for (const cell of row.children) {
+      rowCells += cell.span ?? 1;
+    }
+    if (rowCells > count) count = rowCells;
+  }
+  if (node.foot) {
+    let footCells = 0;
+    for (const cell of node.foot.children) {
+      footCells += cell.span ?? 1;
+    }
+    if (footCells > count) count = footCells;
+  }
+  return Math.max(1, count);
+}
+
+function computeTableTracks(
+  node: TableNode,
+  availableWidth: number,
+  theme: Theme,
+): {
+  colSizes: number[];
+  colOffsets: number[];
+  totalWidth: number;
+  rowHeights: number[];
+  headerHeight: number;
+  footHeight: number;
+  totalHeight: number;
+  padX: number;
+  padY: number;
+} {
+  const { padX, padY } = getTablePadding(node, theme);
+  const numCols = getTableColumnCount(node);
+
+  const minSizes = new Array<number>(numCols).fill(0);
+  const maxSizes = new Array<number>(numCols).fill(0);
+
+  // 1. Column headers
+  if (node.columns) {
+    for (let c = 0; c < node.columns.children.length && c < numCols; c++) {
+      const col = node.columns.children[c]!;
+      if (col.title) {
+        const titleW = col.title.length * theme.averageCharWidth + padX * 2;
+        minSizes[c] = Math.max(minSizes[c]!, titleW);
+        maxSizes[c] = Math.max(maxSizes[c]!, titleW);
+      }
+    }
+  }
+
+  // 2. Rows
+  const rowHeights: number[] = [];
+  for (const row of node.rows) {
+    let colIdx = 0;
+    let maxRowH = theme.tableRowHeight;
+    for (const cell of row.children) {
+      const span = cell.span ?? 1;
+      let cellW = 0;
+      let cellH = theme.tableRowHeight;
+      if (cell.content !== undefined) {
+        cellW = cell.content.length * theme.averageCharWidth + padX * 2;
+        cellH = Math.max(cellH, theme.lineHeight + padY * 2);
+      } else if (cell.children.length > 0) {
+        const stack = measureStack(cell.children, theme, 'horizontal');
+        cellW = stack.width + padX * 2;
+        cellH = Math.max(cellH, stack.height + padY * 2);
+      }
+
+      if (cellH > maxRowH) maxRowH = cellH;
+
+      if (span === 1 && colIdx < numCols) {
+        minSizes[colIdx] = Math.max(minSizes[colIdx]!, cellW);
+        maxSizes[colIdx] = Math.max(maxSizes[colIdx]!, cellW);
+      } else if (span > 1) {
+        let currentW = 0;
+        for (let s = 0; s < span && colIdx + s < numCols; s++) {
+          currentW += maxSizes[colIdx + s]!;
+        }
+        if (cellW > currentW) {
+          const extra = (cellW - currentW) / span;
+          for (let s = 0; s < span && colIdx + s < numCols; s++) {
+            maxSizes[colIdx + s]! += extra;
+            minSizes[colIdx + s]! += extra;
+          }
+        }
+      }
+      colIdx += span;
+    }
+    rowHeights.push(maxRowH);
+  }
+
+  // 3. Foot
+  let footHeight = 0;
+  if (node.foot) {
+    footHeight = theme.tableRowHeight;
+    let colIdx = 0;
+    for (const cell of node.foot.children) {
+      const span = cell.span ?? 1;
+      let cellW = 0;
+      let cellH = theme.tableRowHeight;
+      if (cell.content !== undefined) {
+        cellW = cell.content.length * theme.averageCharWidth + padX * 2;
+        cellH = Math.max(cellH, theme.lineHeight + padY * 2);
+      } else if (cell.children.length > 0) {
+        const stack = measureStack(cell.children, theme, 'horizontal');
+        cellW = stack.width + padX * 2;
+        cellH = Math.max(cellH, stack.height + padY * 2);
+      }
+      if (cellH > footHeight) footHeight = cellH;
+      if (span === 1 && colIdx < numCols) {
+        minSizes[colIdx] = Math.max(minSizes[colIdx]!, cellW);
+        maxSizes[colIdx] = Math.max(maxSizes[colIdx]!, cellW);
+      }
+      colIdx += span;
+    }
+  }
+
+  const headerHeight = node.columns ? theme.tableHeaderHeight : 0;
+  const totalHeight = headerHeight + rowHeights.reduce((acc, h) => acc + h, 0) + footHeight;
+
+  const definitions: TrackDef[] = [];
+  for (let c = 0; c < numCols; c++) {
+    const colNode = node.columns?.children[c];
+    if (colNode?.width) {
+      const w = colNode.width;
+      if (w.unit === 'px') {
+        definitions.push({ sizing: 'fixed', value: w.value });
+      } else if (w.unit === 'fr') {
+        definitions.push({ sizing: 'fr', value: w.value });
+      } else if (w.unit === 'percent') {
+        const px = (w.value / 100) * availableWidth;
+        definitions.push({ sizing: 'fixed', value: px });
+      } else {
+        definitions.push({ sizing: 'fixed', value: w.value });
+      }
+    } else {
+      definitions.push({ sizing: 'auto', value: 0 });
+    }
+  }
+
+  const naturalWidth = maxSizes.reduce((acc, s) => acc + s, 0);
+  const targetAvailable = Math.max(availableWidth, naturalWidth);
+
+  const res = resolveTracks({
+    definitions,
+    available: targetAvailable,
+    gap: 0,
+    minSizes,
+    maxSizes,
+  });
+
+  return {
+    colSizes: res.sizes,
+    colOffsets: res.offsets,
+    totalWidth: res.total,
+    rowHeights,
+    headerHeight,
+    footHeight,
+    totalHeight,
+    padX,
+    padY,
+  };
+}
+
+function measureTable(node: TableNode, theme: Theme): Size {
+  const tracks = computeTableTracks(node, 0, theme);
+  return { width: tracks.totalWidth, height: tracks.totalHeight };
 }
 
 // --- ResourceBar ----------------------------------------------------------
@@ -786,21 +1177,30 @@ function positionTabBar(
   height: number,
   _theme: Theme,
 ): LaidOutNode {
-  const n = node.children.length;
+  const items: AxisItem[] = node.children.map(() => ({
+    basis: 0,
+    grow: 1,
+    shrink: 1,
+    min: 0,
+    max: Infinity,
+  }));
+  const res = layoutAxis({
+    items,
+    available: width,
+    gap: 0,
+    justify: 'start',
+  });
   const children: LaidOutNode[] = [];
-  if (n > 0) {
-    const itemWidth = width / n;
-    for (let i = 0; i < n; i++) {
-      const item = node.children[i]!;
-      children.push({
-        node: item,
-        x: x + i * itemWidth,
-        y,
-        width: itemWidth,
-        height,
-        children: [],
-      });
-    }
+  for (let i = 0; i < node.children.length; i++) {
+    const item = node.children[i]!;
+    children.push({
+      node: item,
+      x: x + res.offsets[i]!,
+      y,
+      width: res.sizes[i]!,
+      height,
+      children: [],
+    });
   }
   return { node, x, y, width, height, children };
 }
@@ -820,7 +1220,7 @@ interface WindowMeasurement {
 }
 
 function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
-  const { header, navbar, footer, tabbar, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, tabbar, sheet, bodyChildren } = classifyWindowChildren(node);
 
   const bodyStack = measureStack(bodyChildren, theme, 'vertical');
   let bodyWidth = bodyStack.width;
@@ -849,6 +1249,21 @@ function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
     const ts = measureTabBar(tabbar, theme);
     tabbarHeight = ts.height;
     bodyWidth = Math.max(bodyWidth, ts.width);
+  }
+  if (sheet) {
+    const ss = measureStack(sheet.children, theme, 'vertical');
+    const sheetMinWidth =
+      sheet.placement === 'center'
+        ? Math.max(theme.sheetCenterMinWidth, ss.width + theme.sheetPadding * 2) +
+          theme.sheetCenterMargin * 2
+        : ss.width + theme.sheetPadding * 2;
+    bodyWidth = Math.max(bodyWidth, sheetMinWidth);
+    const sheetMinHeight =
+      ss.height +
+      theme.sheetPadding * 2 +
+      (sheet.title !== undefined ? theme.sheetTitleHeight : 0) +
+      (sheet.placement === 'bottom' ? theme.sheetGrabberHeight + theme.sheetGrabberGap : 0);
+    bodyHeight = Math.max(bodyHeight, sheetMinHeight);
   }
 
   const hasTitleBar = node.title !== undefined;
@@ -1222,60 +1637,68 @@ function positionHeaderOrFooter(
   const innerX = x + theme.windowPadding;
   const innerY = y + padY;
   const innerWidth = width - theme.windowPadding * 2;
+  const innerHeight = height - padY * 2;
 
   const children: LaidOutNode[] = [];
   if (horizontal) {
-    const sizes = node.children.map((c) => measureChild(c, theme));
-    const gaps = Math.max(0, node.children.length - 1) * theme.rowGap;
-    const intrinsicTotal = sizes.reduce((acc, s) => acc + s.width, 0) + gaps;
-    let spacerCount = 0;
-    for (const c of node.children) if (c.kind === 'spacer') spacerCount++;
-
-    if (spacerCount > 0) {
-      // A spacer turns the band into a left-anchored flex row: non-spacer
-      // children keep their measured width, spacers split the remaining slack.
-      // This is what lets one cluster sit hard-left and another hard-right.
-      const slack = Math.max(0, innerWidth - intrinsicTotal);
-      const spacerWidth = slack / spacerCount;
-      let cursorX = innerX;
-      for (let i = 0; i < node.children.length; i++) {
-        const child = node.children[i]!;
-        const w = child.kind === 'spacer' ? spacerWidth : sizes[i]!.width;
-        children.push(positionContainerChild(child, cursorX, innerY, w, theme));
-        cursorX += w + theme.rowGap;
-      }
-    } else if (
+    if (
       node.children.length === 1 &&
       node.children[0]!.kind === 'row' &&
       rowUsesHorizontalSlack(node.children[0] as RowNode)
     ) {
-      // A lone `row` child that anchors content (spacer / align / justify / fill)
-      // is stretched to the full band width so its anchoring resolves against the
-      // real available space instead of its intrinsic width. Plain rows fall
-      // through to the right-packed branch, preserving the classic action bar.
       children.push(positionContainerChild(node.children[0]!, innerX, innerY, innerWidth, theme));
     } else {
-      // No spacer: preserve the classic right-packed action bar (Cancel / Apply
-      // sit bottom-right) by anchoring the cluster to the band's right edge.
-      let cursorX = innerX + innerWidth - intrinsicTotal;
+      const childSizes = node.children.map((c) => measureChild(c, theme));
+      const items: AxisItem[] = node.children.map((child, i) =>
+        resolveToAxisItem({
+          node: child,
+          intrinsic: childSizes[i]!.width,
+          parentExtent: innerWidth,
+          axis: 'x',
+        }),
+      );
+      const defaultJustify: Justify = kind === 'footer' ? 'end' : 'start';
+      const justify =
+        getJustify(node.attributes) !== 'start' ? getJustify(node.attributes) : defaultJustify;
+      const res = layoutAxis({
+        items,
+        available: innerWidth,
+        gap: theme.rowGap,
+        justify,
+      });
       for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i]!;
-        const size = sizes[i]!;
-        children.push(positionContainerChild(child, cursorX, innerY, size.width, theme));
-        cursorX += size.width + theme.rowGap;
+        const itemW = res.sizes[i]!;
+        const itemX = innerX + res.offsets[i]!;
+        const childSize = childSizes[i]!;
+        const childY = innerY + (innerHeight - childSize.height) / 2;
+        children.push(positionContainerChild(child, itemX, childY, itemW, theme));
       }
     }
   } else {
-    let cursorY = innerY;
+    const childSizes = node.children.map((c) => measureChild(c, theme));
+    const items: AxisItem[] = node.children.map((child, i) =>
+      resolveToAxisItem({
+        node: child,
+        intrinsic: childSizes[i]!.height,
+        parentExtent: innerHeight,
+        axis: 'y',
+      }),
+    );
+    const res = layoutAxis({
+      items,
+      available: innerHeight,
+      gap: theme.colGap,
+      justify: 'start',
+    });
     for (let i = 0; i < node.children.length; i++) {
       const child = node.children[i]!;
-      const size = measureChild(child, theme);
+      const size = childSizes[i]!;
       const childX = kind === 'header' ? innerX + (innerWidth - size.width) / 2 : innerX;
       const childWidth = kind === 'header' ? size.width : innerWidth;
-      const laidChild = positionContainerChild(child, childX, cursorY, childWidth, theme);
+      const itemY = innerY + res.offsets[i]!;
+      const laidChild = positionContainerChild(child, childX, itemY, childWidth, theme);
       children.push(laidChild);
-      cursorY += laidChild.height;
-      if (i < node.children.length - 1) cursorY += theme.colGap;
     }
   }
 
@@ -1335,21 +1758,36 @@ function positionNavbarSlot(
   theme: Theme,
   anchor: 'left' | 'right',
 ): LaidOutNode {
-  const sizes = node.children.map((c) => measureChild(c, theme));
+  const childSizes = node.children.map((c) => measureChild(c, theme));
   const totalChildWidth =
-    sizes.reduce((acc, s) => acc + s.width, 0) +
+    childSizes.reduce((acc, s) => acc + s.width, 0) +
     Math.max(0, node.children.length - 1) * theme.rowGap;
 
-  let cursorX = anchor === 'left' ? anchorX : anchorX - totalChildWidth;
-  const slotX = cursorX;
+  const items: AxisItem[] = node.children.map((child, i) =>
+    resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i]!.width,
+      parentExtent: totalChildWidth,
+      axis: 'x',
+    }),
+  );
+
+  const res = layoutAxis({
+    items,
+    available: totalChildWidth,
+    gap: theme.rowGap,
+    justify: 'start',
+  });
+
+  const slotX = anchor === 'left' ? anchorX : anchorX - totalChildWidth;
   const childrenLaid: LaidOutNode[] = [];
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i]!;
-    const size = sizes[i]!;
+    const size = childSizes[i]!;
+    const itemW = res.sizes[i]!;
+    const itemX = slotX + res.offsets[i]!;
     const childY = innerY + (innerHeight - size.height) / 2;
-    childrenLaid.push(positionContainerChild(child, cursorX, childY, size.width, theme));
-    cursorX += size.width;
-    if (i < node.children.length - 1) cursorX += theme.rowGap;
+    childrenLaid.push(positionContainerChild(child, itemX, childY, itemW, theme));
   }
   return {
     node,
@@ -1367,20 +1805,21 @@ function positionContainerChild(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
   switch (child.kind) {
     case 'panel':
-      return positionPanel(child, x, y, width, theme);
+      return positionPanel(child, x, y, width, theme, height);
     case 'section':
-      return positionSection(child, x, y, width, theme);
+      return positionSection(child, x, y, width, theme, height);
     case 'tabs':
       return positionTabs(child, x, y, width, theme);
     case 'row':
-      return positionRow(child, x, y, width, theme);
+      return positionRow(child, x, y, width, theme, height);
     case 'col':
-      return positionCol(child, x, y, width, theme);
+      return positionCol(child, x, y, width, theme, height);
     case 'list':
-      return positionList(child, x, y, width, theme);
+      return positionList(child, x, y, width, theme, height);
     case 'slot':
       return positionSlot(child, x, y, width, theme);
     case 'text':
@@ -1439,6 +1878,12 @@ function positionContainerChild(
       return positionLeaf(child, x, y, measureStatus(child, theme));
     case 'segmented':
       return positionSegmented(child, x, y, width, theme);
+    case 'table':
+      return positionTable(child, x, y, width, theme, height);
+    case 'code':
+      return positionCode(child, x, y, width, theme, height);
+    case 'macroUse':
+      return positionLeaf(child, x, y, { width: 0, height: 0 });
   }
 }
 
@@ -1541,16 +1986,27 @@ function positionSegmented(
 ): LaidOutNode {
   void width;
   const size = measureSegmented(node, theme);
-  const n = node.children.length;
-  const segW = n > 0 ? size.width / n : 0;
+  const items: AxisItem[] = node.children.map(() => ({
+    basis: 0,
+    grow: 1,
+    shrink: 1,
+    min: 0,
+    max: Infinity,
+  }));
+  const res = layoutAxis({
+    items,
+    available: size.width,
+    gap: 0,
+    justify: 'start',
+  });
   const children: LaidOutNode[] = [];
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < node.children.length; i++) {
     const seg = node.children[i]!;
     children.push({
       node: seg,
-      x: x + i * segW,
+      x: x + res.offsets[i]!,
       y,
-      width: segW,
+      width: res.sizes[i]!,
       height: theme.segmentedHeight,
       children: [],
     });
@@ -1599,22 +2055,53 @@ function positionPanel(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
   const innerX = x + theme.panelPadding;
   const innerY = y + theme.panelPadding;
   const innerWidth = width - theme.panelPadding * 2;
+  const gap = getAttrNumber(node.attributes, 'gap') ?? theme.colGap;
+
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const naturalH =
+    childSizes.reduce((acc, s) => acc + s.height, 0) +
+    Math.max(0, node.children.length - 1) * gap;
+
+  const explicitH = getAttrNumber(node.attributes, 'h');
+  const targetH =
+    height !== undefined
+      ? height - theme.panelPadding * 2
+      : explicitH !== undefined
+        ? explicitH - theme.panelPadding * 2
+        : naturalH;
+
+  const items: AxisItem[] = node.children.map((child, i) =>
+    resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i]!.height,
+      parentExtent: targetH,
+      axis: 'y',
+    }),
+  );
+
+  const res = layoutAxis({
+    items,
+    available: targetH,
+    gap,
+    justify: getJustify(node.attributes),
+  });
 
   const children: LaidOutNode[] = [];
-  let cursorY = innerY;
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i]!;
-    const laidChild = positionContainerChild(child, innerX, cursorY, innerWidth, theme);
+    const itemH = res.sizes[i]!;
+    const itemY = innerY + res.offsets[i]!;
+    const laidChild = positionContainerChild(child, innerX, itemY, innerWidth, theme, itemH);
     children.push(laidChild);
-    cursorY += laidChild.height;
-    if (i < node.children.length - 1) cursorY += theme.colGap;
   }
-  const height = cursorY - y + theme.panelPadding;
-  return { node, x, y, width, height, children };
+
+  const finalHeight = height ?? explicitH ?? (res.content + theme.panelPadding * 2);
+  return { node, x, y, width, height: finalHeight, children };
 }
 
 function positionSection(
@@ -1623,22 +2110,54 @@ function positionSection(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
   const innerX = x;
-  const innerY = y + theme.sectionTitleHeight + theme.sectionTitlePaddingBottom;
+  const topChromeH = theme.sectionTitleHeight + theme.sectionTitlePaddingBottom;
+  const innerY = y + topChromeH;
   const innerWidth = width;
+  const gap = getAttrNumber(node.attributes, 'gap') ?? theme.colGap;
+
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const naturalH =
+    childSizes.reduce((acc, s) => acc + s.height, 0) +
+    Math.max(0, node.children.length - 1) * gap;
+
+  const explicitH = getAttrNumber(node.attributes, 'h');
+  const targetH =
+    height !== undefined
+      ? height - topChromeH - theme.panelPadding
+      : explicitH !== undefined
+        ? explicitH - topChromeH - theme.panelPadding
+        : naturalH;
+
+  const items: AxisItem[] = node.children.map((child, i) =>
+    resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i]!.height,
+      parentExtent: targetH,
+      axis: 'y',
+    }),
+  );
+
+  const res = layoutAxis({
+    items,
+    available: targetH,
+    gap,
+    justify: getJustify(node.attributes),
+  });
 
   const children: LaidOutNode[] = [];
-  let cursorY = innerY;
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i]!;
-    const laidChild = positionContainerChild(child, innerX, cursorY, innerWidth, theme);
+    const itemH = res.sizes[i]!;
+    const itemY = innerY + res.offsets[i]!;
+    const laidChild = positionContainerChild(child, innerX, itemY, innerWidth, theme, itemH);
     children.push(laidChild);
-    cursorY += laidChild.height;
-    if (i < node.children.length - 1) cursorY += theme.colGap;
   }
-  const height = cursorY - y + theme.panelPadding;
-  return { node, x, y, width, height, children };
+
+  const finalHeight = height ?? explicitH ?? (topChromeH + res.content + theme.panelPadding);
+  return { node, x, y, width, height: finalHeight, children };
 }
 
 function positionTabs(
@@ -1663,20 +2182,47 @@ function positionTabs(
     });
     cursorX += size.width + theme.tabGap;
   }
-  return { node, x, y, width, height: theme.tabHeight, children };
+
+  // Active tab content body
+  const activeTab =
+    node.children.find((t) => hasFlagAttr(t.attributes, 'active')) ?? node.children[0];
+  if (activeTab && activeTab.children && activeTab.children.length > 0) {
+    let cursorY = y + theme.tabHeight + theme.colGap;
+    for (const child of activeTab.children) {
+      const laidChild = positionContainerChild(child, x, cursorY, width, theme);
+      children.push(laidChild);
+      cursorY += laidChild.height + theme.colGap;
+    }
+  }
+
+  const measured = measureTabs(node, theme);
+  return {
+    node,
+    x,
+    y,
+    width: Math.max(width, measured.width),
+    height: measured.height,
+    children,
+  };
+}
+
+/**
+ * True when a `col` uses vertical slack distribution — i.e. it contains a
+ * `spacer` child or carries `justify=` other than the default `start`.
+ */
+function colUsesVerticalSlack(node: ColNode): boolean {
+  if (node.children.some((c) => c.kind === 'spacer')) return true;
+  return getJustify(node.attributes) !== 'start';
 }
 
 /**
  * True when a `row` would consume horizontal slack if given more width than its
  * intrinsic content — i.e. it has a `spacer`, a `fill` col, or an explicit
- * `align=`/`justify=`. Used to decide whether a lone row inside a chrome band
- * should be stretched to the full band width (so its anchoring resolves) or left
- * at intrinsic width (preserving the classic right-packed action bar).
+ * `justify=`.
  */
 function rowUsesHorizontalSlack(node: RowNode): boolean {
   if (node.children.some((c) => c.kind === 'spacer')) return true;
   if (node.children.some((c) => c.kind === 'col' && c.width.kind === 'fill')) return true;
-  if (getAlign(node.attributes) !== 'left') return true;
   return getJustify(node.attributes) !== 'start';
 }
 
@@ -1686,131 +2232,66 @@ function positionRow(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
-  // Pass 1: classify children and compute their base (measured) widths.
-  // `col fill` and `spacer` both get base width 0 — their real width comes
-  // from distributing slack in pass 2.
-  const baseWidths: number[] = [];
-  let fillCount = 0;
-  let spacerCount = 0;
-  for (const child of node.children) {
-    if (child.kind === 'col' && child.width.kind === 'fill') {
-      baseWidths.push(0);
-      fillCount++;
-    } else if (child.kind === 'col' && child.width.kind === 'length' && child.width.unit === 'px') {
-      baseWidths.push(child.width.value);
-    } else if (child.kind === 'spacer') {
-      baseWidths.push(0);
-      spacerCount++;
-    } else {
-      baseWidths.push(measureChild(child, theme).width);
-    }
-  }
+  const gap = getAttrNumber(node.attributes, 'gap') ?? theme.rowGap;
+  const justify = getJustify(node.attributes);
+  const containerAlign = getCrossAlign(node.attributes, 'start');
 
-  const gapTotal = Math.max(0, node.children.length - 1) * theme.rowGap;
-  const fixedTotal = baseWidths.reduce((acc, w) => acc + w, 0);
-  const available = Math.max(0, width - fixedTotal - gapTotal);
-  const fillWidth = fillCount > 0 ? available / fillCount : 0;
-  // Spacers only consume slack when there are no fills — fills win precedence.
-  const spacerWidth = fillCount === 0 && spacerCount > 0 ? available / spacerCount : 0;
-
-  // Assigned widths per child after slack distribution.
-  const assignedWidths = node.children.map((child, i) => {
-    if (child.kind === 'col' && child.width.kind === 'fill') {
-      return Math.max(fillWidth, theme.colFillMinWidth);
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const hasFillCol = node.children.some((c) => c.kind === 'col' && c.width.kind === 'fill');
+  const items: AxisItem[] = node.children.map((child, i) => {
+    if (child.kind === 'spacer' && hasFillCol) {
+      return { basis: 0, grow: 0, shrink: 0, min: 0, max: 0 };
     }
-    if (child.kind === 'spacer') {
-      return Math.max(spacerWidth, 0);
-    }
-    return baseWidths[i] ?? 0;
+    return resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i]!.width,
+      parentExtent: width,
+      axis: 'x',
+    });
   });
 
-  // Compute effective row width (may exceed parent width if fill cols hit their minimum).
-  const effectiveWidth =
-    assignedWidths.reduce((acc, w) => acc + w, 0) + gapTotal;
+  const res = layoutAxis({ items, available: width, gap, justify });
 
-  // Slack that will be consumed by `justify=…` when it applies. When fills or
-  // explicit spacers are present, they already ate the slack — justify is a
-  // no-op and alignment falls back to start.
-  const justify = getJustify(node.attributes);
-  const align = getAlign(node.attributes);
-  const justifyActive =
-    fillCount === 0 && spacerCount === 0 && justify !== 'start';
-  const slack = Math.max(0, width - effectiveWidth);
-
-  let cursorX: number;
-  let extraGapBetween = 0;
-  if (fillCount > 0 || spacerCount > 0) {
-    cursorX = x;
-  } else if (justifyActive) {
-    const n = node.children.length;
-    if (justify === 'end') {
-      cursorX = x + slack;
-    } else if (justify === 'between') {
-      cursorX = x;
-      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
-    } else {
-      // 'around' — equal space on both sides of each child (half-units at edges).
-      const unit = n > 0 ? slack / (2 * n) : 0;
-      cursorX = x + unit;
-      extraGapBetween = 2 * unit;
-    }
-  } else if (align === 'right') {
-    cursorX = x + width - effectiveWidth;
-  } else if (align === 'center') {
-    cursorX = x + (width - effectiveWidth) / 2;
-  } else {
-    cursorX = x;
+  let maxChildH = 0;
+  for (const s of childSizes) {
+    if (s.height > maxChildH) maxChildH = s.height;
   }
+  const explicitH = getAttrNumber(node.attributes, 'h');
+  const rowHeight = height ?? explicitH ?? maxChildH;
 
   const children: LaidOutNode[] = [];
-  const childXs: number[] = [];
-  let maxHeight = 0;
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i]!;
-    const childWidth = assignedWidths[i] ?? 0;
-    const laidChild = positionContainerChild(child, cursorX, y, childWidth, theme);
-    children.push(laidChild);
-    childXs.push(cursorX);
-    cursorX += childWidth;
-    if (laidChild.height > maxHeight) maxHeight = laidChild.height;
-    if (i < node.children.length - 1) cursorX += theme.rowGap + extraGapBetween;
-  }
+    const childSize = childSizes[i]!;
+    const itemW = res.sizes[i]!;
+    const itemX = x + res.offsets[i]!;
 
-  // Stretch pass: give `col` children that use vertical slack (a `spacer` child
-  // or `justify=`) the row's content height so they can anchor content to the
-  // top/bottom or spread it. Plain cols are left untouched, so their geometry —
-  // and the existing fixtures — stay exactly as before.
-  for (let i = 0; i < node.children.length; i++) {
-    const child = node.children[i]!;
-    if (
-      child.kind === 'col' &&
-      colUsesVerticalSlack(child) &&
-      maxHeight > (children[i]?.height ?? 0)
-    ) {
-      children[i] = positionCol(child, childXs[i] ?? x, y, assignedWidths[i] ?? 0, theme, maxHeight);
+    let childAlign = getSelfAlign(child.attributes);
+    if (!childAlign) {
+      if (child.kind === 'col' && colUsesVerticalSlack(child)) {
+        childAlign = 'stretch';
+      } else {
+        childAlign = containerAlign;
+      }
     }
+
+    const cross = alignCross(childSize.height, rowHeight, childAlign);
+    const itemY = y + cross.offset;
+    const itemH = cross.size;
+
+    children.push(positionContainerChild(child, itemX, itemY, itemW, theme, itemH));
   }
 
   return {
     node,
     x,
     y,
-    width: Math.max(width, effectiveWidth),
-    height: maxHeight,
+    width: Math.max(width, res.content),
+    height: rowHeight,
     children,
   };
-}
-
-/**
- * True when a `col` uses vertical slack distribution — i.e. it contains a
- * `spacer` child or carries `justify=` other than the default `start`. The row
- * stretch pass only re-lays such cols, so plain content-sized cols keep their
- * exact prior geometry (and fixtures stay stable).
- */
-function colUsesVerticalSlack(node: ColNode): boolean {
-  if (node.children.some((c) => c.kind === 'spacer')) return true;
-  return getJustify(node.attributes) !== 'start';
 }
 
 function positionCol(
@@ -1821,61 +2302,55 @@ function positionCol(
   theme: Theme,
   availableHeight?: number,
 ): LaidOutNode {
+  const gap = getAttrNumber(node.attributes, 'gap') ?? theme.colGap;
+  const justify = getJustify(node.attributes);
+  const containerAlign = getCrossAlign(node.attributes, 'stretch');
+
   const colWidth =
     node.width.kind === 'length' && node.width.unit === 'px' ? node.width.value : width;
 
-  // Base (content) heights. `spacer` contributes 0 — it only consumes vertical
-  // slack in pass 2, mirroring how `spacer` behaves on the horizontal axis.
-  const baseHeights = node.children.map((c) =>
-    c.kind === 'spacer' ? 0 : measureChild(c, theme).height,
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const naturalContentH =
+    childSizes.reduce((acc, s) => acc + s.height, 0) +
+    Math.max(0, node.children.length - 1) * gap;
+
+  const explicitH = getAttrNumber(node.attributes, 'h');
+  const targetH = availableHeight ?? explicitH ?? naturalContentH;
+
+  const items: AxisItem[] = node.children.map((child, i) =>
+    resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i]!.height,
+      parentExtent: targetH,
+      axis: 'y',
+    }),
   );
-  let spacerCount = 0;
-  for (const c of node.children) if (c.kind === 'spacer') spacerCount++;
 
-  const gapTotal = Math.max(0, node.children.length - 1) * theme.colGap;
-  const contentHeight = baseHeights.reduce((acc, h) => acc + h, 0) + gapTotal;
-  const target = Math.max(availableHeight ?? 0, contentHeight);
-  const slack = Math.max(0, target - contentHeight);
-
-  // Vertical distribution: spacers win precedence (eat all slack); otherwise
-  // `justify=` shifts/spreads content; default is top-anchored.
-  const justify = getJustify(node.attributes);
-  const spacerHeight = spacerCount > 0 ? slack / spacerCount : 0;
-  const justifyActive = spacerCount === 0 && justify !== 'start' && slack > 0;
-
-  let cursorY = y;
-  let extraGapBetween = 0;
-  if (spacerCount > 0) {
-    cursorY = y;
-  } else if (justifyActive) {
-    const n = node.children.length;
-    if (justify === 'end') {
-      cursorY = y + slack;
-    } else if (justify === 'between') {
-      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
-    } else {
-      // 'around' — equal space above and below each child (half-units at edges).
-      const unit = n > 0 ? slack / (2 * n) : 0;
-      cursorY = y + unit;
-      extraGapBetween = 2 * unit;
-    }
-  }
+  const res = layoutAxis({ items, available: targetH, gap, justify });
 
   const children: LaidOutNode[] = [];
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i]!;
-    if (child.kind === 'spacer') {
-      // A spacer occupies vertical slack but paints nothing; advance the cursor.
-      children.push(positionContainerChild(child, x, cursorY, colWidth, theme));
-      cursorY += spacerHeight;
-    } else {
-      const laidChild = positionContainerChild(child, x, cursorY, colWidth, theme);
-      children.push(laidChild);
-      cursorY += laidChild.height;
-    }
-    if (i < node.children.length - 1) cursorY += theme.colGap + extraGapBetween;
+    const childSize = childSizes[i]!;
+    const itemH = res.sizes[i]!;
+    const itemY = y + res.offsets[i]!;
+
+    const childAlign = getSelfAlign(child.attributes) ?? containerAlign;
+    const cross = alignCross(childSize.width, colWidth, childAlign);
+    const itemX = x + cross.offset;
+    const itemW = cross.size;
+
+    children.push(positionContainerChild(child, itemX, itemY, itemW, theme, itemH));
   }
-  return { node, x, y, width: colWidth, height: Math.max(target, cursorY - y), children };
+
+  return {
+    node,
+    x,
+    y,
+    width: colWidth,
+    height: Math.max(targetH, res.content),
+    children,
+  };
 }
 
 function positionList(
@@ -1884,7 +2359,9 @@ function positionList(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
+  void height;
   const children: LaidOutNode[] = [];
   let cursorY = y;
   for (let i = 0; i < node.children.length; i++) {
@@ -1962,21 +2439,33 @@ function positionSlotFooter(
   width: number,
   theme: Theme,
 ): LaidOutNode {
-  // Right-align children horizontally.
-  const sizes = node.children.map((c) => measureChild(c, theme));
-  const totalWidth =
-    sizes.reduce((acc, s) => acc + s.width, 0) +
-    Math.max(0, node.children.length - 1) * theme.rowGap;
-  let cursorX = x + width - totalWidth;
-  const children: LaidOutNode[] = [];
+  const childSizes = node.children.map((c) => measureChild(c, theme));
+  const items: AxisItem[] = node.children.map((child, i) =>
+    resolveToAxisItem({
+      node: child,
+      intrinsic: childSizes[i]!.width,
+      parentExtent: width,
+      axis: 'x',
+    }),
+  );
+  const justify =
+    getJustify(node.attributes) !== 'start' ? getJustify(node.attributes) : 'end';
+  const res = layoutAxis({
+    items,
+    available: width,
+    gap: theme.rowGap,
+    justify,
+  });
+
   let maxH = 0;
+  const children: LaidOutNode[] = [];
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i]!;
-    const size = sizes[i]!;
-    const laid = positionContainerChild(child, cursorX, y, size.width, theme);
+    const itemW = res.sizes[i]!;
+    const itemX = x + res.offsets[i]!;
+    const laid = positionContainerChild(child, itemX, y, itemW, theme);
     children.push(laid);
     if (laid.height > maxH) maxH = laid.height;
-    cursorX += size.width + theme.rowGap;
   }
   return { node, x, y, width, height: maxH, children };
 }
@@ -1989,54 +2478,37 @@ function positionGrid(
   theme: Theme,
 ): LaidOutNode {
   void width;
-  const cellSize = preferredCellSize(node, theme);
+  const placed = placeGridCells(node, theme);
+  const tracks = measureGridTracks(node, placed, theme);
   const children: LaidOutNode[] = [];
 
-  // Auto-flow tracker: walks cells L→R, T→B, skipping positions already
-  // claimed by explicit row/col attributes.
-  const claimed = new Set<string>();
-  for (const c of node.children) {
-    if (c.row !== undefined && c.col !== undefined) {
-      claimed.add(`${c.row}:${c.col}`);
-    }
-  }
-  let flowRow = 1;
-  let flowCol = 1;
-  const advanceFlow = (): void => {
-    while (true) {
-      if (flowCol > node.cols) {
-        flowCol = 1;
-        flowRow++;
-      }
-      if (flowRow > node.rows) return;
-      if (!claimed.has(`${flowRow}:${flowCol}`)) return;
-      flowCol++;
-    }
-  };
+  for (const p of placed) {
+    const colIdx = p.col - 1;
+    const rowIdx = p.row - 1;
+    const cellX = x + (tracks.colOffsets[colIdx] ?? 0);
+    const cellY = y + (tracks.rowOffsets[rowIdx] ?? 0);
 
-  for (const cell of node.children) {
-    let r = cell.row;
-    let c = cell.col;
-    if (r === undefined || c === undefined) {
-      advanceFlow();
-      r = flowRow;
-      c = flowCol;
-      flowCol++;
+    let cellW = 0;
+    for (let c = 0; c < p.span && colIdx + c < tracks.colSizes.length; c++) {
+      cellW += tracks.colSizes[colIdx + c]!;
     }
-    // Clamp into grid bounds so out-of-range explicit positions still render.
-    const clampedR = Math.min(Math.max(1, r), node.rows);
-    const clampedC = Math.min(Math.max(1, c), node.cols);
-    const cellX = x + (clampedC - 1) * (cellSize.width + theme.rowGap);
-    const cellY = y + (clampedR - 1) * (cellSize.height + theme.colGap);
-    children.push(positionCell(cell, cellX, cellY, cellSize.width, cellSize.height, theme));
+    cellW += Math.max(0, p.span - 1) * theme.rowGap;
+
+    let cellH = 0;
+    for (let r = 0; r < p.rows && rowIdx + r < tracks.rowSizes.length; r++) {
+      cellH += tracks.rowSizes[rowIdx + r]!;
+    }
+    cellH += Math.max(0, p.rows - 1) * theme.colGap;
+
+    children.push(positionCell(p.cell, cellX, cellY, cellW, cellH, theme));
   }
 
   return {
     node,
     x,
     y,
-    width: node.cols * cellSize.width + (node.cols - 1) * theme.rowGap,
-    height: node.rows * cellSize.height + (node.rows - 1) * theme.colGap,
+    width: tracks.width,
+    height: tracks.height,
     children,
   };
 }
@@ -2064,6 +2536,157 @@ function positionCell(
     if (i < node.children.length - 1) cursorY += theme.colGap;
   }
   return { node, x, y, width, height, children };
+}
+
+// --- Table positioning ----------------------------------------------------
+
+function positionTable(
+  node: TableNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+  height?: number,
+): LaidOutNode {
+  const tracks = computeTableTracks(node, width, theme);
+  const tableWidth = Math.max(width, tracks.totalWidth);
+  const tableHeight = height ?? tracks.totalHeight;
+  const children: LaidOutNode[] = [];
+
+  let cursorY = y;
+
+  // Header
+  if (node.columns) {
+    const colChildren: LaidOutNode[] = [];
+    for (let c = 0; c < node.columns.children.length && c < tracks.colSizes.length; c++) {
+      const col = node.columns.children[c]!;
+      const colX = x + tracks.colOffsets[c]!;
+      const colW = tracks.colSizes[c]!;
+      colChildren.push({
+        node: col,
+        x: colX,
+        y: cursorY,
+        width: colW,
+        height: tracks.headerHeight,
+        children: [],
+      });
+    }
+    children.push({
+      node: node.columns,
+      x,
+      y: cursorY,
+      width: tableWidth,
+      height: tracks.headerHeight,
+      children: colChildren,
+    });
+    cursorY += tracks.headerHeight;
+  }
+
+  // Body rows
+  for (let r = 0; r < node.rows.length; r++) {
+    const rowNode = node.rows[r]!;
+    const rowH = tracks.rowHeights[r]!;
+    const cellChildren: LaidOutNode[] = [];
+    let colIdx = 0;
+
+    for (const cell of rowNode.children) {
+      const span = cell.span ?? 1;
+      const cellX = x + (tracks.colOffsets[colIdx] ?? 0);
+      let cellW = 0;
+      for (let s = 0; s < span && colIdx + s < tracks.colSizes.length; s++) {
+        cellW += tracks.colSizes[colIdx + s]!;
+      }
+
+      const cellContentChildren: LaidOutNode[] = [];
+      if (cell.children.length > 0) {
+        const innerX = cellX + tracks.padX;
+        const innerW = Math.max(0, cellW - tracks.padX * 2);
+        let childCursorY = cursorY + tracks.padY;
+        for (const ch of cell.children) {
+          const laidChild = positionContainerChild(ch, innerX, childCursorY, innerW, theme);
+          cellContentChildren.push(laidChild);
+          childCursorY += laidChild.height + theme.colGap;
+        }
+      }
+
+      cellChildren.push({
+        node: cell,
+        x: cellX,
+        y: cursorY,
+        width: cellW,
+        height: rowH,
+        children: cellContentChildren,
+      });
+
+      colIdx += span;
+    }
+
+    children.push({
+      node: rowNode,
+      x,
+      y: cursorY,
+      width: tableWidth,
+      height: rowH,
+      children: cellChildren,
+    });
+
+    cursorY += rowH;
+  }
+
+  // Foot
+  if (node.foot) {
+    const cellChildren: LaidOutNode[] = [];
+    let colIdx = 0;
+    for (const cell of node.foot.children) {
+      const span = cell.span ?? 1;
+      const cellX = x + (tracks.colOffsets[colIdx] ?? 0);
+      let cellW = 0;
+      for (let s = 0; s < span && colIdx + s < tracks.colSizes.length; s++) {
+        cellW += tracks.colSizes[colIdx + s]!;
+      }
+
+      const cellContentChildren: LaidOutNode[] = [];
+      if (cell.children.length > 0) {
+        const innerX = cellX + tracks.padX;
+        const innerW = Math.max(0, cellW - tracks.padX * 2);
+        let childCursorY = cursorY + tracks.padY;
+        for (const ch of cell.children) {
+          const laidChild = positionContainerChild(ch, innerX, childCursorY, innerW, theme);
+          cellContentChildren.push(laidChild);
+          childCursorY += laidChild.height + theme.colGap;
+        }
+      }
+
+      cellChildren.push({
+        node: cell,
+        x: cellX,
+        y: cursorY,
+        width: cellW,
+        height: tracks.footHeight,
+        children: cellContentChildren,
+      });
+
+      colIdx += span;
+    }
+
+    children.push({
+      node: node.foot,
+      x,
+      y: cursorY,
+      width: tableWidth,
+      height: tracks.footHeight,
+      children: cellChildren,
+    });
+  }
+
+  return {
+    node,
+    x,
+    y,
+    width: tableWidth,
+    height: tableHeight,
+    children,
+  };
 }
 
 function positionResourceBar(
@@ -2266,8 +2889,38 @@ function positionDivider(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
+  if (getAttrIdent(node.attributes, 'orientation') === 'vertical') {
+    return {
+      node,
+      x,
+      y,
+      width: theme.dividerStrokeWidth,
+      height: height ?? theme.lineHeight,
+      children: [],
+    };
+  }
   return { node, x, y, width, height: theme.dividerHeight, children: [] };
+}
+
+function positionCode(
+  node: CodeNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+  height?: number,
+): LaidOutNode {
+  const measured = measureCode(node, theme);
+  return {
+    node,
+    x,
+    y,
+    width: Math.max(width, measured.width),
+    height: height ?? measured.height,
+    children: [],
+  };
 }
 
 function positionSpacer(
@@ -2316,18 +2969,35 @@ function hasFlagAttr(attrs: readonly unknown[], flag: string): boolean {
   return false;
 }
 
-function getAlign(attrs: readonly unknown[]): 'left' | 'center' | 'right' {
-  const v = getAttrIdent(attrs, 'align');
-  if (v === 'center' || v === 'right' || v === 'left') return v;
-  return 'left';
+function getJustify(attrs: readonly unknown[]): Justify {
+  const v = getAttrIdent(attrs, 'justify');
+  if (
+    v === 'start' ||
+    v === 'center' ||
+    v === 'end' ||
+    v === 'between' ||
+    v === 'around' ||
+    v === 'evenly'
+  ) {
+    return v;
+  }
+  return 'start';
 }
 
-function getJustify(
-  attrs: readonly unknown[],
-): 'start' | 'between' | 'around' | 'end' {
-  const v = getAttrIdent(attrs, 'justify');
-  if (v === 'between' || v === 'around' || v === 'end' || v === 'start') return v;
-  return 'start';
+function getCrossAlign(attrs: readonly unknown[], defaultAlign: CrossAlign = 'start'): CrossAlign {
+  const v = getAttrIdent(attrs, 'align');
+  if (v === 'start' || v === 'center' || v === 'end' || v === 'stretch') {
+    return v;
+  }
+  return defaultAlign;
+}
+
+function getSelfAlign(attrs: readonly unknown[]): CrossAlign | undefined {
+  const v = getAttrIdent(attrs, 'self-align');
+  if (v === 'start' || v === 'center' || v === 'end' || v === 'stretch') {
+    return v;
+  }
+  return undefined;
 }
 
 function textSizeScale(attrs: readonly unknown[], theme: Theme): number {

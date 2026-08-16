@@ -192,6 +192,7 @@ export interface GridNode extends NodeBase {
   kind: 'grid';
   cols: number;
   rows: number;
+  track?: 'uniform' | 'auto';
   children: CellNode[];
 }
 
@@ -202,6 +203,10 @@ export interface CellNode extends NodeBase {
   /** 1-indexed grid position. `undefined` means auto-flow. */
   row?: number;
   col?: number;
+  /** Column span (default 1). */
+  span?: number;
+  /** Row span (default 1). */
+  rows?: number;
   children: ContainerChild[];
 }
 
@@ -222,6 +227,27 @@ export interface StatsNode extends NodeBase {
 export interface TabNode extends NodeBase {
   kind: 'tab';
   label: string;
+  children?: ContainerChild[] | undefined;
+}
+
+export interface CodeNode extends NodeBase {
+  kind: 'code';
+  content?: string | undefined;
+  lang?: string | undefined;
+  children: ContainerChild[];
+}
+
+export interface MacroDefineNode extends NodeBase {
+  kind: 'macroDefine';
+  name: string;
+  params: string[];
+  template: ContainerChild[];
+}
+
+export interface MacroUseNode extends NodeBase {
+  kind: 'macroUse';
+  name: string;
+  attributes: Attribute[];
 }
 
 export interface ItemNode extends NodeBase {
@@ -437,6 +463,47 @@ export interface SegmentNode extends NodeBase {
 }
 
 // ---------------------------------------------------------------------------
+// Table (v0.8)
+// ---------------------------------------------------------------------------
+
+export interface TableNode extends NodeBase {
+  kind: 'table';
+  columns?: TableColumnsNode | undefined;
+  rows: TableRowNode[];
+  foot?: TableFootNode | undefined;
+}
+
+export interface TableColumnsNode extends NodeBase {
+  kind: 'tableColumns';
+  children: TableColumnNode[];
+}
+
+export interface TableColumnNode extends NodeBase {
+  kind: 'tableColumn';
+  title?: string | undefined;
+  align?: 'left' | 'center' | 'right' | undefined;
+  width?: LengthValue | undefined;
+}
+
+export interface TableRowNode extends NodeBase {
+  kind: 'tableRow';
+  children: TableCellNode[];
+}
+
+export interface TableFootNode extends NodeBase {
+  kind: 'tableFoot';
+  children: TableCellNode[];
+}
+
+export interface TableCellNode extends NodeBase {
+  kind: 'tableCell';
+  content?: string | undefined;
+  span?: number | undefined;
+  align?: 'left' | 'center' | 'right' | undefined;
+  children: ContainerChild[];
+}
+
+// ---------------------------------------------------------------------------
 // Annotations (v0.4 — user-manual-style labels pointing at window elements)
 // ---------------------------------------------------------------------------
 
@@ -486,7 +553,9 @@ export type LeafNode =
   | ChipNode
   | AvatarNode
   | SpinnerNode
-  | StatusNode;
+  | StatusNode
+  | CodeNode
+  | MacroUseNode;
 
 export type ContainerChild =
   | PanelNode
@@ -497,6 +566,7 @@ export type ContainerChild =
   | ListNode
   | SlotNode
   | GridNode
+  | TableNode
   | ResourceBarNode
   | StatsNode
   | TreeNode_
@@ -520,6 +590,7 @@ export type WindowChild =
   | ListNode
   | SlotNode
   | GridNode
+  | TableNode
   | ResourceBarNode
   | StatsNode
   | TreeNode_
@@ -550,6 +621,12 @@ export type AnyNode =
   | SlotNode
   | GridNode
   | CellNode
+  | TableNode
+  | TableColumnsNode
+  | TableColumnNode
+  | TableRowNode
+  | TableFootNode
+  | TableCellNode
   | ResourceBarNode
   | ResourceNode
   | StatsNode
@@ -565,12 +642,18 @@ export type AnyNode =
   | SegmentedNode
   | SegmentNode
   | AnnotationNode
+  | MacroDefineNode
+  | MacroUseNode
   | LeafNode;
 
 export interface Document {
   kind: 'document';
   /** Required-by-grammar `window` root. Absent on stub or fully-failed parses. */
   root?: WindowNode;
+  /**
+   * Optional macro definitions preceding or following the window root.
+   */
+  macros?: MacroDefineNode[];
   /**
    * Optional user-manual-style callouts pointing at elements inside `root`.
    * Appear after the `window` node in source; omitted array means none.

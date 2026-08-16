@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="323.7142857142857" viewBox="0 0 432 323.7142857142857" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="432" height="323.7142857142857" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="431" height="322.7142857142857" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="432" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="216" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Pricing Plans</text>
+<line x1="0" y1="81.71428571428572" x2="432" y2="81.71428571428572" stroke="#b0b0b0" stroke-width="1" />
+<text x="132.68571428571428" y="65.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">Subscription Tiers</text>
+<rect x="16" y="97.71428571428572" width="400" height="158" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" rx="4" />
+<rect x="16" y="97.71428571428572" width="400" height="30" fill="#f5f5f5" />
+<line x1="16" y1="127.71428571428572" x2="416" y2="127.71428571428572" stroke="#e0e0e0" stroke-width="1" />
+<text x="26" y="117.61428571428573" font-weight="600" fill="#2d2d2d">Plan</text>
+<text x="176" y="117.61428571428573" text-anchor="middle" font-weight="600" fill="#2d2d2d">Users</text>
+<text x="266" y="117.61428571428573" text-anchor="middle" font-weight="600" fill="#2d2d2d">Storage</text>
+<text x="406" y="117.61428571428573" text-anchor="end" font-weight="600" fill="#2d2d2d">Price</text>
+<line x1="16" y1="159.71428571428572" x2="416" y2="159.71428571428572" stroke="#e8e8e8" stroke-width="1" />
+<text x="26" y="148.61428571428573" fill="#2d2d2d">Starter</text>
+<text x="146" y="148.61428571428573" fill="#2d2d2d">1</text>
+<text x="226" y="148.61428571428573" fill="#2d2d2d">10 GB</text>
+<text x="326" y="148.61428571428573" fill="#2d2d2d">Free</text>
+<rect x="16" y="159.71428571428572" width="400" height="32" fill="#fafafa" />
+<line x1="16" y1="191.71428571428572" x2="416" y2="191.71428571428572" stroke="#e8e8e8" stroke-width="1" />
+<text x="26" y="180.61428571428573" fill="#2d2d2d">Team</text>
+<text x="146" y="180.61428571428573" fill="#2d2d2d">Up to 10</text>
+<text x="226" y="180.61428571428573" fill="#2d2d2d">500 GB</text>
+<text x="326" y="180.61428571428573" fill="#2d2d2d">$29/mo</text>
+<line x1="16" y1="223.71428571428572" x2="416" y2="223.71428571428572" stroke="#e8e8e8" stroke-width="1" />
+<text x="26" y="212.61428571428573" fill="#2d2d2d">Enterprise</text>
+<text x="146" y="212.61428571428573" fill="#2d2d2d">Unlimit…</text>
+<text x="226" y="212.61428571428573" fill="#2d2d2d">5 TB</text>
+<text x="326" y="212.61428571428573" fill="#2d2d2d">$199/mo</text>
+<line x1="16" y1="223.71428571428572" x2="416" y2="223.71428571428572" stroke="#e0e0e0" stroke-width="1.5" />
+<rect x="16" y="223.71428571428572" width="400" height="32" fill="#f5f5f5" opacity="0.6" />
+<text x="216" y="244.61428571428573" text-anchor="middle" font-weight="600" fill="#2d2d2d">Annual Billing saves 20%</text>
+<line x1="136" y1="97.71428571428572" x2="136" y2="255.71428571428572" stroke="#e0e0e0" stroke-width="1" />
+<line x1="216" y1="97.71428571428572" x2="216" y2="255.71428571428572" stroke="#e0e0e0" stroke-width="1" />
+<line x1="316" y1="97.71428571428572" x2="316" y2="255.71428571428572" stroke="#e0e0e0" stroke-width="1" />
+<line x1="0" y1="271.7142857142857" x2="432" y2="271.7142857142857" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="171.7" y="282.2142857142857" width="124.60000000000001" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="234" y="302.3809523809524" text-anchor="middle" font-weight="500" fill="#2d2d2d">Contact Sales</text>
+</g>
+<g opacity="1">
+<rect x="305.3" y="282.2142857142857" width="110.2" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="360.40000000000003" y="302.3809523809524" text-anchor="middle" font-weight="500" fill="#ffffff">Get Started</text>
+</g>
+</svg>

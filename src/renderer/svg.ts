@@ -21,6 +21,7 @@ import type {
   CheckboxNode,
   ChipNode,
   ComboNode,
+  CodeNode,
   CrumbNode,
   IconNode,
   ImageNode,
@@ -41,6 +42,9 @@ import type {
   StatNode,
   StatusNode,
   TabNode,
+  TableNode,
+  TableColumnNode,
+  TableCellNode,
   TextNode,
   ToggleNode,
   TreeItemNode,
@@ -210,6 +214,18 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
       break;
     case 'cell':
       emitCell(laid, theme, out);
+      break;
+    case 'table':
+      emitTable(laid, theme, out);
+      break;
+    case 'code':
+      emitCode(laid, theme, out);
+      break;
+    case 'tableColumns':
+    case 'tableColumn':
+    case 'tableRow':
+    case 'tableFoot':
+    case 'tableCell':
       break;
     case 'resourcebar':
       emitResourceBar(laid, theme, out);
@@ -711,6 +727,8 @@ function emitChip(laid: LaidOutNode, theme: Theme, out: string[]): void {
   const closable = hasFlag(node.attributes, 'closable');
   const accent = getAccent(node.attributes, theme);
   const iconName = getAttrString(node.attributes, 'icon');
+  const variant = getAttrIdent(node.attributes, 'variant');
+  const isKbd = variant === 'kbd';
 
   let bg: string;
   let border: string;
@@ -719,15 +737,25 @@ function emitChip(laid: LaidOutNode, theme: Theme, out: string[]): void {
     bg = accent ?? theme.chipSelectedBg;
     border = accent ?? theme.chipSelectedBorder;
     textColor = theme.chipSelectedText;
+  } else if (isKbd) {
+    bg = theme.tableHeaderBg;
+    border = theme.tableBorderColor;
+    textColor = theme.textColor;
   } else {
     bg = theme.chipBg;
     border = accent ?? theme.chipBorder;
     textColor = accent ?? theme.chipText;
   }
 
+  const rx = isKbd ? 3 : laid.height / 2;
   out.push(
-    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" rx="${laid.height / 2}" fill="${bg}" stroke="${border}" stroke-width="1" />`,
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" rx="${rx}" fill="${bg}" stroke="${border}" stroke-width="1" />`,
   );
+  if (isKbd) {
+    out.push(
+      `<line x1="${laid.x + 2}" y1="${laid.y + laid.height - 1.5}" x2="${laid.x + laid.width - 2}" y2="${laid.y + laid.height - 1.5}" stroke="${border}" stroke-width="1.5" />`,
+    );
+  }
 
   let cursorX = laid.x + theme.chipPaddingX;
   const midY = laid.y + laid.height / 2;
@@ -745,8 +773,9 @@ function emitChip(laid: LaidOutNode, theme: Theme, out: string[]): void {
     cursorX += iconSize + 4;
   }
 
+  const fontAttr = isKbd ? ` font-family="${theme.codeFontFamily}" font-weight="600"` : '';
   out.push(
-    `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}" fill="${textColor}">${escapeText(node.label)}</text>`,
+    `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}"${fontAttr} fill="${textColor}">${escapeText(node.label)}</text>`,
   );
 
   if (closable) {
@@ -755,6 +784,63 @@ function emitChip(laid: LaidOutNode, theme: Theme, out: string[]): void {
       `<line x1="${cx - 4}" y1="${midY - 4}" x2="${cx + 4}" y2="${midY + 4}" stroke="${textColor}" stroke-width="1.2" stroke-linecap="round" />`,
       `<line x1="${cx + 4}" y1="${midY - 4}" x2="${cx - 4}" y2="${midY + 4}" stroke="${textColor}" stroke-width="1.2" stroke-linecap="round" />`,
     );
+  }
+}
+
+function emitCode(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as CodeNode;
+  const { x, y, width, height } = laid;
+  const hasLines = hasFlag(node.attributes, 'lines');
+
+  out.push(
+    `<rect x="${x + 0.5}" y="${y + 0.5}" width="${width - 1}" height="${height - 1}" rx="4" fill="${theme.codeBg}" stroke="${theme.codeBorder}" stroke-width="1" />`,
+  );
+
+  let cursorY = y;
+
+  if (node.lang) {
+    out.push(
+      `<rect x="${x + 0.5}" y="${y + 0.5}" width="${width - 1}" height="22" rx="4" fill="${theme.tableHeaderBg}" />`,
+      `<line x1="${x}" y1="${y + 22}" x2="${x + width}" y2="${y + 22}" stroke="${theme.codeBorder}" stroke-width="1" />`,
+      `<text x="${x + 8}" y="${y + 15}" font-size="${theme.smallFontSize}" font-family="${theme.codeFontFamily}" font-weight="600" fill="${theme.mutedTextColor}">${escapeText(node.lang)}</text>`,
+    );
+    cursorY += 22;
+  }
+
+  const lines: string[] = [];
+  if (node.content !== undefined) {
+    lines.push(...node.content.split('\n'));
+  }
+  for (const c of node.children) {
+    if (c.kind === 'text') lines.push(c.content);
+  }
+  if (lines.length === 0) lines.push('');
+
+  const lineCount = lines.length;
+  const gutterDigits = String(lineCount).length;
+  const gutterW = hasLines ? (gutterDigits + 2) * theme.averageCharWidth : 0;
+
+  if (hasLines) {
+    const gutterX = x + gutterW + theme.codePadding;
+    out.push(
+      `<line x1="${gutterX}" y1="${cursorY}" x2="${gutterX}" y2="${y + height}" stroke="${theme.codeBorder}" stroke-width="0.5" opacity="0.5" />`,
+    );
+  }
+
+  let textY = cursorY + theme.codePadding + theme.fontSize;
+  for (let i = 0; i < lines.length; i++) {
+    const lineText = lines[i]!;
+    if (hasLines) {
+      const lineNoStr = String(i + 1).padStart(gutterDigits, ' ');
+      out.push(
+        `<text x="${x + theme.codePadding}" y="${textY}" font-family="${theme.codeFontFamily}" font-size="${theme.fontSize}" fill="${theme.codeGutterColor}">${escapeText(lineNoStr)}</text>`,
+      );
+    }
+    const codeX = x + theme.codePadding + (hasLines ? gutterW + 8 : 0);
+    out.push(
+      `<text x="${codeX}" y="${textY}" font-family="${theme.codeFontFamily}" font-size="${theme.fontSize}" fill="${theme.codeTextColor}">${escapeText(lineText)}</text>`,
+    );
+    textY += theme.codeLineHeight;
   }
 }
 
@@ -1493,11 +1579,21 @@ function emitIcon(laid: LaidOutNode, theme: Theme, out: string[]): void {
 }
 
 function emitDivider(laid: LaidOutNode, theme: Theme, out: string[]): void {
-  const y = laid.y + laid.height / 2;
-  out.push(
-    `<line x1="${laid.x}" y1="${y}" x2="${laid.x + laid.width}" y2="${y}" ` +
-      `stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" />`,
-  );
+  const node = laid.node;
+  const isVertical = getAttrIdent(node.attributes, 'orientation') === 'vertical';
+  if (isVertical) {
+    const x = laid.x + laid.width / 2;
+    out.push(
+      `<line x1="${x}" y1="${laid.y}" x2="${x}" y2="${laid.y + laid.height}" ` +
+        `stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" />`,
+    );
+  } else {
+    const y = laid.y + laid.height / 2;
+    out.push(
+      `<line x1="${laid.x}" y1="${y}" x2="${laid.x + laid.width}" y2="${y}" ` +
+        `stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" />`,
+    );
+  }
 }
 
 function emitGrid(laid: LaidOutNode, theme: Theme, out: string[]): void {
@@ -1552,6 +1648,151 @@ function emitCell(laid: LaidOutNode, theme: Theme, out: string[]): void {
   }
 
   for (const c of laid.children) emitNode(c, theme, out);
+}
+
+// --- Table (v0.8) ---------------------------------------------------------
+
+function emitTable(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as TableNode;
+  const { x, y, width, height } = laid;
+  const isCompact = hasFlag(node.attributes, 'compact');
+  const isStriped = hasFlag(node.attributes, 'striped');
+  const isBordered = hasFlag(node.attributes, 'bordered');
+  const padX = isCompact ? theme.tableCompactPaddingX : theme.tablePaddingX;
+
+  // Outer border if bordered
+  if (isBordered) {
+    out.push(
+      `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${theme.background}" stroke="${theme.tableBorderColor}" stroke-width="1" rx="4" />`,
+    );
+  }
+
+  let rowIndex = 0;
+  for (const child of laid.children) {
+    if (child.node.kind === 'tableColumns') {
+      out.push(
+        `<rect x="${child.x}" y="${child.y}" width="${child.width}" height="${child.height}" fill="${theme.tableHeaderBg}" />`,
+      );
+      out.push(
+        `<line x1="${child.x}" y1="${child.y + child.height}" x2="${child.x + child.width}" y2="${child.y + child.height}" stroke="${theme.tableHeaderBorder}" stroke-width="1" />`,
+      );
+      for (const colLaid of child.children) {
+        const colNode = colLaid.node as TableColumnNode;
+        if (colNode.title) {
+          const align = colNode.align ?? 'left';
+          const maxTextW = Math.max(0, colLaid.width - padX * 2);
+          const truncated = truncateText(colNode.title, maxTextW, theme);
+          let textX = colLaid.x + padX;
+          let textAnchor = 'start';
+          if (align === 'center') {
+            textX = colLaid.x + colLaid.width / 2;
+            textAnchor = 'middle';
+          } else if (align === 'right') {
+            textX = colLaid.x + colLaid.width - padX;
+            textAnchor = 'end';
+          }
+          const textY = colLaid.y + colLaid.height / 2 + theme.fontSize * 0.35;
+          const anchorAttr = textAnchor !== 'start' ? ` text-anchor="${textAnchor}"` : '';
+          out.push(
+            `<text x="${textX}" y="${textY}"${anchorAttr} font-weight="600" fill="${theme.textColor}">${escapeText(truncated)}</text>`,
+          );
+        }
+      }
+    } else if (child.node.kind === 'tableRow') {
+      const rowLaid = child;
+      const isEven = rowIndex % 2 === 1;
+      if (isStriped && isEven) {
+        out.push(
+          `<rect x="${rowLaid.x}" y="${rowLaid.y}" width="${rowLaid.width}" height="${rowLaid.height}" fill="${theme.tableStripedBg}" />`,
+        );
+      }
+      out.push(
+        `<line x1="${rowLaid.x}" y1="${rowLaid.y + rowLaid.height}" x2="${rowLaid.x + rowLaid.width}" y2="${rowLaid.y + rowLaid.height}" stroke="${theme.tableDividerColor}" stroke-width="1" />`,
+      );
+
+      for (const cellLaid of rowLaid.children) {
+        const cellNode = cellLaid.node as TableCellNode;
+        emitTableCell(cellLaid, cellNode, padX, theme, out);
+      }
+      rowIndex++;
+    } else if (child.node.kind === 'tableFoot') {
+      const footLaid = child;
+      out.push(
+        `<line x1="${footLaid.x}" y1="${footLaid.y}" x2="${footLaid.x + footLaid.width}" y2="${footLaid.y}" stroke="${theme.tableHeaderBorder}" stroke-width="1.5" />`,
+      );
+      out.push(
+        `<rect x="${footLaid.x}" y="${footLaid.y}" width="${footLaid.width}" height="${footLaid.height}" fill="${theme.tableHeaderBg}" opacity="0.6" />`,
+      );
+
+      for (const cellLaid of footLaid.children) {
+        const cellNode = cellLaid.node as TableCellNode;
+        emitTableCell(cellLaid, cellNode, padX, theme, out, true);
+      }
+    }
+  }
+
+  // Vertical column borders if bordered
+  if (isBordered && laid.children.length > 0) {
+    const firstRow = laid.children[0]!;
+    for (let c = 0; c < firstRow.children.length - 1; c++) {
+      const colCell = firstRow.children[c]!;
+      const colX = colCell.x + colCell.width;
+      out.push(
+        `<line x1="${colX}" y1="${y}" x2="${colX}" y2="${y + height}" stroke="${theme.tableBorderColor}" stroke-width="1" />`,
+      );
+    }
+  }
+}
+
+function emitTableCell(
+  cellLaid: LaidOutNode,
+  cellNode: TableCellNode,
+  padX: number,
+  theme: Theme,
+  out: string[],
+  isFoot: boolean = false,
+): void {
+  const accentAttr = getAttrIdent(cellNode.attributes, 'accent');
+  let textColor = isFoot ? theme.textColor : theme.textColor;
+  if (accentAttr && theme.accents[accentAttr as AccentName]) {
+    textColor = theme.accents[accentAttr as AccentName]!;
+  }
+
+  if (cellNode.content !== undefined) {
+    const align = cellNode.align ?? 'left';
+    const maxTextW = Math.max(0, cellLaid.width - padX * 2);
+    const truncated = truncateText(cellNode.content, maxTextW, theme);
+    let textX = cellLaid.x + padX;
+    let textAnchor = 'start';
+    if (align === 'center') {
+      textX = cellLaid.x + cellLaid.width / 2;
+      textAnchor = 'middle';
+    } else if (align === 'right') {
+      textX = cellLaid.x + cellLaid.width - padX;
+      textAnchor = 'end';
+    }
+    const textY = cellLaid.y + cellLaid.height / 2 + theme.fontSize * 0.35;
+    const anchorAttr = textAnchor !== 'start' ? ` text-anchor="${textAnchor}"` : '';
+    const weightAttr = isFoot ? ' font-weight="600"' : '';
+    out.push(
+      `<text x="${textX}" y="${textY}"${anchorAttr}${weightAttr} fill="${textColor}">${escapeText(truncated)}</text>`,
+    );
+  }
+
+  for (const c of cellLaid.children) {
+    emitNode(c, theme, out);
+  }
+}
+
+function truncateText(content: string, maxWidth: number, theme: Theme): string {
+  const fullWidth = content.length * theme.averageCharWidth;
+  if (fullWidth <= maxWidth || maxWidth <= 0) return content;
+  const ellipsis = '…';
+  const ellipsisW = ellipsis.length * theme.averageCharWidth;
+  const targetW = maxWidth - ellipsisW;
+  if (targetW <= 0) return ellipsis;
+  const numChars = Math.floor(targetW / theme.averageCharWidth);
+  return content.slice(0, Math.max(1, numChars)) + ellipsis;
 }
 
 function emitResourceBar(laid: LaidOutNode, theme: Theme, out: string[]): void {

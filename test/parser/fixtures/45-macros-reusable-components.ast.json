@@ -1,0 +1,804 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Cluster Analytics",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "bold",
+                "position": {
+                  "line": 19,
+                  "column": 30
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "large",
+                  "position": {
+                    "line": 19,
+                    "column": 40
+                  }
+                },
+                "position": {
+                  "line": 19,
+                  "column": 35
+                }
+              }
+            ],
+            "position": {
+              "line": 19,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 18,
+          "column": 3
+        }
+      },
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "panel",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "row",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Total Requests",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "muted",
+                        "position": {
+                          "line": 4,
+                          "column": 21
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 4,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "spacer",
+                    "attributes": [],
+                    "position": {
+                      "line": 5,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "icon",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "name",
+                        "value": {
+                          "kind": "string",
+                          "value": "star",
+                          "position": {
+                            "line": 6,
+                            "column": 17
+                          }
+                        },
+                        "position": {
+                          "line": 6,
+                          "column": 12
+                        }
+                      },
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "warning",
+                          "position": {
+                            "line": 6,
+                            "column": 31
+                          }
+                        },
+                        "position": {
+                          "line": 6,
+                          "column": 24
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 6,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 3,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "1.4M",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "bold",
+                    "position": {
+                      "line": 7,
+                      "column": 19
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "large",
+                      "position": {
+                        "line": 7,
+                        "column": 29
+                      }
+                    },
+                    "position": {
+                      "line": 7,
+                      "column": 24
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "+18% vs last week",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "success",
+                      "position": {
+                        "line": 8,
+                        "column": 27
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 20
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 5
+                }
+              }
+            ],
+            "position": {
+              "line": 2,
+              "column": 3
+            }
+          },
+          {
+            "kind": "panel",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "row",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Avg Response",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "muted",
+                        "position": {
+                          "line": 4,
+                          "column": 21
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 4,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "spacer",
+                    "attributes": [],
+                    "position": {
+                      "line": 5,
+                      "column": 7
+                    }
+                  },
+                  {
+                    "kind": "icon",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "name",
+                        "value": {
+                          "kind": "string",
+                          "value": "star",
+                          "position": {
+                            "line": 6,
+                            "column": 17
+                          }
+                        },
+                        "position": {
+                          "line": 6,
+                          "column": 12
+                        }
+                      },
+                      {
+                        "kind": "pair",
+                        "key": "accent",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "warning",
+                          "position": {
+                            "line": 6,
+                            "column": 31
+                          }
+                        },
+                        "position": {
+                          "line": 6,
+                          "column": 24
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 6,
+                      "column": 7
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 3,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "84ms",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "bold",
+                    "position": {
+                      "line": 7,
+                      "column": 19
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "large",
+                      "position": {
+                        "line": 7,
+                        "column": 29
+                      }
+                    },
+                    "position": {
+                      "line": 7,
+                      "column": 24
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 5
+                }
+              },
+              {
+                "kind": "text",
+                "content": "-12ms improvement",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "success",
+                      "position": {
+                        "line": 8,
+                        "column": 27
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 20
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 5
+                }
+              }
+            ],
+            "position": {
+              "line": 2,
+              "column": 3
+            }
+          }
+        ],
+        "position": {
+          "line": 21,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Quick Actions",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "panel",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Backup Database",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "bold",
+                        "position": {
+                          "line": 12,
+                          "column": 19
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 12,
+                      "column": 5
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Snapshot current production state.",
+                    "attributes": [],
+                    "position": {
+                      "line": 13,
+                      "column": 5
+                    }
+                  },
+                  {
+                    "kind": "row",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "justify",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "end",
+                          "position": {
+                            "line": 14,
+                            "column": 17
+                          }
+                        },
+                        "position": {
+                          "line": 14,
+                          "column": 9
+                        }
+                      }
+                    ],
+                    "children": [
+                      {
+                        "kind": "button",
+                        "label": "Configure",
+                        "attributes": [],
+                        "position": {
+                          "line": 15,
+                          "column": 7
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 14,
+                      "column": 5
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 11,
+                  "column": 3
+                }
+              },
+              {
+                "kind": "panel",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Deploy Cluster",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "bold",
+                        "position": {
+                          "line": 12,
+                          "column": 19
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 12,
+                      "column": 5
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Roll out new container nodes.",
+                    "attributes": [],
+                    "position": {
+                      "line": 13,
+                      "column": 5
+                    }
+                  },
+                  {
+                    "kind": "row",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "justify",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "end",
+                          "position": {
+                            "line": 14,
+                            "column": 17
+                          }
+                        },
+                        "position": {
+                          "line": 14,
+                          "column": 9
+                        }
+                      }
+                    ],
+                    "children": [
+                      {
+                        "kind": "button",
+                        "label": "Configure",
+                        "attributes": [],
+                        "position": {
+                          "line": 15,
+                          "column": 7
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 14,
+                      "column": 5
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 11,
+                  "column": 3
+                }
+              }
+            ],
+            "position": {
+              "line": 26,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 25,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "button",
+            "label": "Refresh Dashboard",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 31,
+                  "column": 32
+                }
+              }
+            ],
+            "position": {
+              "line": 31,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 30,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 17,
+      "column": 1
+    },
+    "title": "System Overview"
+  },
+  "sourceLines": 32,
+  "macros": [
+    {
+      "kind": "macroDefine",
+      "name": "@StatCard",
+      "params": [],
+      "template": [
+        {
+          "kind": "panel",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "row",
+              "attributes": [],
+              "children": [
+                {
+                  "kind": "text",
+                  "content": "$label",
+                  "attributes": [
+                    {
+                      "kind": "flag",
+                      "flag": "muted",
+                      "position": {
+                        "line": 4,
+                        "column": 21
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 4,
+                    "column": 7
+                  }
+                },
+                {
+                  "kind": "spacer",
+                  "attributes": [],
+                  "position": {
+                    "line": 5,
+                    "column": 7
+                  }
+                },
+                {
+                  "kind": "icon",
+                  "attributes": [
+                    {
+                      "kind": "pair",
+                      "key": "name",
+                      "value": {
+                        "kind": "string",
+                        "value": "star",
+                        "position": {
+                          "line": 6,
+                          "column": 17
+                        }
+                      },
+                      "position": {
+                        "line": 6,
+                        "column": 12
+                      }
+                    },
+                    {
+                      "kind": "pair",
+                      "key": "accent",
+                      "value": {
+                        "kind": "identifier",
+                        "value": "warning",
+                        "position": {
+                          "line": 6,
+                          "column": 31
+                        }
+                      },
+                      "position": {
+                        "line": 6,
+                        "column": 24
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 6,
+                    "column": 7
+                  }
+                }
+              ],
+              "position": {
+                "line": 3,
+                "column": 5
+              }
+            },
+            {
+              "kind": "text",
+              "content": "$value",
+              "attributes": [
+                {
+                  "kind": "flag",
+                  "flag": "bold",
+                  "position": {
+                    "line": 7,
+                    "column": 19
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "size",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "large",
+                    "position": {
+                      "line": 7,
+                      "column": 29
+                    }
+                  },
+                  "position": {
+                    "line": 7,
+                    "column": 24
+                  }
+                }
+              ],
+              "position": {
+                "line": 7,
+                "column": 5
+              }
+            },
+            {
+              "kind": "text",
+              "content": "$change",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "accent",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "success",
+                    "position": {
+                      "line": 8,
+                      "column": 27
+                    }
+                  },
+                  "position": {
+                    "line": 8,
+                    "column": 20
+                  }
+                }
+              ],
+              "position": {
+                "line": 8,
+                "column": 5
+              }
+            }
+          ],
+          "position": {
+            "line": 2,
+            "column": 3
+          }
+        }
+      ],
+      "attributes": [],
+      "position": {
+        "line": 1,
+        "column": 1
+      }
+    },
+    {
+      "kind": "macroDefine",
+      "name": "@ActionCard",
+      "params": [],
+      "template": [
+        {
+          "kind": "panel",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "text",
+              "content": "$title",
+              "attributes": [
+                {
+                  "kind": "flag",
+                  "flag": "bold",
+                  "position": {
+                    "line": 12,
+                    "column": 19
+                  }
+                }
+              ],
+              "position": {
+                "line": 12,
+                "column": 5
+              }
+            },
+            {
+              "kind": "text",
+              "content": "$desc",
+              "attributes": [],
+              "position": {
+                "line": 13,
+                "column": 5
+              }
+            },
+            {
+              "kind": "row",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "justify",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "end",
+                    "position": {
+                      "line": 14,
+                      "column": 17
+                    }
+                  },
+                  "position": {
+                    "line": 14,
+                    "column": 9
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "kind": "button",
+                  "label": "Configure",
+                  "attributes": [],
+                  "position": {
+                    "line": 15,
+                    "column": 7
+                  }
+                }
+              ],
+              "position": {
+                "line": 14,
+                "column": 5
+              }
+            }
+          ],
+          "position": {
+            "line": 11,
+            "column": 3
+          }
+        }
+      ],
+      "attributes": [],
+      "position": {
+        "line": 10,
+        "column": 1
+      }
+    }
+  ]
+}

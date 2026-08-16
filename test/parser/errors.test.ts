@@ -229,33 +229,22 @@ describe('parser — error messages', () => {
     expect(err.message).toContain('size');
   });
 
+  it('rejects legacy align=left/right on "row" with v0.8 migration error', () => {
+    const err = expectParseError('window:\n  row align=right:\n    text "x"');
+    expect(err.message).toContain('no longer accepts left|center|right');
+    expect(err.message).toContain('justify=start|center|end');
+  });
+
   it('rejects invalid align value on "row"', () => {
     const err = expectParseError('window:\n  row align=justified:\n    text "x"');
     expect(err.message).toContain('"justified"');
     expect(err.message).toContain('align');
   });
 
-  it('rejects align=right combined with a spacer on "row"', () => {
-    const err = expectParseError(
-      'window:\n  row align=right:\n    button "A"\n    spacer\n    button "B"\n',
-    );
-    expect(err.message).toContain('spacer');
-    expect(err.message).toContain('align=right');
-  });
-
-  it('rejects align=center combined with a spacer on "row"', () => {
-    const err = expectParseError(
-      'window:\n  row align=center:\n    button "A"\n    spacer\n    button "B"\n',
-    );
-    expect(err.message).toContain('spacer');
-  });
-
-  it('allows align=left with a spacer (harmless default, no conflict)', () => {
-    // align=left is the default packing direction, so it does not contradict a
-    // spacer — this must parse without error.
-    expect(() =>
-      parse('window:\n  row align=left:\n    button "A"\n    spacer\n    button "B"\n'),
-    ).not.toThrow();
+  it('rejects invalid justify value on "row"', () => {
+    const err = expectParseError('window:\n  row justify=justified:\n    text "x"');
+    expect(err.message).toContain('"justified"');
+    expect(err.message).toContain('justify');
   });
 
   it('rejects range with M <= N on slider', () => {

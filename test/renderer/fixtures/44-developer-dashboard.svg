@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="428" height="348" viewBox="0 0 428 348" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="428" height="348" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="427" height="347" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="428" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="214" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">API Explorer &amp; Inspector</text>
+<line x1="0" y1="88" x2="428" y2="88" stroke="#b0b0b0" stroke-width="1" />
+<text x="32" y="61" font-weight="700" fill="#2d2d2d">GET /api/v2/deployments</text>
+<rect x="214.1" y="46.5" width="55" height="21" rx="3" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1" />
+<line x1="215.6" y1="66.5" x2="267.6" y2="66.5" stroke="#e0e0e0" stroke-width="1.5" />
+<text x="223.6" y="61.666666666666664" font-size="12" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-weight="600" fill="#2d2d2d">Cmd+K</text>
+<g opacity="1">
+<rect x="278.1" y="46.5" width="117.4" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="336.8" y="66.66666666666667" text-anchor="middle" font-weight="500" fill="#ffffff">Send Request</text>
+</g>
+<line x1="16" y1="279.5" x2="412" y2="279.5" stroke="#b0b0b0" stroke-width="1" />
+<text x="30" y="126.66666666666667" font-weight="600" fill="#2d2d2d">Response</text>
+<line x1="20" y1="138" x2="97.6" y2="138" stroke="#3a3a3a" stroke-width="2" />
+<text x="117.6" y="126.66666666666667" font-weight="400" fill="#8a8f97">Headers</text>
+<text x="198" y="126.66666666666667" font-weight="400" fill="#8a8f97">History</text>
+<rect x="16.5" y="148.5" width="395" height="131" rx="4" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1" />
+<rect x="16.5" y="148.5" width="395" height="22" rx="4" fill="#f5f5f5" />
+<line x1="16" y1="170" x2="412" y2="170" stroke="#d0d7de" stroke-width="1" />
+<text x="24" y="163" font-size="12" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-weight="600" fill="#7a7f87">json</text>
+<line x1="47.6" y1="170" x2="47.6" y2="280" stroke="#d0d7de" stroke-width="0.5" opacity="0.5" />
+<text x="26" y="194" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#8c959f">1</text>
+<text x="55.6" y="194" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#24292f">{</text>
+<text x="26" y="212" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#8c959f">2</text>
+<text x="55.6" y="212" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#24292f">  "status": "healthy",</text>
+<text x="26" y="230" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#8c959f">3</text>
+<text x="55.6" y="230" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#24292f">  "version": "v0.8.2",</text>
+<text x="26" y="248" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#8c959f">4</text>
+<text x="55.6" y="248" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#24292f">  "nodes": 12</text>
+<text x="26" y="266" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#8c959f">5</text>
+<text x="55.6" y="266" font-family="ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace" font-size="14" fill="#24292f">}</text>
+<line x1="0" y1="296" x2="428" y2="296" stroke="#b0b0b0" stroke-width="1" />
+<rect x="16.5" y="306.5" width="97.8" height="21" rx="11" fill="#e8f3ec" stroke="#3f8f5c" stroke-width="1" />
+<path d="M 26 317 L 30 321 L 36 313" fill="none" stroke="#3f8f5c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+<text x="42" y="321.6666666666667" font-size="12" font-weight="500" fill="#205537">Connected</text>
+<line x1="123.3" y1="306" x2="123.3" y2="326" stroke="#c4c4c4" stroke-width="1" />
+<text x="131.8" y="321" fill="#7a7f87">Latency: 42ms</text>
+<g opacity="1">
+<rect x="286.9" y="306.5" width="124.60000000000001" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="349.2" y="326.6666666666667" text-anchor="middle" font-weight="500" fill="#2d2d2d">Clear Console</text>
+</g>
+</svg>

@@ -126,9 +126,9 @@ describe('layout engine', () => {
     expect(a?.width).toBeCloseTo(b?.width ?? -1, 1);
   });
 
-  it('right-aligns row children when align=right', () => {
+  it('right-aligns row children when justify=end', () => {
     const root = layoutSource(
-      'window:\n  row align=right:\n    button "One"\n    button "Two"',
+      'window:\n  row justify=end:\n    button "One"\n    button "Two"',
     );
     const row = root.children.find((c) => c.node.kind === 'row');
     expect(row).toBeDefined();
@@ -260,22 +260,22 @@ describe('layout engine', () => {
     expect(tabs!.children.length).toBe(2);
   });
 
-  it('row right-alignment + fill cols: fills win when both are present', () => {
+  it('row justify=end + fill cols: fills win when both are present', () => {
     const root = layoutSource(
-      'window:\n  row align=right:\n    col 100:\n      text "fixed"\n    col:\n      text "fill"',
+      'window:\n  row justify=end:\n    col 100:\n      text "fixed"\n    col:\n      text "fill"',
     );
     const row = root.children.find((c) => c.node.kind === 'row');
     const [fixed, fill] = row!.children;
-    // Fill should still consume slack; right-align is ignored.
+    // Fill should still consume slack; justify=end has no slack left.
     expect(fixed?.x).toBe(row!.x);
     expect(fill!.x).toBeGreaterThan(fixed!.x + fixed!.width);
     expect(fill!.x + fill!.width).toBeCloseTo(row!.x + row!.width, 1);
   });
 
-  it('row align=center centers children when the row has slack', () => {
+  it('row justify=center centers children when the row has slack', () => {
     // A wide col forces the sibling row to have extra width to distribute.
     const root = layoutSource(
-      'window:\n  col 600:\n    row align=center:\n      button "A"\n      button "B"',
+      'window:\n  col 600:\n    row justify=center:\n      button "A"\n      button "B"',
     );
     const col = root.children.find((c) => c.node.kind === 'col');
     const row = col!.children[0]!;

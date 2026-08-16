@@ -1,0 +1,42 @@
+window "Order History":
+  row:
+    input placeholder="Search orders..."
+    spacer
+    button "Export" icon="policy"
+    button "New Order" primary
+
+  table striped:
+    columns:
+      column "Order #" align=left w=90
+      column "Customer" align=left w=140
+      column "Status" align=center w=100
+      column "Items" align=right w=60
+      column "Total" align=right w=90
+    tr:
+      td "ORD-9421"
+      td "Acme Corp"
+      status "Shipped" kind=success
+      td "8"
+      td "$1,420.00"
+    tr:
+      td "ORD-9422"
+      td "Cyberdyne Systems"
+      status "Processing" kind=info
+      td "3"
+      td "$450.50"
+    tr:
+      td "ORD-9423"
+      td "Wayne Enterprises"
+      status "Delayed" kind=warning
+      td "12"
+      td "$3,890.00"
+    tr:
+      td "ORD-9424"
+      td "Stark Industries"
+      status "Cancelled" kind=error
+      td "1"
+      td "$120.00"
+    foot:
+      td "Total Active" span=3
+      td "24"
+      td "$5,880.50"

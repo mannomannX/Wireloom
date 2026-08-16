@@ -11,5 +11,5 @@ window "Photos":
       item "Mail"
       item "AirDrop"
       item "Copy link"
-    row align=right:
+    row justify=end:
       button "Cancel"

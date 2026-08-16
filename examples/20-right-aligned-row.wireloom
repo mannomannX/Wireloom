@@ -3,6 +3,6 @@ window "Confirm action":
     text "Delete the selected project?" bold
     text "This cannot be undone. All associated notes, tasks, and linked resources will be removed." muted
   footer:
-    row align=right:
+    row justify=end:
       button "Cancel"
       button "Delete" primary

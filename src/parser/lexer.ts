@@ -319,11 +319,11 @@ function tokenizeLineContent(
     }
 
     // Identifier.
-    if (ch !== undefined && /[a-zA-Z_]/.test(ch)) {
+    if (ch !== undefined && /[a-zA-Z_@]/.test(ch)) {
       const start = col;
       while (
         col < end &&
-        /[a-zA-Z0-9_-]/.test(rawLine[col] ?? '')
+        /[a-zA-Z0-9_@-]/.test(rawLine[col] ?? '')
       ) {
         col++;
       }

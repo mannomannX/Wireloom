@@ -1,0 +1,531 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Subscription Tiers",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "bold",
+                "position": {
+                  "line": 3,
+                  "column": 31
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "large",
+                  "position": {
+                    "line": 3,
+                    "column": 41
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 36
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "table",
+        "rows": [
+          {
+            "kind": "tableRow",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 12,
+                  "column": 7
+                },
+                "content": "Starter"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 13,
+                  "column": 7
+                },
+                "content": "1"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 14,
+                  "column": 7
+                },
+                "content": "10 GB"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 15,
+                  "column": 7
+                },
+                "content": "Free"
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tableRow",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 17,
+                  "column": 7
+                },
+                "content": "Team"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 18,
+                  "column": 7
+                },
+                "content": "Up to 10"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 19,
+                  "column": 7
+                },
+                "content": "500 GB"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 20,
+                  "column": 7
+                },
+                "content": "$29/mo"
+              }
+            ],
+            "position": {
+              "line": 16,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tableRow",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 22,
+                  "column": 7
+                },
+                "content": "Enterprise"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 23,
+                  "column": 7
+                },
+                "content": "Unlimited"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 24,
+                  "column": 7
+                },
+                "content": "5 TB"
+              },
+              {
+                "kind": "tableCell",
+                "attributes": [],
+                "children": [],
+                "position": {
+                  "line": 25,
+                  "column": 7
+                },
+                "content": "$199/mo"
+              }
+            ],
+            "position": {
+              "line": 21,
+              "column": 5
+            }
+          }
+        ],
+        "attributes": [
+          {
+            "kind": "flag",
+            "flag": "striped",
+            "position": {
+              "line": 5,
+              "column": 9
+            }
+          },
+          {
+            "kind": "flag",
+            "flag": "bordered",
+            "position": {
+              "line": 5,
+              "column": 17
+            }
+          }
+        ],
+        "position": {
+          "line": 5,
+          "column": 3
+        },
+        "columns": {
+          "kind": "tableColumns",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "tableColumn",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "left",
+                    "position": {
+                      "line": 7,
+                      "column": 27
+                    }
+                  },
+                  "position": {
+                    "line": 7,
+                    "column": 21
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "w",
+                  "value": {
+                    "kind": "number",
+                    "value": 120,
+                    "unit": "px",
+                    "position": {
+                      "line": 7,
+                      "column": 34
+                    }
+                  },
+                  "position": {
+                    "line": 7,
+                    "column": 32
+                  }
+                }
+              ],
+              "position": {
+                "line": 7,
+                "column": 7
+              },
+              "title": "Plan",
+              "align": "left",
+              "width": {
+                "value": 120,
+                "unit": "px"
+              }
+            },
+            {
+              "kind": "tableColumn",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "center",
+                    "position": {
+                      "line": 8,
+                      "column": 28
+                    }
+                  },
+                  "position": {
+                    "line": 8,
+                    "column": 22
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "w",
+                  "value": {
+                    "kind": "number",
+                    "value": 80,
+                    "unit": "px",
+                    "position": {
+                      "line": 8,
+                      "column": 37
+                    }
+                  },
+                  "position": {
+                    "line": 8,
+                    "column": 35
+                  }
+                }
+              ],
+              "position": {
+                "line": 8,
+                "column": 7
+              },
+              "title": "Users",
+              "align": "center",
+              "width": {
+                "value": 80,
+                "unit": "px"
+              }
+            },
+            {
+              "kind": "tableColumn",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "center",
+                    "position": {
+                      "line": 9,
+                      "column": 30
+                    }
+                  },
+                  "position": {
+                    "line": 9,
+                    "column": 24
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "w",
+                  "value": {
+                    "kind": "number",
+                    "value": 100,
+                    "unit": "px",
+                    "position": {
+                      "line": 9,
+                      "column": 39
+                    }
+                  },
+                  "position": {
+                    "line": 9,
+                    "column": 37
+                  }
+                }
+              ],
+              "position": {
+                "line": 9,
+                "column": 7
+              },
+              "title": "Storage",
+              "align": "center",
+              "width": {
+                "value": 100,
+                "unit": "px"
+              }
+            },
+            {
+              "kind": "tableColumn",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "right",
+                    "position": {
+                      "line": 10,
+                      "column": 28
+                    }
+                  },
+                  "position": {
+                    "line": 10,
+                    "column": 22
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "w",
+                  "value": {
+                    "kind": "number",
+                    "value": 100,
+                    "unit": "px",
+                    "position": {
+                      "line": 10,
+                      "column": 36
+                    }
+                  },
+                  "position": {
+                    "line": 10,
+                    "column": 34
+                  }
+                }
+              ],
+              "position": {
+                "line": 10,
+                "column": 7
+              },
+              "title": "Price",
+              "align": "right",
+              "width": {
+                "value": 100,
+                "unit": "px"
+              }
+            }
+          ],
+          "position": {
+            "line": 6,
+            "column": 5
+          }
+        },
+        "foot": {
+          "kind": "tableFoot",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "tableCell",
+              "attributes": [
+                {
+                  "kind": "pair",
+                  "key": "span",
+                  "value": {
+                    "kind": "number",
+                    "value": 4,
+                    "unit": "px",
+                    "position": {
+                      "line": 27,
+                      "column": 42
+                    }
+                  },
+                  "position": {
+                    "line": 27,
+                    "column": 37
+                  }
+                },
+                {
+                  "kind": "pair",
+                  "key": "align",
+                  "value": {
+                    "kind": "identifier",
+                    "value": "center",
+                    "position": {
+                      "line": 27,
+                      "column": 50
+                    }
+                  },
+                  "position": {
+                    "line": 27,
+                    "column": 44
+                  }
+                }
+              ],
+              "children": [],
+              "position": {
+                "line": 27,
+                "column": 7
+              },
+              "content": "Annual Billing saves 20%",
+              "span": 4,
+              "align": "center"
+            }
+          ],
+          "position": {
+            "line": 26,
+            "column": 5
+          }
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "button",
+            "label": "Contact Sales",
+            "attributes": [],
+            "position": {
+              "line": 30,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Get Started",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 31,
+                  "column": 26
+                }
+              }
+            ],
+            "position": {
+              "line": 31,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 29,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Pricing Plans"
+  },
+  "sourceLines": 32
+}

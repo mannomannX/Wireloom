@@ -1,0 +1,37 @@
+window "Feature Comparison Matrix":
+  header:
+    text "Plan Features & Capabilities" bold
+
+  table compact bordered:
+    columns:
+      column "Feature" align=left w=180
+      column "Free" align=center w=70
+      column "Pro" align=center w=70
+      column "Enterprise" align=center w=90
+    tr:
+      td "Multi-user collaboration"
+      icon name="minus"
+      icon name="check" accent=success
+      icon name="check" accent=success
+    tr:
+      td "Custom domains"
+      icon name="minus"
+      icon name="check" accent=success
+      icon name="check" accent=success
+    tr:
+      td "SSO / SAML 2.0"
+      icon name="minus"
+      icon name="minus"
+      icon name="check" accent=success
+    tr:
+      td "Dedicated support manager"
+      icon name="minus"
+      icon name="minus"
+      icon name="check" accent=success
+    tr:
+      td "Uptime SLA"
+      td "99.0%"
+      td "99.9%"
+      td "99.99%"
+    foot:
+      td "Contact support for custom feature requests" span=4 align=center

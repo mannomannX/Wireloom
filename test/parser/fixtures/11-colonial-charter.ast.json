@@ -642,13 +642,13 @@
                             "attributes": [
                               {
                                 "kind": "pair",
-                                "key": "align",
+                                "key": "justify",
                                 "value": {
                                   "kind": "identifier",
-                                  "value": "right",
+                                  "value": "end",
                                   "position": {
                                     "line": 69,
-                                    "column": 23
+                                    "column": 25
                                   }
                                 },
                                 "position": {
@@ -901,13 +901,13 @@
                             "attributes": [
                               {
                                 "kind": "pair",
-                                "key": "align",
+                                "key": "justify",
                                 "value": {
                                   "kind": "identifier",
-                                  "value": "right",
+                                  "value": "end",
                                   "position": {
                                     "line": 88,
-                                    "column": 23
+                                    "column": 25
                                   }
                                 },
                                 "position": {
@@ -1018,13 +1018,13 @@
                             "attributes": [
                               {
                                 "kind": "pair",
-                                "key": "align",
+                                "key": "justify",
                                 "value": {
                                   "kind": "identifier",
-                                  "value": "right",
+                                  "value": "end",
                                   "position": {
                                     "line": 94,
-                                    "column": 23
+                                    "column": 25
                                   }
                                 },
                                 "position": {
@@ -1135,13 +1135,13 @@
                             "attributes": [
                               {
                                 "kind": "pair",
-                                "key": "align",
+                                "key": "justify",
                                 "value": {
                                   "kind": "identifier",
-                                  "value": "right",
+                                  "value": "end",
                                   "position": {
                                     "line": 100,
-                                    "column": 23
+                                    "column": 25
                                   }
                                 },
                                 "position": {
@@ -1252,13 +1252,13 @@
                             "attributes": [
                               {
                                 "kind": "pair",
-                                "key": "align",
+                                "key": "justify",
                                 "value": {
                                   "kind": "identifier",
-                                  "value": "right",
+                                  "value": "end",
                                   "position": {
                                     "line": 106,
-                                    "column": 23
+                                    "column": 25
                                   }
                                 },
                                 "position": {
@@ -1369,13 +1369,13 @@
                             "attributes": [
                               {
                                 "kind": "pair",
-                                "key": "align",
+                                "key": "justify",
                                 "value": {
                                   "kind": "identifier",
-                                  "value": "right",
+                                  "value": "end",
                                   "position": {
                                     "line": 112,
-                                    "column": 23
+                                    "column": 25
                                   }
                                 },
                                 "position": {
@@ -1533,13 +1533,13 @@
                 "attributes": [
                   {
                     "kind": "pair",
-                    "key": "align",
+                    "key": "justify",
                     "value": {
                       "kind": "identifier",
-                      "value": "right",
+                      "value": "end",
                       "position": {
                         "line": 122,
-                        "column": 17
+                        "column": 19
                       }
                     },
                     "position": {

@@ -34,7 +34,7 @@ Focus: the new primitives (`section`, `tabs`, `list`, `slot`, `kv`, `combo`, `sl
 | `17-controls.wireloom` | `combo` and `slider` inside a settings panel. |
 | `18-typography.wireloom` | Bold / italic / muted / weight / size combos on text and kv. |
 | `19-fill-columns.wireloom` | Three-column app shell with a fill middle column. |
-| `20-right-aligned-row.wireloom` | Confirm dialog with `row align=right` footer. |
+| `20-right-aligned-row.wireloom` | Confirm dialog with `row justify=end` footer. |
 
 ## Documentation-style examples
 
@@ -43,6 +43,18 @@ Focus: primitives used to produce annotated user-manual-style figures.
 | File | What it exercises |
 |------|-------------------|
 | `27-annotations.wireloom` | Universal `id="…"` attribute + `annotation` nodes with all four `position=` sides. Shows multi-line annotation bodies via `\n`. |
+
+## v0.8 Table and 2D layout examples
+
+Focus: the `table` primitive (`table`, `columns:`, `column`, `tr`, `foot:`, `td`), zebra striping, borders, and implicit cell wrapping.
+
+| File | What it exercises |
+|------|-------------------|
+| `41-simple-table.wireloom` | Basic pricing table with `columns:`, `tr`, `foot:`, column widths, and spans. |
+| `42-data-grid.wireloom` | Order history table with search bar, status badges, and implicit `td` cell wrapping. |
+| `43-matrix-view.wireloom` | Feature matrix with `compact` and `bordered` table flags, column alignments, and icons. |
+| `44-developer-dashboard.wireloom` | API inspector with `code` blocks, `chip variant=kbd`, vertical dividers, `tabs` with active content, and `table`. |
+| `45-macros-reusable-components.wireloom` | Reusable UI patterns with `define @Macro` and `use @Macro` templating and parameter substitution. |
 
 ## Targets
 

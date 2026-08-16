@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="541.6" height="437.42857142857144" viewBox="0 0 541.6 437.42857142857144" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="541.6" height="437.42857142857144" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="540.6" height="436.42857142857144" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="541.6" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="270.8" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">System Overview</text>
+<line x1="0" y1="81.71428571428572" x2="541.6" y2="81.71428571428572" stroke="#b0b0b0" stroke-width="1" />
+<text x="192.1142857142857" y="65.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">Cluster Analytics</text>
+<rect x="16.5" y="98.21428571428572" width="163.8" height="108.71428571428572" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="124.71428571428572" fill="#7a7f87">Total Requests</text>
+<g transform="translate(144.8 109.71428571428572) scale(1.5)" color="#c79a2e">
+<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="currentColor" stroke="none" />
+</g>
+<text x="28" y="161" font-weight="700" font-size="18" fill="#2d2d2d">1.4M</text>
+<text x="28" y="190.42857142857144" fill="#3f8f5c">+18% vs last week</text>
+<rect x="189.3" y="98.21428571428572" width="149.4" height="108.71428571428572" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="200.8" y="124.71428571428572" fill="#7a7f87">Avg Response</text>
+<g transform="translate(303.20000000000005 109.71428571428572) scale(1.5)" color="#c79a2e">
+<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="currentColor" stroke="none" />
+</g>
+<text x="200.8" y="161" font-weight="700" font-size="18" fill="#2d2d2d">84ms</text>
+<text x="200.8" y="190.42857142857144" fill="#3f8f5c">-12ms improvement</text>
+<text x="16" y="233.42857142857144" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">QUICK ACTIONS</text>
+<line x1="16" y1="237.42857142857144" x2="525.6" y2="237.42857142857144" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<rect x="16.5" y="245.92857142857144" width="267.8" height="111" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="272.42857142857144" font-weight="700" fill="#2d2d2d">Backup Database</text>
+<text x="28" y="300.42857142857144" fill="#2d2d2d">Snapshot current production state.</text>
+<g opacity="1">
+<rect x="176.5" y="313.92857142857144" width="95.8" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="224.4" y="334.09523809523813" text-anchor="middle" font-weight="500" fill="#2d2d2d">Configure</text>
+</g>
+<rect x="293.3" y="245.92857142857144" width="231.8" height="111" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="304.8" y="272.42857142857144" font-weight="700" fill="#2d2d2d">Deploy Cluster</text>
+<text x="304.8" y="300.42857142857144" fill="#2d2d2d">Roll out new container nodes.</text>
+<g opacity="1">
+<rect x="417.3" y="313.92857142857144" width="95.8" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="465.2" y="334.09523809523813" text-anchor="middle" font-weight="500" fill="#2d2d2d">Configure</text>
+</g>
+<line x1="0" y1="385.42857142857144" x2="541.6" y2="385.42857142857144" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="371.70000000000005" y="395.92857142857144" width="153.4" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="448.40000000000003" y="416.09523809523813" text-anchor="middle" font-weight="500" fill="#ffffff">Refresh Dashboard</text>
+</g>
+</svg>

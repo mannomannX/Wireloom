@@ -276,6 +276,28 @@ export interface Theme {
   annotationMargin: number;
   annotationStackGap: number;
 
+  // Table primitive tokens
+  tableHeaderBg: string;
+  tableHeaderBorder: string;
+  tableRowHeight: number;
+  tableHeaderHeight: number;
+  tablePaddingX: number;
+  tablePaddingY: number;
+  tableCompactPaddingX: number;
+  tableCompactPaddingY: number;
+  tableStripedBg: string;
+  tableBorderColor: string;
+  tableDividerColor: string;
+
+  // Code block primitive tokens
+  codeBg: string;
+  codeBorder: string;
+  codeTextColor: string;
+  codeGutterColor: string;
+  codeFontFamily: string;
+  codePadding: number;
+  codeLineHeight: number;
+
   /** Maps accent name → color used for borders, fills, and text treatments. */
   accents: Readonly<Record<AccentName, string>>;
   /** Maps state name → visual treatment applied to slots and cells. */
@@ -510,6 +532,26 @@ export const DEFAULT_THEME: Theme = Object.freeze({
   sheetCenterMinHeight: 120,
   sheetCenterMargin: 24,
 
+  tableHeaderBg: '#f5f5f5',
+  tableHeaderBorder: '#e0e0e0',
+  tableRowHeight: 28,
+  tableHeaderHeight: 30,
+  tablePaddingX: 10,
+  tablePaddingY: 6,
+  tableCompactPaddingX: 6,
+  tableCompactPaddingY: 3,
+  tableStripedBg: '#fafafa',
+  tableBorderColor: '#e0e0e0',
+  tableDividerColor: '#e8e8e8',
+
+  codeBg: '#f6f8fa',
+  codeBorder: '#d0d7de',
+  codeTextColor: '#24292f',
+  codeGutterColor: '#8c959f',
+  codeFontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+  codePadding: 10,
+  codeLineHeight: 18,
+
   accents: Object.freeze({
     research: '#3f7cc2',
     military: '#b55442',
@@ -672,6 +714,26 @@ export const DARK_THEME: Theme = Object.freeze({
   sheetBg: '#2a2a2a',
   sheetBorder: '#6b6b6b',
   sheetGrabberColor: '#555a62',
+
+  tableHeaderBg: '#2a2a2a',
+  tableHeaderBorder: '#3a3a3a',
+  tableRowHeight: 28,
+  tableHeaderHeight: 30,
+  tablePaddingX: 10,
+  tablePaddingY: 6,
+  tableCompactPaddingX: 6,
+  tableCompactPaddingY: 3,
+  tableStripedBg: '#222222',
+  tableBorderColor: '#383838',
+  tableDividerColor: '#333333',
+
+  codeBg: '#1e1e1e',
+  codeBorder: '#333333',
+  codeTextColor: '#d4d4d4',
+  codeGutterColor: '#6e7681',
+  codeFontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+  codePadding: 10,
+  codeLineHeight: 18,
 
   accents: Object.freeze({
     research: '#6ba4e8',

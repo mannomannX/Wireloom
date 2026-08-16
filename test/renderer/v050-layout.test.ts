@@ -309,7 +309,7 @@ describe('v0.50 — header large flag', () => {
     const golden = readFileSync(join(__dirname, 'fixtures', '02-login-form.svg'), 'utf8');
     // Fixture is stored pretty-printed (one element per line); collapse to
     // the raw single-line form the renderer actually emits.
-    const collapsed = golden.replace(/>\n</g, '><');
+    const collapsed = golden.replace(/>\r?\n</g, '><');
     expect(rendered).toBe(collapsed);
   });
 
@@ -466,7 +466,7 @@ describe('v0.50 sheet — rendering', () => {
         'window:',
         '  sheet position=center title="Confirm":',
         '    text "Delete this file?"',
-        '    row align=right:',
+        '    row justify=end:',
         '      button "Cancel"',
         '      button "Delete" primary',
         '',

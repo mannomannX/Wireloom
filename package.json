@@ -1,6 +1,6 @@
 {
   "name": "wireloom",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "UI wireframe mockups from a Markdown-embedded DSL, rendered as inline SVG.",
   "license": "MIT",
   "author": "Brad Wardell",
@@ -26,6 +26,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "export": "python scripts/export.py",
     "clean": "rm -rf dist"
   },
   "devDependencies": {

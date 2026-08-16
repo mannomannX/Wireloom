@@ -66,7 +66,7 @@ window "CIVILIZATION":
           slot "Research Subsidies" active:
             text "+20% Research Output"
             text "Government funded research programs" muted
-            row align=right:
+            row justify=end:
               button "Revoke"
           slot "Cultural Exchange":
             text "+10% Influence, +5% Tourism"
@@ -85,31 +85,31 @@ window "CIVILIZATION":
           slot "Frontier Expansion":
             text "+20% Colony Speed, +10% Growth"
             text "Prioritize outward expansion" muted
-            row align=right:
+            row justify=end:
               text "2 Admin" muted size=small
               button "Enact" primary
           slot "Militia Training":
             text "+15% Planetary Defense, +10% Military"
             text "Arm the colonists" muted
-            row align=right:
+            row justify=end:
               text "3 Admin" muted size=small
               button "Enact" primary
           slot "Trade Agreements":
             text "+20% Trade Route Income"
             text "Establish favorable trade terms" muted
-            row align=right:
+            row justify=end:
               text "2 Admin" muted size=small
               button "Enact" primary
           slot "Infrastructure Investment":
             text "+15% Manufacturing, +10% Growth"
             text "Build foundational industry" muted
-            row align=right:
+            row justify=end:
               text "3 Admin" muted size=small
               button "Enact" primary
           slot "Diplomatic Corps":
             text "+15% Influence, +10% Diplomacy"
             text "Invest in foreign relations" muted
-            row align=right:
+            row justify=end:
               text "2 Admin" muted size=small
               button "Enact" primary
           slot "Pioneer Spirit":
@@ -119,5 +119,5 @@ window "CIVILIZATION":
   footer:
     row:
       button "Change Government"
-      row align=right:
+      row justify=end:
         button "Done" primary

@@ -914,6 +914,81 @@ Don't use it for:
 | `Line N, col C: "segmented" accepts only "segment" children (got "xyz")` | Non-`segment` child inside `segmented` | Wrap each option as `segment "Label"` |
 | `Line N, col C: "segment" may only appear inside "segmented"` | `segment` used outside `segmented` | Wrap in `segmented:` |
 
+## v0.8 Primitives & Features
+
+### 1. `table` — Data Grids and Tables
+
+Full 2D tabular layout with explicit or auto column widths, header alignment, zebra striping, and footer summaries.
+
+| Primitive | Positional | Attributes | Flags |
+|-----------|------------|------------|-------|
+| `table` | — | — | `striped`, `compact`, `bordered` |
+| `columns` | — (contains `column` children) | — | — |
+| `column` | required string title | `align=left\|center\|right`, `w=120\|1fr` | — |
+| `tr` | — (contains `td` or inline children) | — | — |
+| `foot` | — (contains summary cells) | — | — |
+| `td` | optional string content | `span=N`, `align=left\|center\|right`, `accent=` | — |
+
+```wireloom
+window "Orders":
+  table striped compact:
+    columns:
+      column "Order #" w=90 align=left
+      column "Customer" w=140 align=left
+      column "Status" w=100 align=center
+      column "Total" w=90 align=right
+    tr:
+      td "#1042"
+      td "Alice Smith"
+      status "Shipped" kind=success
+      td "$240.00"
+    tr:
+      td "#1043"
+      td "Bob Jones"
+      status "Processing" kind=info
+      td "$85.50"
+    foot:
+      td "Total Revenue" span=3 align=right
+      td "$325.50"
+```
+
+### 2. `code` — Monospace Code Viewport
+
+Monospace code block with optional language badge and line-number gutter.
+
+| Primitive | Positional | Flags | Attributes |
+|-----------|------------|-------|------------|
+| `code` | optional string content | `lines` (line numbers gutter) | `lang="<name>"` |
+
+```wireloom
+window "Inspector":
+  code "const data = await fetch('/api');\nconsole.log(data);" lang="ts" lines
+```
+
+### 3. Macros: `define @Name` and `use @Name`
+
+Define reusable UI templates at top-level with `$param` placeholder substitution:
+
+```wireloom
+define @Card:
+  panel:
+    text "$title" bold
+    text "$desc"
+    row justify=end:
+      button "Open"
+
+window "Dashboard":
+  row:
+    use @Card title="Billing" desc="Manage subscription and invoices."
+    use @Card title="Team" desc="Invite and assign roles."
+```
+
+### 4. Devtool Enhancements
+
+- **`chip variant=kbd`**: renders keyboard shortcut keys (e.g. `chip "Ctrl+K" variant=kbd`).
+- **`divider orientation=vertical`**: vertical separator line for toolbars and inline rows.
+- **`tabs` with active content body**: child nodes inside active `tab` render automatically below the tab strip.
+
 ## Where Wireloom Renders
 
 Wireloom outputs plain SVG, so any Markdown consumer that supports inline SVG can display the result:

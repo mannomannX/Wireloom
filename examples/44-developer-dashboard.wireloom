@@ -1,0 +1,42 @@
+window "API Explorer & Inspector":
+  header:
+    row:
+      text "GET /api/v2/deployments" bold
+      spacer
+      chip "Cmd+K" variant=kbd
+      button "Send Request" primary
+
+  tabs:
+    tab "Response" active:
+      code lang="json" lines:
+        text "{"
+        text "  \"status\": \"healthy\","
+        text "  \"version\": \"v0.8.2\","
+        text "  \"nodes\": 12"
+        text "}"
+    tab "Headers":
+      panel:
+        text "Authorization: Bearer <token>"
+        text "Content-Type: application/json"
+    tab "History":
+      table striped compact:
+        columns:
+          column "Time" w=70
+          column "Method" w=70
+          column "Status" w=80
+        tr:
+          td "12:04:02"
+          td "GET"
+          status "200 OK" kind=success
+        tr:
+          td "12:01:15"
+          td "POST"
+          status "201 Created" kind=success
+
+  footer:
+    row:
+      status "Connected" kind=success
+      divider orientation=vertical
+      text "Latency: 42ms" muted
+      spacer
+      button "Clear Console"

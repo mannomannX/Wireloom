@@ -1,0 +1,31 @@
+window "Pricing Plans":
+  header:
+    text "Subscription Tiers" bold size=large
+
+  table striped bordered:
+    columns:
+      column "Plan" align=left w=120
+      column "Users" align=center w=80
+      column "Storage" align=center w=100
+      column "Price" align=right w=100
+    tr:
+      td "Starter"
+      td "1"
+      td "10 GB"
+      td "Free"
+    tr:
+      td "Team"
+      td "Up to 10"
+      td "500 GB"
+      td "$29/mo"
+    tr:
+      td "Enterprise"
+      td "Unlimited"
+      td "5 TB"
+      td "$199/mo"
+    foot:
+      td "Annual Billing saves 20%" span=4 align=center
+
+  footer:
+    button "Contact Sales"
+    button "Get Started" primary

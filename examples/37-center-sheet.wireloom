@@ -5,6 +5,6 @@ window "Documents":
     text "Last modified 2 hours ago" muted
   sheet position=center title="Delete file?":
     text "This action cannot be undone. The file will be moved to Trash."
-    row align=right:
+    row justify=end:
       button "Cancel"
       button "Delete" primary accent=danger

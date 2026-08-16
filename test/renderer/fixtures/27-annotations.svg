@@ -19,7 +19,7 @@
 <text x="148.40000000000003" y="304.6666666666667" text-anchor="middle" font-weight="500" fill="#ffffff">Sign in</text>
 </g>
 <line x1="79.20000000000002" y1="344" x2="355.20000000000005" y2="344" stroke="#b0b0b0" stroke-width="1" />
-<text x="188.00000000000003" y="369" fill="#2d2d2d">Forgot your password?</text>
+<text x="188" y="369" fill="#2d2d2d">Forgot your password?</text>
 <line x1="327.20000000000005" y1="220" x2="403.20000000000005" y2="220" stroke="#8a7a4f" stroke-width="1" />
 <circle cx="327.20000000000005" cy="220" r="3" fill="#8a7a4f" />
 <rect x="403.20000000000005" y="202" width="369.6" height="36" rx="4" ry="4" fill="#fefcf3" stroke="#b8a26b" stroke-width="1" />

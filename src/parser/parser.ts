@@ -9,6 +9,7 @@
 import type {
   AnnotationNode,
   AnnotationSide,
+  AnyNode,
   Attribute,
   AttributePair,
   AttributeValue,
@@ -67,10 +68,20 @@ import type {
   StatusNode,
   TabNode,
   TabsNode,
+  TableNode,
+  TableColumnsNode,
+  TableColumnNode,
+  TableRowNode,
+  TableFootNode,
+  TableCellNode,
+  LengthValue,
   TextNode,
   ToggleNode,
   TreeNode_,
   TreeItemNode,
+  CodeNode,
+  MacroDefineNode,
+  MacroUseNode,
   WindowChild,
   WindowNode,
 } from './ast.js';
@@ -84,6 +95,7 @@ import { tokenize, type Token, type TokenKind } from './lexer.js';
 type AttrSpec =
   | { kind: 'string' }
   | { kind: 'number' }
+  | { kind: 'length' }
   | { kind: 'range' }
   | { kind: 'ident' }
   | { kind: 'enum'; values: readonly string[] };
@@ -95,8 +107,8 @@ interface AttrRules {
 
 const WEIGHT_VALUES = ['light', 'regular', 'semibold', 'bold'] as const;
 const SIZE_VALUES = ['small', 'regular', 'large'] as const;
-const ALIGN_VALUES = ['left', 'center', 'right'] as const;
-const JUSTIFY_VALUES = ['start', 'between', 'around', 'end'] as const;
+const CROSS_ALIGN_VALUES = ['start', 'center', 'end', 'stretch'] as const;
+const JUSTIFY_VALUES = ['start', 'center', 'end', 'between', 'around', 'evenly'] as const;
 const INPUT_TYPE_VALUES = ['text', 'password', 'email', 'search'] as const;
 const ACCENT_VALUES = [
   'research',
@@ -125,19 +137,61 @@ const STATE_VALUES = [
   'withering',
   'cashed',
 ] as const;
-const CHART_KIND_VALUES = ['bar', 'line', 'pie'] as const;
+const CHART_KIND_VALUES = [
+  'bar',
+  'line',
+  'pie',
+  'sparkline',
+  'area',
+  'donut',
+  'stacked',
+  'scatter',
+  'heatmap',
+] as const;
 const ANNOTATION_SIDE_VALUES = ['left', 'right', 'top', 'bottom'] as const;
 const AVATAR_SIZE_VALUES = ['small', 'medium', 'large'] as const;
-const STATUS_KIND_VALUES = ['success', 'info', 'warning', 'error'] as const;
+const STATUS_KIND_VALUES = ['success', 'info', 'warning', 'error', 'neutral', 'pending', 'running'] as const;
 const SHEET_POSITION_VALUES = ['bottom', 'center'] as const;
+const DIVIDER_ORIENTATION_VALUES = ['horizontal', 'vertical'] as const;
 
 /** Spec for the universal `id="…"` attribute, accepted on every primitive. */
 const UNIVERSAL_ID_SPEC: AttrSpec = { kind: 'string' };
 
+const CONTAINER_SIZING_ATTRS: Record<string, AttrSpec> = {
+  w: { kind: 'length' },
+  h: { kind: 'length' },
+  'min-w': { kind: 'number' },
+  'max-w': { kind: 'number' },
+  'min-h': { kind: 'number' },
+  'max-h': { kind: 'number' },
+  gap: { kind: 'number' },
+  grow: { kind: 'number' },
+  shrink: { kind: 'number' },
+  'self-align': { kind: 'enum', values: CROSS_ALIGN_VALUES },
+};
+
+const CHILD_SIZING_ATTRS: Record<string, AttrSpec> = {
+  w: { kind: 'length' },
+  h: { kind: 'length' },
+  'min-w': { kind: 'number' },
+  'max-w': { kind: 'number' },
+  'min-h': { kind: 'number' },
+  'max-h': { kind: 'number' },
+  grow: { kind: 'number' },
+  shrink: { kind: 'number' },
+  'self-align': { kind: 'enum', values: CROSS_ALIGN_VALUES },
+};
+
 const ATTR_RULES: Record<string, AttrRules> = {
   window: { attrs: {}, flags: [] },
-  header: { attrs: {}, flags: ['large'] },
-  footer: { attrs: {}, flags: [] },
+  header: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: ['large'] },
+  footer: {
+    attrs: {
+      justify: { kind: 'enum', values: JUSTIFY_VALUES },
+      ...CONTAINER_SIZING_ATTRS,
+    },
+    flags: [],
+  },
   navbar: { attrs: {}, flags: [] },
   leading: { attrs: {}, flags: [] },
   center: { attrs: {}, flags: [] },
@@ -146,18 +200,20 @@ const ATTR_RULES: Record<string, AttrRules> = {
     attrs: {
       position: { kind: 'enum', values: SHEET_POSITION_VALUES },
       title: { kind: 'string' },
+      ...CONTAINER_SIZING_ATTRS,
     },
     flags: [],
   },
-  panel: { attrs: {}, flags: [] },
+  panel: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: ['scroll'] },
   section: {
     attrs: {
       badge: { kind: 'string' },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CONTAINER_SIZING_ATTRS,
     },
     flags: [],
   },
-  tabs: { attrs: {}, flags: [] },
+  tabs: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   tab: {
     attrs: { badge: { kind: 'string' } },
     flags: ['active'],
@@ -172,32 +228,44 @@ const ATTR_RULES: Record<string, AttrRules> = {
   },
   row: {
     attrs: {
-      align: { kind: 'enum', values: ALIGN_VALUES },
+      align: { kind: 'enum', values: CROSS_ALIGN_VALUES },
       justify: { kind: 'enum', values: JUSTIFY_VALUES },
+      ...CONTAINER_SIZING_ATTRS,
     },
     flags: [],
   },
-  spacer: { attrs: {}, flags: [] },
+  spacer: { attrs: { grow: { kind: 'number' } }, flags: [] },
   col: {
     attrs: {
+      align: { kind: 'enum', values: CROSS_ALIGN_VALUES },
       justify: { kind: 'enum', values: JUSTIFY_VALUES },
+      ...CONTAINER_SIZING_ATTRS,
     },
     flags: [],
   },
-  list: { attrs: {}, flags: [] },
-  item: { attrs: {}, flags: ['chevron'] },
+  list: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: ['scroll'] },
+  item: { attrs: { ...CHILD_SIZING_ATTRS }, flags: ['chevron'] },
   slot: {
     attrs: {
       state: { kind: 'enum', values: STATE_VALUES },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CONTAINER_SIZING_ATTRS,
     },
     flags: ['active', 'chevron'],
   },
-  slotFooter: { attrs: {}, flags: [] },
+  slotFooter: {
+    attrs: {
+      justify: { kind: 'enum', values: JUSTIFY_VALUES },
+      ...CONTAINER_SIZING_ATTRS,
+    },
+    flags: [],
+  },
   grid: {
     attrs: {
       cols: { kind: 'number' },
       rows: { kind: 'number' },
+      track: { kind: 'enum', values: ['uniform', 'auto'] as const },
+      ...CONTAINER_SIZING_ATTRS,
     },
     flags: [],
   },
@@ -205,12 +273,38 @@ const ATTR_RULES: Record<string, AttrRules> = {
     attrs: {
       row: { kind: 'number' },
       col: { kind: 'number' },
+      span: { kind: 'number' },
+      rows: { kind: 'number' },
       state: { kind: 'enum', values: STATE_VALUES },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: [],
   },
-  resourcebar: { attrs: {}, flags: [] },
+  table: {
+    attrs: { ...CONTAINER_SIZING_ATTRS },
+    flags: ['striped', 'bordered', 'compact'],
+  },
+  columns: { attrs: {}, flags: [] },
+  column: {
+    attrs: {
+      align: { kind: 'enum', values: ['left', 'center', 'right'] as const },
+      w: { kind: 'length' },
+    },
+    flags: [],
+  },
+  tr: { attrs: {}, flags: [] },
+  foot: { attrs: {}, flags: [] },
+  td: {
+    attrs: {
+      span: { kind: 'number' },
+      align: { kind: 'enum', values: ['left', 'center', 'right'] as const },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS,
+    },
+    flags: [],
+  },
+  resourcebar: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   resource: {
     attrs: {
       name: { kind: 'string' },
@@ -219,7 +313,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
     },
     flags: [],
   },
-  stats: { attrs: {}, flags: [] },
+  stats: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   stat: {
     attrs: {
       icon: { kind: 'string' },
@@ -232,6 +326,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
       weight: { kind: 'enum', values: WEIGHT_VALUES },
       size: { kind: 'enum', values: SIZE_VALUES },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: ['bold', 'italic', 'muted'],
   },
@@ -240,17 +335,19 @@ const ATTR_RULES: Record<string, AttrRules> = {
       badge: { kind: 'string' },
       icon: { kind: 'string' },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: ['primary', 'disabled'],
   },
   backbutton: {
-    attrs: {},
+    attrs: { ...CHILD_SIZING_ATTRS },
     flags: ['disabled'],
   },
   input: {
     attrs: {
       placeholder: { kind: 'string' },
       type: { kind: 'enum', values: INPUT_TYPE_VALUES },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: ['disabled'],
   },
@@ -258,6 +355,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
     attrs: {
       value: { kind: 'string' },
       options: { kind: 'string' },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: ['disabled'],
   },
@@ -266,6 +364,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
       range: { kind: 'range' },
       value: { kind: 'number' },
       label: { kind: 'string' },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: ['disabled'],
   },
@@ -275,6 +374,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
       size: { kind: 'enum', values: SIZE_VALUES },
       icon: { kind: 'string' },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: ['bold', 'italic', 'muted'],
   },
@@ -283,6 +383,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
       label: { kind: 'string' },
       width: { kind: 'number' },
       height: { kind: 'number' },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: [],
   },
@@ -290,16 +391,25 @@ const ATTR_RULES: Record<string, AttrRules> = {
     attrs: {
       name: { kind: 'string' },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: [],
   },
-  divider: { attrs: {}, flags: [] },
+  divider: {
+    attrs: {
+      orientation: { kind: 'enum', values: DIVIDER_ORIENTATION_VALUES },
+      ...CHILD_SIZING_ATTRS,
+    },
+    flags: ['handle'],
+  },
   progress: {
     attrs: {
       value: { kind: 'number' },
       max: { kind: 'number' },
       label: { kind: 'string' },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      kind: { kind: 'enum', values: ['bar', 'ring', 'segmented'] as const },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: [],
   },
@@ -310,6 +420,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
       width: { kind: 'number' },
       height: { kind: 'number' },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: [],
   },
@@ -320,25 +431,25 @@ const ATTR_RULES: Record<string, AttrRules> = {
     },
     flags: [],
   },
-  tree: { attrs: {}, flags: [] },
+  tree: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   treeNode: {
     attrs: { icon: { kind: 'string' } },
     flags: ['collapsed', 'selected'],
   },
   checkbox: {
-    attrs: {},
+    attrs: { ...CHILD_SIZING_ATTRS },
     flags: ['checked', 'disabled', 'label-right'],
   },
   radio: {
-    attrs: { group: { kind: 'string' } },
+    attrs: { group: { kind: 'string' }, ...CHILD_SIZING_ATTRS },
     flags: ['selected', 'disabled', 'label-right'],
   },
   toggle: {
-    attrs: {},
+    attrs: { ...CHILD_SIZING_ATTRS },
     flags: ['on', 'off', 'disabled', 'label-right'],
   },
-  menubar: { attrs: {}, flags: [] },
-  menu: { attrs: {}, flags: [] },
+  menubar: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
+  menu: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   menuitem: {
     attrs: { shortcut: { kind: 'string' } },
     flags: ['disabled'],
@@ -348,6 +459,8 @@ const ATTR_RULES: Record<string, AttrRules> = {
     attrs: {
       icon: { kind: 'string' },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      variant: { kind: 'enum', values: ['default', 'kbd'] as const },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: ['closable', 'selected'],
   },
@@ -355,26 +468,37 @@ const ATTR_RULES: Record<string, AttrRules> = {
     attrs: {
       size: { kind: 'enum', values: AVATAR_SIZE_VALUES },
       accent: { kind: 'enum', values: ACCENT_VALUES },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: [],
   },
-  breadcrumb: { attrs: {}, flags: [] },
+  breadcrumb: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   crumb: {
     attrs: { icon: { kind: 'string' } },
     flags: [],
   },
-  spinner: { attrs: {}, flags: [] },
+  spinner: { attrs: { ...CHILD_SIZING_ATTRS }, flags: [] },
   status: {
     attrs: {
       kind: { kind: 'enum', values: STATUS_KIND_VALUES },
+      ...CHILD_SIZING_ATTRS,
     },
     flags: [],
   },
-  segmented: { attrs: {}, flags: [] },
+  segmented: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   segment: {
     attrs: {},
     flags: ['selected', 'disabled'],
   },
+  code: {
+    attrs: {
+      lang: { kind: 'string' },
+      ...CHILD_SIZING_ATTRS,
+    },
+    flags: ['lines'],
+  },
+  define: { attrs: {}, flags: [] },
+  use: { attrs: {}, flags: [] },
 };
 
 const VALID_PRIMITIVES = new Set([
@@ -392,9 +516,12 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
   'list',
   'slot',
   'grid',
+  'table',
   'resourcebar',
   'stats',
   'text',
+  'code',
+  'use',
   'button',
   'backbutton',
   'input',
@@ -423,7 +550,7 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, navbar, leading, center, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, navbar, leading, center, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, table, columns, column, tr, foot, td, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -449,6 +576,14 @@ class Parser {
       return { kind: 'document', sourceLines };
     }
 
+    const macros: MacroDefineNode[] = [];
+    while (
+      this.peek().kind === 'ident' &&
+      (this.peek().identValue === 'define' || this.peek().raw === 'define')
+    ) {
+      macros.push(this.parseDefine());
+    }
+
     const head = this.peek();
     if (head.kind !== 'ident') {
       throw new WireloomError(
@@ -467,13 +602,17 @@ class Parser {
 
     const root = this.parseWindow();
 
-    // After the window, any number of annotations may follow as siblings.
+    // After the window, any number of annotations or macros may follow as siblings.
     const annotations: AnnotationNode[] = [];
     while (this.peek().kind === 'ident') {
       const tok = this.peek();
       const name = tok.identValue ?? tok.raw;
       if (name === 'annotation') {
         annotations.push(this.parseAnnotation());
+        continue;
+      }
+      if (name === 'define') {
+        macros.push(this.parseDefine());
         continue;
       }
       if (name === 'window') {
@@ -500,8 +639,129 @@ class Parser {
     }
 
     const doc: Document = { kind: 'document', root, sourceLines };
+    if (macros.length > 0) doc.macros = macros;
     if (annotations.length > 0) doc.annotations = annotations;
+    expandMacros(doc);
     return doc;
+  }
+
+  // --- Macros & Code (v0.8) ------------------------------------------------
+
+  private parseDefine(): MacroDefineNode {
+    const head = this.consume(); // "define"
+    const position = positionOf(head);
+    const nameToken = this.expectKind(
+      'ident',
+      '"define" requires a macro name (e.g. define @Card:)',
+    );
+    const name = nameToken.identValue ?? nameToken.raw;
+    const params: string[] = [];
+    while (this.peek().kind === 'ident' && this.peek().identValue !== undefined) {
+      params.push(this.consume().identValue!);
+    }
+    this.expectKind('colon', 'expected ":" after macro header');
+    this.expectKind('newline', 'expected newline after ":"');
+    this.expectKind('indent', 'expected indented block after ":"');
+
+    const template: ContainerChild[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      template.push(this.parseContainerChild());
+    }
+    this.expectKind('dedent', 'expected dedent at end of macro definition');
+
+    return { kind: 'macroDefine', name, params, template, attributes: [], position };
+  }
+
+  private parseUse(): MacroUseNode {
+    const head = this.consume(); // "use"
+    const position = positionOf(head);
+    const nameToken = this.expectKind(
+      'ident',
+      '"use" requires a macro name (e.g. use @Card title="My Title")',
+    );
+    const name = nameToken.identValue ?? nameToken.raw;
+    const attributes: Attribute[] = [];
+    while (
+      this.peek().kind !== 'newline' &&
+      this.peek().kind !== 'eof' &&
+      this.peek().kind !== 'colon'
+    ) {
+      const keyTok = this.expectKind('ident', 'expected attribute name on "use"');
+      const key = keyTok.identValue ?? keyTok.raw;
+      if (this.peek().kind === 'equals') {
+        this.consume(); // '='
+        const valTok = this.consume();
+        if (valTok.kind === 'string') {
+          attributes.push({
+            kind: 'pair',
+            key,
+            value: {
+              kind: 'string',
+              value: valTok.stringValue ?? '',
+              position: positionOf(valTok),
+            },
+            position: positionOf(keyTok),
+          });
+        } else if (valTok.kind === 'ident') {
+          attributes.push({
+            kind: 'pair',
+            key,
+            value: {
+              kind: 'identifier',
+              value: valTok.identValue ?? valTok.raw,
+              position: positionOf(valTok),
+            },
+            position: positionOf(keyTok),
+          });
+        } else if (valTok.kind === 'number') {
+          attributes.push({
+            kind: 'pair',
+            key,
+            value: {
+              kind: 'number',
+              value: valTok.numericValue ?? 0,
+              unit: valTok.unit ?? 'px',
+              position: positionOf(valTok),
+            },
+            position: positionOf(keyTok),
+          });
+        }
+      } else {
+        attributes.push({ kind: 'flag', flag: key, position: positionOf(keyTok) });
+      }
+    }
+    this.parseLeafTerminator('use', head);
+    return { kind: 'macroUse', name, attributes, position };
+  }
+
+  private parseCode(): CodeNode {
+    const head = this.consume(); // "code"
+    const position = positionOf(head);
+    let content: string | undefined;
+    if (this.peek().kind === 'string') {
+      content = this.consume().stringValue ?? '';
+    }
+    const attributes = this.parseAttributes('code');
+    const lang = getAttrStringValue(attributes, 'lang');
+
+    const children: ContainerChild[] = [];
+    if (this.peek().kind === 'colon') {
+      const hasChildren = this.parseTerminator('code', head);
+      if (hasChildren) {
+        children.push(...this.parseContainerChildren());
+      }
+    } else {
+      this.parseLeafTerminator('code', head);
+    }
+
+    return {
+      kind: 'code',
+      content,
+      lang,
+      children,
+      attributes,
+      position,
+    };
   }
 
   // --- Annotation -----------------------------------------------------------
@@ -1025,6 +1285,8 @@ class Parser {
         return this.parseDivider();
       case 'grid':
         return this.parseGrid();
+      case 'table':
+        return this.parseTable();
       case 'resourcebar':
         return this.parseResourceBar();
       case 'stats':
@@ -1057,6 +1319,10 @@ class Parser {
         return this.parseStatus();
       case 'segmented':
         return this.parseSegmented();
+      case 'code':
+        return this.parseCode();
+      case 'use':
+        return this.parseUse();
       default: {
         const head = this.peek();
         throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
@@ -1182,8 +1448,14 @@ class Parser {
       '"tab" requires a string label (e.g., tab "Government")',
     ).stringValue ?? '';
     const attributes = this.parseAttributes('tab');
-    this.parseLeafTerminator('tab', head);
-    return { kind: 'tab', label, attributes, position };
+    let children: ContainerChild[] | undefined;
+    if (this.peek().kind === 'colon') {
+      const hasChildren = this.parseTerminator('tab', head);
+      children = hasChildren ? this.parseContainerChildren() : [];
+    } else {
+      this.parseLeafTerminator('tab', head);
+    }
+    return { kind: 'tab', label, attributes, children, position };
   }
 
   private parseRow(): RowNode {
@@ -1192,21 +1464,6 @@ class Parser {
     const attributes = this.parseAttributes('row');
     const hasChildren = this.parseTerminator('row', head);
     const children = hasChildren ? this.parseChildrenAllowingSpacer() : [];
-    // `align=right|center` packs all children toward one edge; a `spacer` spreads
-    // them to both edges. Combining them is contradictory intent, so reject it
-    // loudly instead of silently letting the spacer win.
-    const alignAttr = getAttrIdentValue(attributes, 'align');
-    if (
-      (alignAttr === 'right' || alignAttr === 'center') &&
-      children.some((c) => c.kind === 'spacer')
-    ) {
-      throw new WireloomError(
-        `"row" cannot combine align=${alignAttr} with a "spacer" child — ` +
-          'a spacer already spreads children to both ends; remove one',
-        head.line,
-        head.column,
-      );
-    }
     return { kind: 'row', attributes, children, position };
   }
 
@@ -1546,9 +1803,14 @@ class Parser {
         head.column,
       );
     }
+    const trackAttr = getAttrIdentValue(attributes, 'track');
     const hasChildren = this.parseTerminator('grid', head);
     const children = hasChildren ? this.parseGridChildren() : [];
-    return { kind: 'grid', cols, rows, attributes, children, position };
+    const node: GridNode = { kind: 'grid', cols, rows, attributes, children, position };
+    if (trackAttr === 'uniform' || trackAttr === 'auto') {
+      node.track = trackAttr;
+    }
+    return node;
   }
 
   private parseGridChildren(): CellNode[] {
@@ -1586,12 +1848,216 @@ class Parser {
     const attributes = this.parseAttributes('cell');
     const rowAttr = getAttrNumberValue(attributes, 'row');
     const colAttr = getAttrNumberValue(attributes, 'col');
+    const spanAttr = getAttrNumberValue(attributes, 'span');
+    const rowsAttr = getAttrNumberValue(attributes, 'rows');
     const hasChildren = this.parseTerminator('cell', head);
     const children = hasChildren ? this.parseContainerChildren() : [];
     const node: CellNode = { kind: 'cell', attributes, children, position };
     if (label !== undefined) node.label = label;
     if (rowAttr !== undefined) node.row = rowAttr;
     if (colAttr !== undefined) node.col = colAttr;
+    if (spanAttr !== undefined) node.span = spanAttr;
+    if (rowsAttr !== undefined) node.rows = rowsAttr;
+    return node;
+  }
+
+  // --- Table (v0.8) --------------------------------------------------------
+
+  private parseTable(): TableNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('table');
+    const hasChildren = this.parseTerminator('table', head);
+    const { columns, rows, foot } = hasChildren
+      ? this.parseTableChildren()
+      : { columns: undefined, rows: [] as TableRowNode[], foot: undefined };
+    const node: TableNode = {
+      kind: 'table',
+      rows,
+      attributes,
+      position,
+    };
+    if (columns) node.columns = columns;
+    if (foot) node.foot = foot;
+    return node;
+  }
+
+  private parseTableChildren(): {
+    columns?: TableColumnsNode | undefined;
+    rows: TableRowNode[];
+    foot?: TableFootNode | undefined;
+  } {
+    let columns: TableColumnsNode | undefined;
+    const rows: TableRowNode[] = [];
+    let foot: TableFootNode | undefined;
+
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "columns", "tr", or "foot", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name === 'columns') {
+        if (columns !== undefined) {
+          throw new WireloomError(
+            '"table" can only have one "columns" block',
+            head.line,
+            head.column,
+          );
+        }
+        if (rows.length > 0 || foot !== undefined) {
+          throw new WireloomError(
+            '"columns" block must appear before "tr" rows in "table"',
+            head.line,
+            head.column,
+          );
+        }
+        columns = this.parseTableColumns();
+      } else if (name === 'tr') {
+        if (foot !== undefined) {
+          throw new WireloomError(
+            '"tr" cannot appear after "foot" block in "table"',
+            head.line,
+            head.column,
+          );
+        }
+        rows.push(this.parseTableRow());
+      } else if (name === 'foot') {
+        if (foot !== undefined) {
+          throw new WireloomError(
+            '"table" can only have one "foot" block',
+            head.line,
+            head.column,
+          );
+        }
+        foot = this.parseTableFoot();
+      } else {
+        throw new WireloomError(
+          `"table" accepts only "columns", "tr", or "foot" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+    }
+    this.expectKind('dedent', 'table block did not close cleanly');
+    return { columns, rows, foot };
+  }
+
+  private parseTableColumns(): TableColumnsNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('columns');
+    const hasChildren = this.parseTerminator('columns', head);
+    const children: TableColumnNode[] = [];
+    if (hasChildren) {
+      while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+        const childHead = this.peek();
+        const name = childHead.kind === 'ident' ? childHead.identValue ?? childHead.raw : undefined;
+        if (name !== 'column') {
+          throw new WireloomError(
+            `"columns" accepts only "column" children (got "${name ?? describeToken(childHead)}")`,
+            childHead.line,
+            childHead.column,
+          );
+        }
+        children.push(this.parseTableColumn());
+      }
+      this.expectKind('dedent', 'columns block did not close cleanly');
+    }
+    return { kind: 'tableColumns', attributes, children, position };
+  }
+
+  private parseTableColumn(): TableColumnNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    let title: string | undefined;
+    if (this.peek().kind === 'string') {
+      title = this.consume().stringValue;
+    }
+    const attributes = this.parseAttributes('column');
+    const alignAttr = getAttrIdentValue(attributes, 'align') as
+      | 'left'
+      | 'center'
+      | 'right'
+      | undefined;
+    const widthAttr = getAttrLengthValue(attributes, 'w');
+    this.parseLeafTerminator('column', head);
+    const node: TableColumnNode = { kind: 'tableColumn', attributes, position };
+    if (title !== undefined) node.title = title;
+    if (alignAttr !== undefined) node.align = alignAttr;
+    if (widthAttr !== undefined) node.width = widthAttr;
+    return node;
+  }
+
+  private parseTableRow(): TableRowNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('tr');
+    const hasChildren = this.parseTerminator('tr', head);
+    const children: TableCellNode[] = [];
+    if (hasChildren) {
+      while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+        children.push(this.parseTableCellOrImplicit());
+      }
+      this.expectKind('dedent', 'tr block did not close cleanly');
+    }
+    return { kind: 'tableRow', attributes, children, position };
+  }
+
+  private parseTableFoot(): TableFootNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('foot');
+    const hasChildren = this.parseTerminator('foot', head);
+    const children: TableCellNode[] = [];
+    if (hasChildren) {
+      while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+        children.push(this.parseTableCellOrImplicit());
+      }
+      this.expectKind('dedent', 'foot block did not close cleanly');
+    }
+    return { kind: 'tableFoot', attributes, children, position };
+  }
+
+  private parseTableCellOrImplicit(): TableCellNode {
+    const head = this.peek();
+    const name = head.kind === 'ident' ? head.identValue ?? head.raw : undefined;
+    if (name === 'td') {
+      return this.parseTableCell();
+    }
+    const child = this.parseContainerChild();
+    return {
+      kind: 'tableCell',
+      attributes: [],
+      children: [child],
+      position: child.position,
+    };
+  }
+
+  private parseTableCell(): TableCellNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    let content: string | undefined;
+    if (this.peek().kind === 'string') {
+      content = this.consume().stringValue;
+    }
+    const attributes = this.parseAttributes('td');
+    const spanAttr = getAttrNumberValue(attributes, 'span');
+    const alignAttr = getAttrIdentValue(attributes, 'align') as
+      | 'left'
+      | 'center'
+      | 'right'
+      | undefined;
+    const hasChildren = this.parseTerminator('td', head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const node: TableCellNode = { kind: 'tableCell', attributes, children, position };
+    if (content !== undefined) node.content = content;
+    if (spanAttr !== undefined) node.span = spanAttr;
+    if (alignAttr !== undefined) node.align = alignAttr;
     return node;
   }
 
@@ -2290,6 +2756,33 @@ function coerceAttributeValue(
         position,
       };
 
+    case 'length': {
+      if (token.kind === 'number') {
+        return {
+          kind: 'number',
+          value: token.numericValue ?? 0,
+          unit: token.unit ?? 'px',
+          position,
+        };
+      }
+      if (token.kind === 'ident') {
+        const value = token.identValue ?? token.raw;
+        if (value === 'fill' || value === 'hug') {
+          return { kind: 'identifier', value, position };
+        }
+        throw new WireloomError(
+          `length attribute "${key}" on "${primitive}" expects a number or "fill"|"hug", got "${value}"`,
+          token.line,
+          token.column,
+        );
+      }
+      throw new WireloomError(
+        `attribute "${key}" on "${primitive}" expects a length value (e.g. 320, 50%, 1fr, fill, hug), got ${describeToken(token)}`,
+        token.line,
+        token.column,
+      );
+    }
+
     case 'range':
       if (token.kind !== 'range') {
         throw new WireloomError(
@@ -2336,6 +2829,13 @@ function coerceAttributeValue(
       }
       const value = token.identValue ?? token.raw;
       if (!spec.values.includes(value)) {
+        if (primitive === 'row' && key === 'align' && (value === 'left' || value === 'right')) {
+          throw new WireloomError(
+            `"align" on "row" no longer accepts left|center|right — v0.8 moved "align" to the cross axis.\n  · to distribute children ALONG the row:   justify=start|center|end\n  · to align them ACROSS the row:           align=start|center|end|stretch`,
+            token.line,
+            token.column,
+          );
+        }
         const suggestion = suggestMatch(value, spec.values);
         const hint = suggestion ? ` Did you mean "${suggestion}"?` : '';
         throw new WireloomError(
@@ -2391,9 +2891,28 @@ function placementErrorFor(name: string): string {
       return '"separator" may only appear inside "menu"';
     case 'crumb':
       return '"crumb" may only appear inside "breadcrumb"';
+    case 'columns':
+    case 'tr':
+    case 'foot':
+      return `"${name}" may only appear inside "table"`;
+    case 'column':
+      return '"column" may only appear inside "columns"';
+    case 'td':
+      return '"td" may only appear inside "tr" or "foot"';
     default:
       return `"${name}" is not allowed here`;
   }
+}
+
+function getAttrLengthValue(attrs: readonly Attribute[], key: string): LengthValue | undefined {
+  for (const a of attrs) {
+    if (a.kind === 'pair' && a.key === key) {
+      if (a.value.kind === 'number') {
+        return { value: a.value.value, unit: a.value.unit ?? 'px' };
+      }
+    }
+  }
+  return undefined;
 }
 
 function unknownPrimitiveMessage(name: string): string {
@@ -2448,4 +2967,97 @@ function levenshtein(a: string, b: string): number {
     prev = [...curr];
   }
   return prev[n] ?? 0;
+}
+
+/**
+ * Lowering pass: expand MacroUseNode instances by substituting parameter values into
+ * a deep clone of the defined macro template.
+ */
+function expandMacros(doc: Document): void {
+  if (!doc.root) return;
+  const macroMap = new Map<string, MacroDefineNode>();
+  if (doc.macros) {
+    for (const m of doc.macros) {
+      macroMap.set(m.name, m);
+      if (m.name.startsWith('@')) macroMap.set(m.name.slice(1), m);
+    }
+  }
+
+  function substituteString(str: string, args: Map<string, string>): string {
+    let res = str;
+    for (const [k, v] of args.entries()) {
+      res = res.split(`$${k}`).join(v);
+    }
+    return res;
+  }
+
+  function cloneAndSubstitute(node: AnyNode, args: Map<string, string>): AnyNode {
+    const clone = JSON.parse(JSON.stringify(node)) as AnyNode;
+    function walk(n: AnyNode): void {
+      if ('title' in n && typeof n.title === 'string') {
+        n.title = substituteString(n.title, args);
+      }
+      if ('label' in n && typeof n.label === 'string') {
+        n.label = substituteString(n.label, args);
+      }
+      if ('text' in n && typeof n.text === 'string') {
+        n.text = substituteString(n.text, args);
+      }
+      if ('content' in n && typeof n.content === 'string') {
+        n.content = substituteString(n.content, args);
+      }
+      if ('value' in n && typeof n.value === 'string') {
+        n.value = substituteString(n.value, args);
+      }
+      if ('attributes' in n && Array.isArray(n.attributes)) {
+        for (const attr of n.attributes) {
+          if (attr.kind === 'pair' && attr.value.kind === 'string') {
+            attr.value.value = substituteString(attr.value.value, args);
+          }
+        }
+      }
+      if ('children' in n && Array.isArray(n.children)) {
+        for (const c of n.children) walk(c as AnyNode);
+      }
+    }
+    walk(clone);
+    return clone;
+  }
+
+  function expandList(list: ContainerChild[]): ContainerChild[] {
+    const res: ContainerChild[] = [];
+    for (const item of list) {
+      if (item.kind === 'macroUse') {
+        const macro = macroMap.get(item.name);
+        if (!macro) {
+          throw new WireloomError(
+            `undefined macro "${item.name}" (defined: ${[...macroMap.keys()].filter((k) => k.startsWith('@')).join(', ')})`,
+            item.position.line,
+            item.position.column,
+          );
+        }
+        const args = new Map<string, string>();
+        for (const a of item.attributes) {
+          if (a.kind === 'pair') {
+            if (a.value.kind === 'string') args.set(a.key, a.value.value);
+            else if (a.value.kind === 'identifier') args.set(a.key, a.value.value);
+            else if (a.value.kind === 'number') args.set(a.key, String(a.value.value));
+          }
+        }
+        for (const tmpl of macro.template) {
+          res.push(cloneAndSubstitute(tmpl, args) as ContainerChild);
+        }
+      } else {
+        if ('children' in item && Array.isArray(item.children)) {
+          (item as unknown as { children: ContainerChild[] }).children = expandList(
+            item.children as ContainerChild[],
+          );
+        }
+        res.push(item);
+      }
+    }
+    return res;
+  }
+
+  doc.root.children = expandList(doc.root.children as ContainerChild[]) as WindowChild[];
 }

@@ -186,6 +186,7 @@ interface GridNode extends NodeBase {
     kind: 'grid';
     cols: number;
     rows: number;
+    track?: 'uniform' | 'auto';
     children: CellNode[];
 }
 interface CellNode extends NodeBase {
@@ -195,6 +196,10 @@ interface CellNode extends NodeBase {
     /** 1-indexed grid position. `undefined` means auto-flow. */
     row?: number;
     col?: number;
+    /** Column span (default 1). */
+    span?: number;
+    /** Row span (default 1). */
+    rows?: number;
     children: ContainerChild[];
 }
 interface ResourceBarNode extends NodeBase {
@@ -208,6 +213,24 @@ interface StatsNode extends NodeBase {
 interface TabNode extends NodeBase {
     kind: 'tab';
     label: string;
+    children?: ContainerChild[] | undefined;
+}
+interface CodeNode extends NodeBase {
+    kind: 'code';
+    content?: string | undefined;
+    lang?: string | undefined;
+    children: ContainerChild[];
+}
+interface MacroDefineNode extends NodeBase {
+    kind: 'macroDefine';
+    name: string;
+    params: string[];
+    template: ContainerChild[];
+}
+interface MacroUseNode extends NodeBase {
+    kind: 'macroUse';
+    name: string;
+    attributes: Attribute[];
 }
 interface ItemNode extends NodeBase {
     kind: 'item';
@@ -358,6 +381,37 @@ interface SegmentNode extends NodeBase {
     kind: 'segment';
     label: string;
 }
+interface TableNode extends NodeBase {
+    kind: 'table';
+    columns?: TableColumnsNode | undefined;
+    rows: TableRowNode[];
+    foot?: TableFootNode | undefined;
+}
+interface TableColumnsNode extends NodeBase {
+    kind: 'tableColumns';
+    children: TableColumnNode[];
+}
+interface TableColumnNode extends NodeBase {
+    kind: 'tableColumn';
+    title?: string | undefined;
+    align?: 'left' | 'center' | 'right' | undefined;
+    width?: LengthValue | undefined;
+}
+interface TableRowNode extends NodeBase {
+    kind: 'tableRow';
+    children: TableCellNode[];
+}
+interface TableFootNode extends NodeBase {
+    kind: 'tableFoot';
+    children: TableCellNode[];
+}
+interface TableCellNode extends NodeBase {
+    kind: 'tableCell';
+    content?: string | undefined;
+    span?: number | undefined;
+    align?: 'left' | 'center' | 'right' | undefined;
+    children: ContainerChild[];
+}
 type AnnotationSide = 'left' | 'right' | 'top' | 'bottom';
 /**
  * A user-manual-style label that identifies part of the `window` mockup.
@@ -378,14 +432,18 @@ interface AnnotationNode extends NodeBase {
  * Leaf nodes that can appear in any container (panel/section/row/col/slot).
  * Excludes `tab` (must be inside `tabs`) and `item` (must be inside `list`).
  */
-type LeafNode = TextNode | ButtonNode | BackButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | SpacerNode | ProgressNode | ChartNode | CheckboxNode | RadioNode | ToggleNode | ChipNode | AvatarNode | SpinnerNode | StatusNode;
-type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | SegmentedNode | LeafNode;
-type WindowChild = HeaderNode | FooterNode | NavbarNode | TabBarNode | SheetNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | SegmentedNode | LeafNode;
-type AnyNode = WindowNode | HeaderNode | FooterNode | NavbarNode | NavbarSlotNode | TabBarNode | TabItemNode | SheetNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | TreeNode_ | TreeItemNode | MenubarNode | MenuNode | MenuItemNode | SeparatorNode | BreadcrumbNode | CrumbNode | SegmentedNode | SegmentNode | AnnotationNode | LeafNode;
+type LeafNode = TextNode | ButtonNode | BackButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | SpacerNode | ProgressNode | ChartNode | CheckboxNode | RadioNode | ToggleNode | ChipNode | AvatarNode | SpinnerNode | StatusNode | CodeNode | MacroUseNode;
+type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | TableNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | SegmentedNode | LeafNode;
+type WindowChild = HeaderNode | FooterNode | NavbarNode | TabBarNode | SheetNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | TableNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | SegmentedNode | LeafNode;
+type AnyNode = WindowNode | HeaderNode | FooterNode | NavbarNode | NavbarSlotNode | TabBarNode | TabItemNode | SheetNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | TableNode | TableColumnsNode | TableColumnNode | TableRowNode | TableFootNode | TableCellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | TreeNode_ | TreeItemNode | MenubarNode | MenuNode | MenuItemNode | SeparatorNode | BreadcrumbNode | CrumbNode | SegmentedNode | SegmentNode | AnnotationNode | MacroDefineNode | MacroUseNode | LeafNode;
 interface Document {
     kind: 'document';
     /** Required-by-grammar `window` root. Absent on stub or fully-failed parses. */
     root?: WindowNode;
+    /**
+     * Optional macro definitions preceding or following the window root.
+     */
+    macros?: MacroDefineNode[];
     /**
      * Optional user-manual-style callouts pointing at elements inside `root`.
      * Appear after the `window` node in source; omitted array means none.
@@ -636,6 +694,24 @@ interface Theme {
     annotationGap: number;
     annotationMargin: number;
     annotationStackGap: number;
+    tableHeaderBg: string;
+    tableHeaderBorder: string;
+    tableRowHeight: number;
+    tableHeaderHeight: number;
+    tablePaddingX: number;
+    tablePaddingY: number;
+    tableCompactPaddingX: number;
+    tableCompactPaddingY: number;
+    tableStripedBg: string;
+    tableBorderColor: string;
+    tableDividerColor: string;
+    codeBg: string;
+    codeBorder: string;
+    codeTextColor: string;
+    codeGutterColor: string;
+    codeFontFamily: string;
+    codePadding: number;
+    codeLineHeight: number;
     /** Maps accent name → color used for borders, fills, and text treatments. */
     accents: Readonly<Record<AccentName, string>>;
     /** Maps state name → visual treatment applied to slots and cells. */
@@ -694,4 +770,4 @@ declare const wireloom: {
     render: typeof render;
 };
 
-export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BackButtonNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type NavbarNode, type NavbarSlotNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SegmentNode, type SegmentedNode, type SeparatorNode, type SheetNode, type SheetPlacement, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpacerNode, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabBarNode, type TabItemNode, type TabNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
+export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BackButtonNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type CodeNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MacroDefineNode, type MacroUseNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type NavbarNode, type NavbarSlotNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SegmentNode, type SegmentedNode, type SeparatorNode, type SheetNode, type SheetPlacement, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpacerNode, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabBarNode, type TabItemNode, type TabNode, type TableCellNode, type TableColumnNode, type TableColumnsNode, type TableFootNode, type TableNode, type TableRowNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };

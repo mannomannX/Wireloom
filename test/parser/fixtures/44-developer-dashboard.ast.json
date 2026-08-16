@@ -1,0 +1,634 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "text",
+                "content": "GET /api/v2/deployments",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "bold",
+                    "position": {
+                      "line": 4,
+                      "column": 38
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 4,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "spacer",
+                "attributes": [],
+                "position": {
+                  "line": 5,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "chip",
+                "label": "Cmd+K",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "variant",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "kbd",
+                      "position": {
+                        "line": 6,
+                        "column": 28
+                      }
+                    },
+                    "position": {
+                      "line": 6,
+                      "column": 20
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 6,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "button",
+                "label": "Send Request",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "primary",
+                    "position": {
+                      "line": 7,
+                      "column": 29
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "tabs",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "tab",
+            "label": "Response",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "active",
+                "position": {
+                  "line": 10,
+                  "column": 20
+                }
+              }
+            ],
+            "children": [
+              {
+                "kind": "code",
+                "lang": "json",
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "{",
+                    "attributes": [],
+                    "position": {
+                      "line": 12,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "  \"status\": \"healthy\",",
+                    "attributes": [],
+                    "position": {
+                      "line": 13,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "  \"version\": \"v0.8.2\",",
+                    "attributes": [],
+                    "position": {
+                      "line": 14,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "  \"nodes\": 12",
+                    "attributes": [],
+                    "position": {
+                      "line": 15,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "}",
+                    "attributes": [],
+                    "position": {
+                      "line": 16,
+                      "column": 9
+                    }
+                  }
+                ],
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "lang",
+                    "value": {
+                      "kind": "string",
+                      "value": "json",
+                      "position": {
+                        "line": 11,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 11,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "lines",
+                    "position": {
+                      "line": 11,
+                      "column": 24
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 11,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Headers",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "panel",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Authorization: Bearer <token>",
+                    "attributes": [],
+                    "position": {
+                      "line": 19,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Content-Type: application/json",
+                    "attributes": [],
+                    "position": {
+                      "line": 20,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 18,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 17,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "History",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "table",
+                "rows": [
+                  {
+                    "kind": "tableRow",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 28,
+                          "column": 11
+                        },
+                        "content": "12:04:02"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 29,
+                          "column": 11
+                        },
+                        "content": "GET"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "status",
+                            "label": "200 OK",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "kind",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "success",
+                                  "position": {
+                                    "line": 30,
+                                    "column": 32
+                                  }
+                                },
+                                "position": {
+                                  "line": 30,
+                                  "column": 27
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 30,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 30,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 27,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "tableRow",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 32,
+                          "column": 11
+                        },
+                        "content": "12:01:15"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 33,
+                          "column": 11
+                        },
+                        "content": "POST"
+                      },
+                      {
+                        "kind": "tableCell",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "status",
+                            "label": "201 Created",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "kind",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "success",
+                                  "position": {
+                                    "line": 34,
+                                    "column": 37
+                                  }
+                                },
+                                "position": {
+                                  "line": 34,
+                                  "column": 32
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 34,
+                              "column": 11
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 34,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 31,
+                      "column": 9
+                    }
+                  }
+                ],
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "striped",
+                    "position": {
+                      "line": 22,
+                      "column": 13
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "compact",
+                    "position": {
+                      "line": 22,
+                      "column": 21
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 22,
+                  "column": 7
+                },
+                "columns": {
+                  "kind": "tableColumns",
+                  "attributes": [],
+                  "children": [
+                    {
+                      "kind": "tableColumn",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "w",
+                          "value": {
+                            "kind": "number",
+                            "value": 70,
+                            "unit": "px",
+                            "position": {
+                              "line": 24,
+                              "column": 27
+                            }
+                          },
+                          "position": {
+                            "line": 24,
+                            "column": 25
+                          }
+                        }
+                      ],
+                      "position": {
+                        "line": 24,
+                        "column": 11
+                      },
+                      "title": "Time",
+                      "width": {
+                        "value": 70,
+                        "unit": "px"
+                      }
+                    },
+                    {
+                      "kind": "tableColumn",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "w",
+                          "value": {
+                            "kind": "number",
+                            "value": 70,
+                            "unit": "px",
+                            "position": {
+                              "line": 25,
+                              "column": 29
+                            }
+                          },
+                          "position": {
+                            "line": 25,
+                            "column": 27
+                          }
+                        }
+                      ],
+                      "position": {
+                        "line": 25,
+                        "column": 11
+                      },
+                      "title": "Method",
+                      "width": {
+                        "value": 70,
+                        "unit": "px"
+                      }
+                    },
+                    {
+                      "kind": "tableColumn",
+                      "attributes": [
+                        {
+                          "kind": "pair",
+                          "key": "w",
+                          "value": {
+                            "kind": "number",
+                            "value": 80,
+                            "unit": "px",
+                            "position": {
+                              "line": 26,
+                              "column": 29
+                            }
+                          },
+                          "position": {
+                            "line": 26,
+                            "column": 27
+                          }
+                        }
+                      ],
+                      "position": {
+                        "line": 26,
+                        "column": 11
+                      },
+                      "title": "Status",
+                      "width": {
+                        "value": 80,
+                        "unit": "px"
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 23,
+                    "column": 9
+                  }
+                }
+              }
+            ],
+            "position": {
+              "line": 21,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 9,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "status",
+                "label": "Connected",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "success",
+                      "position": {
+                        "line": 38,
+                        "column": 31
+                      }
+                    },
+                    "position": {
+                      "line": 38,
+                      "column": 26
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 38,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "divider",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "orientation",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "vertical",
+                      "position": {
+                        "line": 39,
+                        "column": 27
+                      }
+                    },
+                    "position": {
+                      "line": 39,
+                      "column": 15
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 39,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "Latency: 42ms",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 40,
+                      "column": 28
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 40,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "spacer",
+                "attributes": [],
+                "position": {
+                  "line": 41,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "button",
+                "label": "Clear Console",
+                "attributes": [],
+                "position": {
+                  "line": 42,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 37,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 36,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "API Explorer & Inspector"
+  },
+  "sourceLines": 43
+}

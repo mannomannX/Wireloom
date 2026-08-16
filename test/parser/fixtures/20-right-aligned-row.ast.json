@@ -59,13 +59,13 @@
             "attributes": [
               {
                 "kind": "pair",
-                "key": "align",
+                "key": "justify",
                 "value": {
                   "kind": "identifier",
-                  "value": "right",
+                  "value": "end",
                   "position": {
                     "line": 6,
-                    "column": 15
+                    "column": 17
                   }
                 },
                 "position": {
