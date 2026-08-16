@@ -344,11 +344,37 @@ Unknown attributes (or flags used on primitives that don't accept them) produce 
 - `fill` columns each receive `available / count(fill cols)` pixels.
 - If there are no `fill` cols and the explicit widths underflow the available width, extra space falls to the right of the last column (not distributed).
 
-## Row Alignment
+## Flex Alignment and Distribution (justify, align, gap, spacer)
 
-`row align=right:` positions children flush to the right edge of the row, with remaining space to the left. `align=center` centers them as a block. Default `align=left` packs them from the left.
+Wireloom containers (`row`, `col`, `panel`, `section`) use a 1D flex model along their primary axis:
 
-Alignment applies to the row's inner box (after row padding).
+- **Main Axis Distribution (`justify=`)**:
+  - `start` (default): packs children from the start edge.
+  - `center`: centers children as a cluster.
+  - `end`: packs children flush against the far edge.
+  - `between`: distributes items evenly; first item on start edge, last item on end edge.
+  - `around`: gives each child equal surrounding space.
+  - `evenly`: gives equal space between all children and outer boundaries.
+
+- **Cross Axis Alignment (`align=`)**:
+  - `start` (default): aligns children to the top of a `row` or left of a `col`.
+  - `center`: centers children across the cross axis.
+  - `end`: aligns children to the bottom of a `row` or right of a `col`.
+  - `stretch`: stretches children to match the container's cross-axis dimension.
+  - Individual children can override this via `self-align=start|center|end|stretch`.
+
+- **Spacers (`spacer`)**:
+  - A leaf primitive placed between sibling children inside a `row` or `col`.
+  - Consumes available slack along the container's main axis, pinning preceding items to the start and subsequent items to the end.
+  - Inside a `col`, `spacer` distributes vertical slack when the `col` has an explicit height (`h=`, `min-h=`) or is stretched by an enclosing container.
+
+- **Internal Gaps (`gap=N`)**:
+  - Sets explicit pixel spacing between consecutive child elements within `row`, `col`, `panel`, `section`, or `grid`.
+
+- **Explicit Sizing & Constraints (`w=`, `h=`, `min-w=`, `min-h=`, `max-w=`, `max-h=`)**:
+  - Any container or leaf primitive can specify target dimensions (e.g. `col 340 h=560:` or `panel w=100% min-h=200:`).
+  - Supported units: bare numbers (pixels), `px`, `%` (relative to parent), and `fr` (fractional slack share).
+
 
 ## Typography
 
