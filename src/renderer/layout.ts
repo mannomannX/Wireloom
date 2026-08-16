@@ -1899,23 +1899,23 @@ function positionContainerChild(
     case 'slot':
       return positionSlot(child, x, y, width, theme);
     case 'text':
-      return positionText(child, x, y, width, theme);
+      return positionText(child, x, y, width, theme, height);
     case 'button':
-      return positionButton(child, x, y, theme);
+      return positionButton(child, x, y, theme, width, height);
     case 'backbutton':
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case 'input':
-      return positionInput(child, x, y, width, theme);
+      return positionInput(child, x, y, width, theme, height);
     case 'combo':
-      return positionCombo(child, x, y, width, theme);
+      return positionCombo(child, x, y, width, theme, height);
     case 'slider':
-      return positionSlider(child, x, y, width, theme);
+      return positionSlider(child, x, y, width, theme, height);
     case 'kv':
-      return positionKv(child, x, y, width, theme);
+      return positionKv(child, x, y, width, theme, height);
     case 'image':
-      return positionImage(child, x, y, theme);
+      return positionImage(child, x, y, theme, width, height);
     case 'icon':
-      return positionIcon(child, x, y, theme);
+      return positionIcon(child, x, y, theme, width, height);
     case 'divider':
       return positionDivider(child, x, y, width, theme, height);
     case 'spacer':
@@ -1927,9 +1927,9 @@ function positionContainerChild(
     case 'stats':
       return positionStats(child, x, y, width, theme);
     case 'progress':
-      return positionProgress(child, x, y, width, theme);
+      return positionProgress(child, x, y, width, theme, height);
     case 'chart':
-      return positionChart(child, x, y, theme);
+      return positionChart(child, x, y, theme, width, height);
     case 'tree':
       return positionTree(child, x, y, width, theme);
     case 'menubar':
@@ -1939,19 +1939,19 @@ function positionContainerChild(
     case 'breadcrumb':
       return positionBreadcrumb(child, x, y, width, theme);
     case 'checkbox':
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case 'radio':
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case 'toggle':
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case 'chip':
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case 'avatar':
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case 'spinner':
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case 'status':
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case 'segmented':
       return positionSegmented(child, x, y, width, theme);
     case 'table':
@@ -1968,8 +1968,21 @@ function positionLeaf(
   x: number,
   y: number,
   size: Size,
+  allocatedWidth?: number,
+  allocatedHeight?: number,
 ): LaidOutNode {
-  return { node, x, y, width: size.width, height: size.height, children: [] };
+  const attrs = 'attributes' in node && Array.isArray(node.attributes) ? node.attributes : [];
+  const hasExplicitW = getAttrNumber(attrs, 'w') !== undefined;
+  const hasGrow = getAttrNumber(attrs, 'grow') !== undefined;
+  const w = (hasExplicitW || hasGrow) && allocatedWidth !== undefined ? allocatedWidth : size.width;
+  return {
+    node,
+    x,
+    y,
+    width: w,
+    height: allocatedHeight ?? size.height,
+    children: [],
+  };
 }
 
 function positionTree(
@@ -2833,13 +2846,14 @@ function positionProgress(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
   const size = measureChild(node, theme);
   const hasExplicitW = getAttrNumber(node.attributes, 'w') !== undefined;
   const w = hasExplicitW
     ? size.width
     : Math.max(size.width, Math.min(width, theme.progressMaxWidth));
-  return { node, x, y, width: w, height: size.height, children: [] };
+  return { node, x, y, width: w, height: height ?? size.height, children: [] };
 }
 
 function positionChart(
@@ -2847,9 +2861,14 @@ function positionChart(
   x: number,
   y: number,
   theme: Theme,
+  allocatedWidth?: number,
+  allocatedHeight?: number,
 ): LaidOutNode {
   const size = measureChild(node, theme);
-  return { node, x, y, width: size.width, height: size.height, children: [] };
+  const hasGrow = getAttrNumber(node.attributes, 'grow') !== undefined;
+  const w = hasGrow && allocatedWidth !== undefined ? allocatedWidth : size.width;
+  const h = hasGrow && allocatedHeight !== undefined ? allocatedHeight : size.height;
+  return { node, x, y, width: w, height: h, children: [] };
 }
 
 function positionText(
@@ -2858,6 +2877,7 @@ function positionText(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
   void width;
   const size = measureChild(node, theme);
@@ -2866,19 +2886,29 @@ function positionText(
     x,
     y,
     width: size.width,
-    height: size.height,
+    height: height ?? size.height,
     children: [],
   };
 }
 
-function positionButton(node: ButtonNode, x: number, y: number, theme: Theme): LaidOutNode {
+function positionButton(
+  node: ButtonNode,
+  x: number,
+  y: number,
+  theme: Theme,
+  allocatedWidth?: number,
+  allocatedHeight?: number,
+): LaidOutNode {
   const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber(node.attributes, 'w') !== undefined;
+  const hasGrow = getAttrNumber(node.attributes, 'grow') !== undefined;
+  const w = (hasExplicitW || hasGrow) && allocatedWidth !== undefined ? allocatedWidth : size.width;
   return {
     node,
     x,
     y,
-    width: size.width,
-    height: size.height,
+    width: w,
+    height: allocatedHeight ?? size.height,
     children: [],
   };
 }
@@ -2889,6 +2919,7 @@ function positionInput(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
   const size = measureChild(node, theme);
   const hasExplicitW = getAttrNumber(node.attributes, 'w') !== undefined;
@@ -2900,7 +2931,7 @@ function positionInput(
     x,
     y,
     width: w,
-    height: size.height,
+    height: height ?? size.height,
     children: [],
   };
 }
@@ -2911,6 +2942,7 @@ function positionCombo(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
   const size = measureChild(node, theme);
   const hasExplicitW = getAttrNumber(node.attributes, 'w') !== undefined;
@@ -2922,7 +2954,7 @@ function positionCombo(
     x,
     y,
     width: w,
-    height: size.height,
+    height: height ?? size.height,
     children: [],
   };
 }
@@ -2933,6 +2965,7 @@ function positionSlider(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
   const size = measureChild(node, theme);
   const hasExplicitW = getAttrNumber(node.attributes, 'w') !== undefined;
@@ -2944,7 +2977,7 @@ function positionSlider(
     x,
     y,
     width: w,
-    height: size.height,
+    height: height ?? size.height,
     children: [],
   };
 }
@@ -2955,6 +2988,7 @@ function positionKv(
   y: number,
   width: number,
   theme: Theme,
+  height?: number,
 ): LaidOutNode {
   const size = measureChild(node, theme);
   return {
@@ -2962,19 +2996,39 @@ function positionKv(
     x,
     y,
     width,
-    height: size.height,
+    height: height ?? size.height,
     children: [],
   };
 }
 
-function positionImage(node: ImageNode, x: number, y: number, theme: Theme): LaidOutNode {
+function positionImage(
+  node: ImageNode,
+  x: number,
+  y: number,
+  theme: Theme,
+  allocatedWidth?: number,
+  allocatedHeight?: number,
+): LaidOutNode {
   const size = measureChild(node, theme);
-  return { node, x, y, width: size.width, height: size.height, children: [] };
+  const hasGrow = getAttrNumber(node.attributes, 'grow') !== undefined;
+  const w = hasGrow && allocatedWidth !== undefined ? allocatedWidth : size.width;
+  const h = hasGrow && allocatedHeight !== undefined ? allocatedHeight : size.height;
+  return { node, x, y, width: w, height: h, children: [] };
 }
 
-function positionIcon(node: IconNode, x: number, y: number, theme: Theme): LaidOutNode {
+function positionIcon(
+  node: IconNode,
+  x: number,
+  y: number,
+  theme: Theme,
+  allocatedWidth?: number,
+  allocatedHeight?: number,
+): LaidOutNode {
   const size = measureChild(node, theme);
-  return { node, x, y, width: size.width, height: size.height, children: [] };
+  const hasGrow = getAttrNumber(node.attributes, 'grow') !== undefined;
+  const w = hasGrow && allocatedWidth !== undefined ? allocatedWidth : size.width;
+  const h = hasGrow && allocatedHeight !== undefined ? allocatedHeight : size.height;
+  return { node, x, y, width: w, height: h, children: [] };
 }
 
 function positionDivider(
@@ -3047,12 +3101,19 @@ function getAttrString(attrs: readonly unknown[], key: string): string | undefin
 
 function getAttrNumber(attrs: readonly unknown[], key: string): number | undefined {
   const v = getAttr(attrs, key);
-  return v?.kind === 'number' ? v.value : undefined;
+  if (v?.kind === 'number') return v.value;
+  if (v?.kind === 'string') {
+    const num = parseFloat(v.value.trim().replace(/px$/, ''));
+    if (!Number.isNaN(num)) return num;
+  }
+  return undefined;
 }
 
 function getAttrIdent(attrs: readonly unknown[], key: string): string | undefined {
   const v = getAttr(attrs, key);
-  return v?.kind === 'identifier' ? v.value : undefined;
+  if (v?.kind === 'identifier') return v.value;
+  if (v?.kind === 'string') return v.value;
+  return undefined;
 }
 
 function hasFlagAttr(attrs: readonly unknown[], flag: string): boolean {

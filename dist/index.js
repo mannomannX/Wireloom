@@ -2697,6 +2697,26 @@ function coerceAttributeValue(token, spec, key, primitive) {
           token.column
         );
       }
+      if (token.kind === "string") {
+        const raw = (token.stringValue ?? token.raw).trim();
+        if (raw === "fill" || raw === "hug") {
+          return { kind: "identifier", value: raw, position };
+        }
+        if (raw.endsWith("%")) {
+          const num2 = parseFloat(raw.slice(0, -1));
+          if (!Number.isNaN(num2)) return { kind: "number", value: num2, unit: "percent", position };
+        }
+        if (raw.endsWith("fr")) {
+          const num2 = parseFloat(raw.slice(0, -2));
+          if (!Number.isNaN(num2)) return { kind: "number", value: num2, unit: "fr", position };
+        }
+        if (raw.endsWith("px")) {
+          const num2 = parseFloat(raw.slice(0, -2));
+          if (!Number.isNaN(num2)) return { kind: "number", value: num2, unit: "px", position };
+        }
+        const num = parseFloat(raw);
+        if (!Number.isNaN(num)) return { kind: "number", value: num, unit: "px", position };
+      }
       throw new WireloomError(
         `attribute "${key}" on "${primitive}" expects a length value (e.g. 320, 50%, 1fr, fill, hug), got ${describeToken(token)}`,
         token.line,
@@ -3867,8 +3887,12 @@ function alignCross(itemSize, lineSize, align) {
 // src/renderer/sizing.ts
 function getAttrNumber(attrs, key) {
   for (const a of attrs) {
-    if (a.kind === "pair" && a.key === key && a.value.kind === "number") {
-      return a.value.value;
+    if (a.kind === "pair" && a.key === key) {
+      if (a.value.kind === "number") return a.value.value;
+      if (a.value.kind === "string") {
+        const num = parseFloat(a.value.value.trim().replace(/px$/, ""));
+        if (!Number.isNaN(num)) return num;
+      }
     }
   }
   return void 0;
@@ -3888,6 +3912,25 @@ function parseLengthAttr(attrs, key) {
     if (a.value.kind === "identifier") {
       if (a.value.value === "fill") return { mode: "fill", value: 1 };
       if (a.value.value === "hug") return { mode: "hug", value: 0 };
+    }
+    if (a.value.kind === "string") {
+      const s = a.value.value.trim();
+      if (s === "fill") return { mode: "fill", value: 1 };
+      if (s === "hug") return { mode: "hug", value: 0 };
+      if (s.endsWith("%")) {
+        const num2 = parseFloat(s.slice(0, -1));
+        if (!Number.isNaN(num2)) return { mode: "percent", value: num2 };
+      }
+      if (s.endsWith("fr")) {
+        const num2 = parseFloat(s.slice(0, -2));
+        if (!Number.isNaN(num2)) return { mode: "fraction", value: num2 };
+      }
+      if (s.endsWith("px")) {
+        const num2 = parseFloat(s.slice(0, -2));
+        if (!Number.isNaN(num2)) return { mode: "fixed", value: num2 };
+      }
+      const num = parseFloat(s);
+      if (!Number.isNaN(num)) return { mode: "fixed", value: num };
     }
   }
   return void 0;
@@ -3927,8 +3970,8 @@ function resolveToAxisItem(opts) {
     }
     if (node.width.kind === "length" && node.width.unit === "px") {
       const fixed = node.width.value;
-      const min2 = Math.max(0, minVal ?? fixed);
-      const max2 = Math.max(min2, maxVal ?? fixed);
+      const min2 = Math.max(0, minVal ?? (customShrink ? 0 : fixed));
+      const max2 = Math.max(min2, maxVal ?? (customGrow ? Infinity : fixed));
       return {
         basis: fixed,
         grow: customGrow ?? 0,
@@ -3946,12 +3989,12 @@ function resolveToAxisItem(opts) {
   let max = Math.max(min, maxVal ?? (mode === "fixed" || mode === "percent" ? 0 : Infinity));
   if (mode === "fixed") {
     basis = len.value;
-    min = Math.max(0, minVal ?? basis);
-    max = Math.max(min, maxVal ?? basis);
+    min = Math.max(0, minVal ?? (shrink > 0 ? 0 : basis));
+    max = Math.max(min, maxVal ?? (grow > 0 ? Infinity : basis));
   } else if (mode === "percent") {
     basis = Math.max(0, parentExtent * len.value / 100);
-    min = Math.max(0, minVal ?? basis);
-    max = Math.max(min, maxVal ?? basis);
+    min = Math.max(0, minVal ?? (shrink > 0 ? 0 : basis));
+    max = Math.max(min, maxVal ?? (grow > 0 ? Infinity : basis));
   } else if (mode === "fraction") {
     basis = intrinsic;
     grow = customGrow ?? len.value;
@@ -5443,23 +5486,23 @@ function positionContainerChild(child, x, y, width, theme, height) {
     case "slot":
       return positionSlot(child, x, y, width, theme);
     case "text":
-      return positionText(child, x, y, width, theme);
+      return positionText(child, x, y, width, theme, height);
     case "button":
-      return positionButton(child, x, y, theme);
+      return positionButton(child, x, y, theme, width, height);
     case "backbutton":
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case "input":
-      return positionInput(child, x, y, width, theme);
+      return positionInput(child, x, y, width, theme, height);
     case "combo":
-      return positionCombo(child, x, y, width, theme);
+      return positionCombo(child, x, y, width, theme, height);
     case "slider":
-      return positionSlider(child, x, y, width, theme);
+      return positionSlider(child, x, y, width, theme, height);
     case "kv":
-      return positionKv(child, x, y, width, theme);
+      return positionKv(child, x, y, width, theme, height);
     case "image":
-      return positionImage(child, x, y, theme);
+      return positionImage(child, x, y, theme, width, height);
     case "icon":
-      return positionIcon(child, x, y, theme);
+      return positionIcon(child, x, y, theme, width, height);
     case "divider":
       return positionDivider(child, x, y, width, theme, height);
     case "spacer":
@@ -5471,9 +5514,9 @@ function positionContainerChild(child, x, y, width, theme, height) {
     case "stats":
       return positionStats(child, x, y, width, theme);
     case "progress":
-      return positionProgress(child, x, y, width, theme);
+      return positionProgress(child, x, y, width, theme, height);
     case "chart":
-      return positionChart(child, x, y, theme);
+      return positionChart(child, x, y, theme, width, height);
     case "tree":
       return positionTree(child, x, y, width, theme);
     case "menubar":
@@ -5483,19 +5526,19 @@ function positionContainerChild(child, x, y, width, theme, height) {
     case "breadcrumb":
       return positionBreadcrumb(child, x, y, width, theme);
     case "checkbox":
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case "radio":
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case "toggle":
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case "chip":
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case "avatar":
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case "spinner":
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case "status":
-      return positionLeaf(child, x, y, measureChild(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme), width, height);
     case "segmented":
       return positionSegmented(child, x, y, width, theme);
     case "table":
@@ -5506,8 +5549,19 @@ function positionContainerChild(child, x, y, width, theme, height) {
       return positionLeaf(child, x, y, { width: 0, height: 0 });
   }
 }
-function positionLeaf(node, x, y, size) {
-  return { node, x, y, width: size.width, height: size.height, children: [] };
+function positionLeaf(node, x, y, size, allocatedWidth, allocatedHeight) {
+  const attrs = "attributes" in node && Array.isArray(node.attributes) ? node.attributes : [];
+  const hasExplicitW = getAttrNumber2(attrs, "w") !== void 0;
+  const hasGrow = getAttrNumber2(attrs, "grow") !== void 0;
+  const w = (hasExplicitW || hasGrow) && allocatedWidth !== void 0 ? allocatedWidth : size.width;
+  return {
+    node,
+    x,
+    y,
+    width: w,
+    height: allocatedHeight ?? size.height,
+    children: []
+  };
 }
 function positionTree(node, x, y, width, theme) {
   const rows = [];
@@ -6120,39 +6174,45 @@ function positionStats(node, x, y, width, theme) {
   const used = node.children.length > 0 ? cursorX - x - theme.statsGap : 0;
   return { node, x, y, width: used, height: theme.lineHeight, children };
 }
-function positionProgress(node, x, y, width, theme) {
+function positionProgress(node, x, y, width, theme, height) {
   const size = measureChild(node, theme);
   const hasExplicitW = getAttrNumber2(node.attributes, "w") !== void 0;
   const w = hasExplicitW ? size.width : Math.max(size.width, Math.min(width, theme.progressMaxWidth));
-  return { node, x, y, width: w, height: size.height, children: [] };
+  return { node, x, y, width: w, height: height ?? size.height, children: [] };
 }
-function positionChart(node, x, y, theme) {
+function positionChart(node, x, y, theme, allocatedWidth, allocatedHeight) {
   const size = measureChild(node, theme);
-  return { node, x, y, width: size.width, height: size.height, children: [] };
+  const hasGrow = getAttrNumber2(node.attributes, "grow") !== void 0;
+  const w = hasGrow && allocatedWidth !== void 0 ? allocatedWidth : size.width;
+  const h = hasGrow && allocatedHeight !== void 0 ? allocatedHeight : size.height;
+  return { node, x, y, width: w, height: h, children: [] };
 }
-function positionText(node, x, y, width, theme) {
-  const size = measureChild(node, theme);
-  return {
-    node,
-    x,
-    y,
-    width: size.width,
-    height: size.height,
-    children: []
-  };
-}
-function positionButton(node, x, y, theme) {
+function positionText(node, x, y, width, theme, height) {
   const size = measureChild(node, theme);
   return {
     node,
     x,
     y,
     width: size.width,
-    height: size.height,
+    height: height ?? size.height,
     children: []
   };
 }
-function positionInput(node, x, y, width, theme) {
+function positionButton(node, x, y, theme, allocatedWidth, allocatedHeight) {
+  const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber2(node.attributes, "w") !== void 0;
+  const hasGrow = getAttrNumber2(node.attributes, "grow") !== void 0;
+  const w = (hasExplicitW || hasGrow) && allocatedWidth !== void 0 ? allocatedWidth : size.width;
+  return {
+    node,
+    x,
+    y,
+    width: w,
+    height: allocatedHeight ?? size.height,
+    children: []
+  };
+}
+function positionInput(node, x, y, width, theme, height) {
   const size = measureChild(node, theme);
   const hasExplicitW = getAttrNumber2(node.attributes, "w") !== void 0;
   const w = hasExplicitW ? size.width : Math.min(width, Math.max(size.width, Math.min(width, theme.inputMinWidth * 2)));
@@ -6161,11 +6221,11 @@ function positionInput(node, x, y, width, theme) {
     x,
     y,
     width: w,
-    height: size.height,
+    height: height ?? size.height,
     children: []
   };
 }
-function positionCombo(node, x, y, width, theme) {
+function positionCombo(node, x, y, width, theme, height) {
   const size = measureChild(node, theme);
   const hasExplicitW = getAttrNumber2(node.attributes, "w") !== void 0;
   const w = hasExplicitW ? size.width : Math.min(width, Math.max(size.width, Math.min(width, 320)));
@@ -6174,11 +6234,11 @@ function positionCombo(node, x, y, width, theme) {
     x,
     y,
     width: w,
-    height: size.height,
+    height: height ?? size.height,
     children: []
   };
 }
-function positionSlider(node, x, y, width, theme) {
+function positionSlider(node, x, y, width, theme, height) {
   const size = measureChild(node, theme);
   const hasExplicitW = getAttrNumber2(node.attributes, "w") !== void 0;
   const w = hasExplicitW ? size.width : Math.min(width, Math.max(theme.sliderDefaultWidth, Math.min(width, 360)));
@@ -6187,28 +6247,34 @@ function positionSlider(node, x, y, width, theme) {
     x,
     y,
     width: w,
-    height: size.height,
+    height: height ?? size.height,
     children: []
   };
 }
-function positionKv(node, x, y, width, theme) {
+function positionKv(node, x, y, width, theme, height) {
   const size = measureChild(node, theme);
   return {
     node,
     x,
     y,
     width,
-    height: size.height,
+    height: height ?? size.height,
     children: []
   };
 }
-function positionImage(node, x, y, theme) {
+function positionImage(node, x, y, theme, allocatedWidth, allocatedHeight) {
   const size = measureChild(node, theme);
-  return { node, x, y, width: size.width, height: size.height, children: [] };
+  const hasGrow = getAttrNumber2(node.attributes, "grow") !== void 0;
+  const w = hasGrow && allocatedWidth !== void 0 ? allocatedWidth : size.width;
+  const h = hasGrow && allocatedHeight !== void 0 ? allocatedHeight : size.height;
+  return { node, x, y, width: w, height: h, children: [] };
 }
-function positionIcon(node, x, y, theme) {
+function positionIcon(node, x, y, theme, allocatedWidth, allocatedHeight) {
   const size = measureChild(node, theme);
-  return { node, x, y, width: size.width, height: size.height, children: [] };
+  const hasGrow = getAttrNumber2(node.attributes, "grow") !== void 0;
+  const w = hasGrow && allocatedWidth !== void 0 ? allocatedWidth : size.width;
+  const h = hasGrow && allocatedHeight !== void 0 ? allocatedHeight : size.height;
+  return { node, x, y, width: w, height: h, children: [] };
 }
 function positionDivider(node, x, y, width, theme, height) {
   if (getAttrIdent(node.attributes, "orientation") === "vertical") {
@@ -6250,11 +6316,18 @@ function getAttrString(attrs, key) {
 }
 function getAttrNumber2(attrs, key) {
   const v = getAttr(attrs, key);
-  return v?.kind === "number" ? v.value : void 0;
+  if (v?.kind === "number") return v.value;
+  if (v?.kind === "string") {
+    const num = parseFloat(v.value.trim().replace(/px$/, ""));
+    if (!Number.isNaN(num)) return num;
+  }
+  return void 0;
 }
 function getAttrIdent(attrs, key) {
   const v = getAttr(attrs, key);
-  return v?.kind === "identifier" ? v.value : void 0;
+  if (v?.kind === "identifier") return v.value;
+  if (v?.kind === "string") return v.value;
+  return void 0;
 }
 function hasFlagAttr(attrs, flag) {
   for (const a of attrs) {
@@ -8069,11 +8142,18 @@ function getAttrString2(attrs, key) {
 }
 function getAttrNumber3(attrs, key) {
   const v = getAttr2(attrs, key);
-  return v?.kind === "number" ? v.value : void 0;
+  if (v?.kind === "number") return v.value;
+  if (v?.kind === "string") {
+    const num = parseFloat(v.value.trim().replace(/px$/, ""));
+    if (!Number.isNaN(num)) return num;
+  }
+  return void 0;
 }
 function getAttrIdent2(attrs, key) {
   const v = getAttr2(attrs, key);
-  return v?.kind === "identifier" ? v.value : void 0;
+  if (v?.kind === "identifier") return v.value;
+  if (v?.kind === "string") return v.value;
+  return void 0;
 }
 function getAttrRange(attrs, key) {
   const v = getAttr2(attrs, key);

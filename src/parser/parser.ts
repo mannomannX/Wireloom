@@ -2776,6 +2776,26 @@ function coerceAttributeValue(
           token.column,
         );
       }
+      if (token.kind === 'string') {
+        const raw = (token.stringValue ?? token.raw).trim();
+        if (raw === 'fill' || raw === 'hug') {
+          return { kind: 'identifier', value: raw, position };
+        }
+        if (raw.endsWith('%')) {
+          const num = parseFloat(raw.slice(0, -1));
+          if (!Number.isNaN(num)) return { kind: 'number', value: num, unit: 'percent', position };
+        }
+        if (raw.endsWith('fr')) {
+          const num = parseFloat(raw.slice(0, -2));
+          if (!Number.isNaN(num)) return { kind: 'number', value: num, unit: 'fr', position };
+        }
+        if (raw.endsWith('px')) {
+          const num = parseFloat(raw.slice(0, -2));
+          if (!Number.isNaN(num)) return { kind: 'number', value: num, unit: 'px', position };
+        }
+        const num = parseFloat(raw);
+        if (!Number.isNaN(num)) return { kind: 'number', value: num, unit: 'px', position };
+      }
       throw new WireloomError(
         `attribute "${key}" on "${primitive}" expects a length value (e.g. 320, 50%, 1fr, fill, hug), got ${describeToken(token)}`,
         token.line,

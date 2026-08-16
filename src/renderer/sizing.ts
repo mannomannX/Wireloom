@@ -27,8 +27,12 @@ export function getAttrString(attrs: Attribute[], key: string): string | undefin
 
 export function getAttrNumber(attrs: Attribute[], key: string): number | undefined {
   for (const a of attrs) {
-    if (a.kind === 'pair' && a.key === key && a.value.kind === 'number') {
-      return a.value.value;
+    if (a.kind === 'pair' && a.key === key) {
+      if (a.value.kind === 'number') return a.value.value;
+      if (a.value.kind === 'string') {
+        const num = parseFloat(a.value.value.trim().replace(/px$/, ''));
+        if (!Number.isNaN(num)) return num;
+      }
     }
   }
   return undefined;
@@ -36,8 +40,9 @@ export function getAttrNumber(attrs: Attribute[], key: string): number | undefin
 
 export function getAttrIdentifier(attrs: Attribute[], key: string): string | undefined {
   for (const a of attrs) {
-    if (a.kind === 'pair' && a.key === key && a.value.kind === 'identifier') {
-      return a.value.value;
+    if (a.kind === 'pair' && a.key === key) {
+      if (a.value.kind === 'identifier') return a.value.value;
+      if (a.value.kind === 'string') return a.value.value;
     }
   }
   return undefined;
@@ -65,6 +70,25 @@ export function parseLengthAttr(attrs: Attribute[], key: string): ResolvedLength
     if (a.value.kind === 'identifier') {
       if (a.value.value === 'fill') return { mode: 'fill', value: 1 };
       if (a.value.value === 'hug') return { mode: 'hug', value: 0 };
+    }
+    if (a.value.kind === 'string') {
+      const s = a.value.value.trim();
+      if (s === 'fill') return { mode: 'fill', value: 1 };
+      if (s === 'hug') return { mode: 'hug', value: 0 };
+      if (s.endsWith('%')) {
+        const num = parseFloat(s.slice(0, -1));
+        if (!Number.isNaN(num)) return { mode: 'percent', value: num };
+      }
+      if (s.endsWith('fr')) {
+        const num = parseFloat(s.slice(0, -2));
+        if (!Number.isNaN(num)) return { mode: 'fraction', value: num };
+      }
+      if (s.endsWith('px')) {
+        const num = parseFloat(s.slice(0, -2));
+        if (!Number.isNaN(num)) return { mode: 'fixed', value: num };
+      }
+      const num = parseFloat(s);
+      if (!Number.isNaN(num)) return { mode: 'fixed', value: num };
     }
   }
   return undefined;
@@ -122,8 +146,8 @@ export function resolveToAxisItem(opts: ResolveAxisItemOptions): AxisItem {
     }
     if (node.width.kind === 'length' && node.width.unit === 'px') {
       const fixed = node.width.value;
-      const min = Math.max(0, minVal ?? fixed);
-      const max = Math.max(min, maxVal ?? fixed);
+      const min = Math.max(0, minVal ?? (customShrink ? 0 : fixed));
+      const max = Math.max(min, maxVal ?? (customGrow ? Infinity : fixed));
       return {
         basis: fixed,
         grow: customGrow ?? 0,
@@ -144,12 +168,12 @@ export function resolveToAxisItem(opts: ResolveAxisItemOptions): AxisItem {
 
   if (mode === 'fixed') {
     basis = len!.value;
-    min = Math.max(0, minVal ?? basis);
-    max = Math.max(min, maxVal ?? basis);
+    min = Math.max(0, minVal ?? (shrink > 0 ? 0 : basis));
+    max = Math.max(min, maxVal ?? (grow > 0 ? Infinity : basis));
   } else if (mode === 'percent') {
     basis = Math.max(0, (parentExtent * len!.value) / 100);
-    min = Math.max(0, minVal ?? basis);
-    max = Math.max(min, maxVal ?? basis);
+    min = Math.max(0, minVal ?? (shrink > 0 ? 0 : basis));
+    max = Math.max(min, maxVal ?? (grow > 0 ? Infinity : basis));
   } else if (mode === 'fraction') {
     basis = intrinsic;
     grow = customGrow ?? len!.value;

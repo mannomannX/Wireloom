@@ -2124,12 +2124,19 @@ function getAttrString(attrs: readonly Attribute[], key: string): string | undef
 
 function getAttrNumber(attrs: readonly Attribute[], key: string): number | undefined {
   const v = getAttr(attrs, key);
-  return v?.kind === 'number' ? v.value : undefined;
+  if (v?.kind === 'number') return v.value;
+  if (v?.kind === 'string') {
+    const num = parseFloat(v.value.trim().replace(/px$/, ''));
+    if (!Number.isNaN(num)) return num;
+  }
+  return undefined;
 }
 
 function getAttrIdent(attrs: readonly Attribute[], key: string): string | undefined {
   const v = getAttr(attrs, key);
-  return v?.kind === 'identifier' ? v.value : undefined;
+  if (v?.kind === 'identifier') return v.value;
+  if (v?.kind === 'string') return v.value;
+  return undefined;
 }
 
 function getAttrRange(
