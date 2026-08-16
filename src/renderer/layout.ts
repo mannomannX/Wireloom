@@ -1328,14 +1328,33 @@ function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
     width: bodyWidth + padding * 2,
     height: bodyHeight + padding * 2,
   };
-  const outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
-  const outerHeight =
+
+  const explicitW = getAttrNumber(node.attributes, 'w');
+  const minW = getAttrNumber(node.attributes, 'min-w');
+  const maxW = getAttrNumber(node.attributes, 'max-w');
+  const explicitH = getAttrNumber(node.attributes, 'h');
+  const minH = getAttrNumber(node.attributes, 'min-h');
+  const maxH = getAttrNumber(node.attributes, 'max-h');
+
+  let outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
+  if (explicitW !== undefined) outerWidth = explicitW;
+  if (minW !== undefined && outerWidth < minW) outerWidth = minW;
+  if (maxW !== undefined && outerWidth > maxW) outerWidth = maxW;
+
+  const chromeH =
     (hasTitleBar ? theme.titleBarHeight : 0) +
     headerHeight +
     navbarHeight +
-    bodySize.height +
     footerHeight +
     tabbarHeight;
+
+  let outerHeight = chromeH + bodySize.height;
+  if (explicitH !== undefined) outerHeight = explicitH;
+  if (minH !== undefined && outerHeight < minH) outerHeight = minH;
+  if (maxH !== undefined && outerHeight > maxH) outerHeight = maxH;
+
+  bodySize.height = Math.max(bodySize.height, outerHeight - chromeH);
+  bodySize.width = Math.max(bodySize.width, outerWidth);
 
   return {
     outer: { width: outerWidth, height: outerHeight },
@@ -1884,7 +1903,7 @@ function positionContainerChild(
     case 'button':
       return positionButton(child, x, y, theme);
     case 'backbutton':
-      return positionLeaf(child, x, y, measureBackButton(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case 'input':
       return positionInput(child, x, y, width, theme);
     case 'combo':
@@ -1898,7 +1917,7 @@ function positionContainerChild(
     case 'icon':
       return positionIcon(child, x, y, theme);
     case 'divider':
-      return positionDivider(child, x, y, width, theme);
+      return positionDivider(child, x, y, width, theme, height);
     case 'spacer':
       return positionSpacer(child, x, y, width);
     case 'grid':
@@ -1920,19 +1939,19 @@ function positionContainerChild(
     case 'breadcrumb':
       return positionBreadcrumb(child, x, y, width, theme);
     case 'checkbox':
-      return positionLeaf(child, x, y, measureCheckbox(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case 'radio':
-      return positionLeaf(child, x, y, measureRadio(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case 'toggle':
-      return positionLeaf(child, x, y, measureToggle(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case 'chip':
-      return positionLeaf(child, x, y, measureChip(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case 'avatar':
-      return positionLeaf(child, x, y, measureAvatar(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case 'spinner':
-      return positionLeaf(child, x, y, measureSpinner(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case 'status':
-      return positionLeaf(child, x, y, measureStatus(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case 'segmented':
       return positionSegmented(child, x, y, width, theme);
     case 'table':
@@ -2815,9 +2834,11 @@ function positionProgress(
   width: number,
   theme: Theme,
 ): LaidOutNode {
-  const size = measureProgress(node, theme);
-  // Expand to available width up to a reasonable cap so progress bars can stretch.
-  const w = Math.max(size.width, Math.min(width, theme.progressMaxWidth));
+  const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber(node.attributes, 'w') !== undefined;
+  const w = hasExplicitW
+    ? size.width
+    : Math.max(size.width, Math.min(width, theme.progressMaxWidth));
   return { node, x, y, width: w, height: size.height, children: [] };
 }
 
@@ -2827,7 +2848,7 @@ function positionChart(
   y: number,
   theme: Theme,
 ): LaidOutNode {
-  const size = measureChart(node, theme);
+  const size = measureChild(node, theme);
   return { node, x, y, width: size.width, height: size.height, children: [] };
 }
 
@@ -2839,18 +2860,19 @@ function positionText(
   theme: Theme,
 ): LaidOutNode {
   void width;
+  const size = measureChild(node, theme);
   return {
     node,
     x,
     y,
-    width: textWidth(node.content, node.attributes, theme),
-    height: textLineHeight(node.attributes, theme),
+    width: size.width,
+    height: size.height,
     children: [],
   };
 }
 
 function positionButton(node: ButtonNode, x: number, y: number, theme: Theme): LaidOutNode {
-  const size = measureButton(node, theme);
+  const size = measureChild(node, theme);
   return {
     node,
     x,
@@ -2868,13 +2890,17 @@ function positionInput(
   width: number,
   theme: Theme,
 ): LaidOutNode {
-  const size = measureInput(node, theme);
+  const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber(node.attributes, 'w') !== undefined;
+  const w = hasExplicitW
+    ? size.width
+    : Math.min(width, Math.max(size.width, Math.min(width, theme.inputMinWidth * 2)));
   return {
     node,
     x,
     y,
-    width: Math.min(width, Math.max(size.width, Math.min(width, theme.inputMinWidth * 2))),
-    height: theme.inputHeight,
+    width: w,
+    height: size.height,
     children: [],
   };
 }
@@ -2886,13 +2912,17 @@ function positionCombo(
   width: number,
   theme: Theme,
 ): LaidOutNode {
-  const size = measureCombo(node, theme);
+  const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber(node.attributes, 'w') !== undefined;
+  const w = hasExplicitW
+    ? size.width
+    : Math.min(width, Math.max(size.width, Math.min(width, 320)));
   return {
     node,
     x,
     y,
-    width: Math.min(width, Math.max(size.width, Math.min(width, 320))),
-    height: theme.comboHeight,
+    width: w,
+    height: size.height,
     children: [],
   };
 }
@@ -2904,12 +2934,17 @@ function positionSlider(
   width: number,
   theme: Theme,
 ): LaidOutNode {
+  const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber(node.attributes, 'w') !== undefined;
+  const w = hasExplicitW
+    ? size.width
+    : Math.min(width, Math.max(theme.sliderDefaultWidth, Math.min(width, 360)));
   return {
     node,
     x,
     y,
-    width: Math.min(width, Math.max(theme.sliderDefaultWidth, Math.min(width, 360))),
-    height: theme.sliderHeight,
+    width: w,
+    height: size.height,
     children: [],
   };
 }
@@ -2921,23 +2956,25 @@ function positionKv(
   width: number,
   theme: Theme,
 ): LaidOutNode {
+  const size = measureChild(node, theme);
   return {
     node,
     x,
     y,
     width,
-    height: textLineHeight(node.attributes, theme),
+    height: size.height,
     children: [],
   };
 }
 
 function positionImage(node: ImageNode, x: number, y: number, theme: Theme): LaidOutNode {
-  const size = measureImage(node, theme);
+  const size = measureChild(node, theme);
   return { node, x, y, width: size.width, height: size.height, children: [] };
 }
 
 function positionIcon(node: IconNode, x: number, y: number, theme: Theme): LaidOutNode {
-  return { node, x, y, width: theme.iconSize, height: theme.iconSize, children: [] };
+  const size = measureChild(node, theme);
+  return { node, x, y, width: size.width, height: size.height, children: [] };
 }
 
 function positionDivider(

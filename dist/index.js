@@ -345,7 +345,7 @@ var CHILD_SIZING_ATTRS = {
   "self-align": { kind: "enum", values: CROSS_ALIGN_VALUES }
 };
 var ATTR_RULES = {
-  window: { attrs: {}, flags: [] },
+  window: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   header: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: ["large"] },
   footer: {
     attrs: {
@@ -354,7 +354,7 @@ var ATTR_RULES = {
     },
     flags: []
   },
-  navbar: { attrs: {}, flags: [] },
+  navbar: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   leading: { attrs: {}, flags: [] },
   center: { attrs: {}, flags: [] },
   trailing: { attrs: {}, flags: [] },
@@ -380,7 +380,7 @@ var ATTR_RULES = {
     attrs: { badge: { kind: "string" } },
     flags: ["active"]
   },
-  tabbar: { attrs: {}, flags: [] },
+  tabbar: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   tabitem: {
     attrs: {
       icon: { kind: "string" },
@@ -5035,8 +5035,23 @@ function measureWindow(node, theme) {
     width: bodyWidth + padding * 2,
     height: bodyHeight + padding * 2
   };
-  const outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
-  const outerHeight = (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + navbarHeight + bodySize.height + footerHeight + tabbarHeight;
+  const explicitW = getAttrNumber2(node.attributes, "w");
+  const minW = getAttrNumber2(node.attributes, "min-w");
+  const maxW = getAttrNumber2(node.attributes, "max-w");
+  const explicitH = getAttrNumber2(node.attributes, "h");
+  const minH = getAttrNumber2(node.attributes, "min-h");
+  const maxH = getAttrNumber2(node.attributes, "max-h");
+  let outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
+  if (explicitW !== void 0) outerWidth = explicitW;
+  if (minW !== void 0 && outerWidth < minW) outerWidth = minW;
+  if (maxW !== void 0 && outerWidth > maxW) outerWidth = maxW;
+  const chromeH = (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + navbarHeight + footerHeight + tabbarHeight;
+  let outerHeight = chromeH + bodySize.height;
+  if (explicitH !== void 0) outerHeight = explicitH;
+  if (minH !== void 0 && outerHeight < minH) outerHeight = minH;
+  if (maxH !== void 0 && outerHeight > maxH) outerHeight = maxH;
+  bodySize.height = Math.max(bodySize.height, outerHeight - chromeH);
+  bodySize.width = Math.max(bodySize.width, outerWidth);
   return {
     outer: { width: outerWidth, height: outerHeight },
     body: bodySize,
@@ -5432,7 +5447,7 @@ function positionContainerChild(child, x, y, width, theme, height) {
     case "button":
       return positionButton(child, x, y, theme);
     case "backbutton":
-      return positionLeaf(child, x, y, measureBackButton(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case "input":
       return positionInput(child, x, y, width, theme);
     case "combo":
@@ -5446,7 +5461,7 @@ function positionContainerChild(child, x, y, width, theme, height) {
     case "icon":
       return positionIcon(child, x, y, theme);
     case "divider":
-      return positionDivider(child, x, y, width, theme);
+      return positionDivider(child, x, y, width, theme, height);
     case "spacer":
       return positionSpacer(child, x, y, width);
     case "grid":
@@ -5468,19 +5483,19 @@ function positionContainerChild(child, x, y, width, theme, height) {
     case "breadcrumb":
       return positionBreadcrumb(child, x, y, width, theme);
     case "checkbox":
-      return positionLeaf(child, x, y, measureCheckbox(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case "radio":
-      return positionLeaf(child, x, y, measureRadio(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case "toggle":
-      return positionLeaf(child, x, y, measureToggle(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case "chip":
-      return positionLeaf(child, x, y, measureChip(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case "avatar":
-      return positionLeaf(child, x, y, measureAvatar(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case "spinner":
-      return positionLeaf(child, x, y, measureSpinner(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case "status":
-      return positionLeaf(child, x, y, measureStatus(child, theme));
+      return positionLeaf(child, x, y, measureChild(child, theme));
     case "segmented":
       return positionSegmented(child, x, y, width, theme);
     case "table":
@@ -6106,26 +6121,28 @@ function positionStats(node, x, y, width, theme) {
   return { node, x, y, width: used, height: theme.lineHeight, children };
 }
 function positionProgress(node, x, y, width, theme) {
-  const size = measureProgress(node, theme);
-  const w = Math.max(size.width, Math.min(width, theme.progressMaxWidth));
+  const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber2(node.attributes, "w") !== void 0;
+  const w = hasExplicitW ? size.width : Math.max(size.width, Math.min(width, theme.progressMaxWidth));
   return { node, x, y, width: w, height: size.height, children: [] };
 }
 function positionChart(node, x, y, theme) {
-  const size = measureChart(node, theme);
+  const size = measureChild(node, theme);
   return { node, x, y, width: size.width, height: size.height, children: [] };
 }
 function positionText(node, x, y, width, theme) {
+  const size = measureChild(node, theme);
   return {
     node,
     x,
     y,
-    width: textWidth(node.content, node.attributes, theme),
-    height: textLineHeight(node.attributes, theme),
+    width: size.width,
+    height: size.height,
     children: []
   };
 }
 function positionButton(node, x, y, theme) {
-  const size = measureButton(node, theme);
+  const size = measureChild(node, theme);
   return {
     node,
     x,
@@ -6136,53 +6153,62 @@ function positionButton(node, x, y, theme) {
   };
 }
 function positionInput(node, x, y, width, theme) {
-  const size = measureInput(node, theme);
+  const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber2(node.attributes, "w") !== void 0;
+  const w = hasExplicitW ? size.width : Math.min(width, Math.max(size.width, Math.min(width, theme.inputMinWidth * 2)));
   return {
     node,
     x,
     y,
-    width: Math.min(width, Math.max(size.width, Math.min(width, theme.inputMinWidth * 2))),
-    height: theme.inputHeight,
+    width: w,
+    height: size.height,
     children: []
   };
 }
 function positionCombo(node, x, y, width, theme) {
-  const size = measureCombo(node, theme);
+  const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber2(node.attributes, "w") !== void 0;
+  const w = hasExplicitW ? size.width : Math.min(width, Math.max(size.width, Math.min(width, 320)));
   return {
     node,
     x,
     y,
-    width: Math.min(width, Math.max(size.width, Math.min(width, 320))),
-    height: theme.comboHeight,
+    width: w,
+    height: size.height,
     children: []
   };
 }
 function positionSlider(node, x, y, width, theme) {
+  const size = measureChild(node, theme);
+  const hasExplicitW = getAttrNumber2(node.attributes, "w") !== void 0;
+  const w = hasExplicitW ? size.width : Math.min(width, Math.max(theme.sliderDefaultWidth, Math.min(width, 360)));
   return {
     node,
     x,
     y,
-    width: Math.min(width, Math.max(theme.sliderDefaultWidth, Math.min(width, 360))),
-    height: theme.sliderHeight,
+    width: w,
+    height: size.height,
     children: []
   };
 }
 function positionKv(node, x, y, width, theme) {
+  const size = measureChild(node, theme);
   return {
     node,
     x,
     y,
     width,
-    height: textLineHeight(node.attributes, theme),
+    height: size.height,
     children: []
   };
 }
 function positionImage(node, x, y, theme) {
-  const size = measureImage(node, theme);
+  const size = measureChild(node, theme);
   return { node, x, y, width: size.width, height: size.height, children: [] };
 }
 function positionIcon(node, x, y, theme) {
-  return { node, x, y, width: theme.iconSize, height: theme.iconSize, children: [] };
+  const size = measureChild(node, theme);
+  return { node, x, y, width: size.width, height: size.height, children: [] };
 }
 function positionDivider(node, x, y, width, theme, height) {
   if (getAttrIdent(node.attributes, "orientation") === "vertical") {

@@ -183,7 +183,7 @@ const CHILD_SIZING_ATTRS: Record<string, AttrSpec> = {
 };
 
 const ATTR_RULES: Record<string, AttrRules> = {
-  window: { attrs: {}, flags: [] },
+  window: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   header: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: ['large'] },
   footer: {
     attrs: {
@@ -192,7 +192,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
     },
     flags: [],
   },
-  navbar: { attrs: {}, flags: [] },
+  navbar: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   leading: { attrs: {}, flags: [] },
   center: { attrs: {}, flags: [] },
   trailing: { attrs: {}, flags: [] },
@@ -218,7 +218,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
     attrs: { badge: { kind: 'string' } },
     flags: ['active'],
   },
-  tabbar: { attrs: {}, flags: [] },
+  tabbar: { attrs: { ...CONTAINER_SIZING_ATTRS }, flags: [] },
   tabitem: {
     attrs: {
       icon: { kind: 'string' },
