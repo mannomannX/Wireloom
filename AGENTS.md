@@ -671,12 +671,41 @@ window "Analytics":
     chart kind=line label="Weekly revenue" accent=wealth
 ```
 
-## Spacers and right-alignment
+## Flex Alignment and Distribution (justify, align, gap, spacer)
 
-For anchoring items within a single row (Cancel on the left, Done on the right; title on the left, actions on the right), use `spacer` or `row justify=between`:
+Wireloom containers (`row`, `col`, `panel`, `section`) use a 1D flex model along their primary axis:
+
+- **Main Axis Distribution (`justify=`)**:
+  - `start` (default): packs children from the start edge.
+  - `center`: centers children as a cluster.
+  - `end`: packs children flush against the far edge.
+  - `between`: distributes items evenly; first item on start edge, last item on end edge.
+  - `around`: gives each child equal surrounding space.
+  - `evenly`: gives equal space between all children and outer boundaries.
+
+- **Cross Axis Alignment (`align=`)**:
+  - `start` (default): aligns children to the top of a `row` or left of a `col`.
+  - `center`: centers children across the cross axis.
+  - `end`: aligns children to the bottom of a `row` or right of a `col`.
+  - `stretch`: stretches children to match the container's cross-axis dimension.
+  - Individual children can override this via `self-align=start|center|end|stretch`.
+
+- **Spacers (`spacer`)**:
+  - A leaf primitive placed between sibling children inside a `row` or `col`.
+  - Consumes available slack along the container's main axis, pinning preceding items to the start and subsequent items to the end.
+  - Inside a `col`, `spacer` distributes vertical slack when the `col` has an explicit height (`h=`, `min-h=`) or is stretched by an enclosing container.
+
+- **Internal Gaps (`gap=N`)**:
+  - Sets explicit pixel spacing between consecutive child elements within `row`, `col`, `panel`, `section`, or `grid`.
+
+- **Explicit Sizing & Constraints (`w=`, `h=`, `min-w=`, `min-h=`, `max-w=`, `max-h=`)**:
+  - Any container or leaf primitive can specify target dimensions (e.g. `col 340 h=560:` or `panel w=100% min-h=200:`).
+  - Supported units: bare numbers (pixels), `px`, `%` (relative to parent), and `fr` (fractional slack share).
+
+### Anchoring examples
 
 ```wireloom
-# Preferred: explicit spacer
+# Preferred: explicit spacer (pins Cancel left, Done right)
 row:
   button "Cancel"
   spacer
@@ -686,9 +715,15 @@ row:
 row justify=between:
   text "Step 2 of 4"
   text "Draft saved" muted
-```
 
-`align=right` on `row` still works for its original case (pack all children to the right), but when you want two clusters anchored to opposite ends of the same row, reach for `spacer` or `justify=between` instead.
+# Vertical layout with spacer (pins panel top, section bottom inside a tall col)
+col 340 h=560:
+  panel:
+    text "Header card" bold
+  spacer
+  section "Actions":
+    button "Submit" primary w=100%
+```
 
 ### Universal attribute: `id` (v0.4.1)
 
