@@ -137,83 +137,198 @@ const state = {
 };
 
 // ---------------------------------------------------------------------------
-// Wireloom Syntax Highlighter
+// Wireloom Syntax Highlighter (Conforming to design/grammar.md)
 // ---------------------------------------------------------------------------
+
+const HL_KEYWORDS = new Set([
+  'define', 'window', 'annotation', 'use',
+  'leading', 'trailing', 'center'
+]);
+
+const HL_CONTAINERS = new Set([
+  'header', 'footer', 'panel', 'section', 'tabs', 'row', 'col',
+  'list', 'slot', 'grid', 'table', 'columns', 'tr', 'foot',
+  'code', 'resourcebar', 'stats', 'navbar', 'tabbar', 'sheet',
+  'segmented', 'tree', 'menubar', 'menu', 'breadcrumb'
+]);
+
+const HL_PRIMITIVES = new Set([
+  'tab', 'item', 'text', 'button', 'backbutton', 'input', 'combo',
+  'slider', 'kv', 'image', 'icon', 'divider', 'cell', 'column',
+  'td', 'resource', 'stat', 'progress', 'chart', 'spacer',
+  'tabitem', 'segment', 'checkbox', 'radio', 'toggle', 'chip',
+  'avatar', 'spinner', 'status', 'node', 'menuitem', 'separator',
+  'crumb'
+]);
+
+const HL_FLAGS_AND_ENUMS = new Set([
+  // Bare flags
+  'primary', 'disabled', 'active', 'selected', 'checked', 'on', 'off',
+  'closable', 'collapsed', 'large', 'chevron', 'label-right',
+  'bold', 'italic', 'muted', 'striped', 'compact', 'bordered', 'lines',
+
+  // Sizing & flex values
+  'fill', 'hug', 'auto', 'uniform',
+
+  // Alignment & Positions
+  'start', 'center', 'end', 'between', 'around', 'evenly', 'stretch',
+  'left', 'right', 'top', 'bottom',
+
+  // Orientations
+  'horizontal', 'vertical',
+
+  // Typography weights & sizes
+  'light', 'regular', 'semibold',
+  'small', 'medium',
+
+  // Accents & Polarity
+  'research', 'military', 'industry', 'wealth', 'approval',
+  'warning', 'danger', 'success', 'info', 'error',
+
+  // States
+  'locked', 'available', 'purchased', 'maxed',
+  'growing', 'ripe', 'withering', 'cashed',
+
+  // Kinds & Variants
+  'kbd', 'bar', 'line', 'pie', 'password', 'email',
+
+  // Named icons
+  'credits', 'influence', 'faith', 'authority', 'computation', 'tech',
+  'policy', 'ship', 'planet', 'leader', 'gear', 'lock', 'check', 'star', 'plus', 'minus'
+]);
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 
 function highlightWireloom(code) {
   const lines = code.split('\n');
   const highlightedLines = lines.map(line => {
-    let comment = '';
-    let mainLine = line;
-    const commentIdx = line.indexOf('#');
-    if (commentIdx !== -1) {
-      const beforeComment = line.slice(0, commentIdx);
-      const quotes = (beforeComment.match(/"/g) || []).length;
-      if (quotes % 2 === 0) {
-        mainLine = beforeComment;
-        comment = line.slice(commentIdx);
+    let out = '';
+    let i = 0;
+    const len = line.length;
+
+    while (i < len) {
+      const ch = line[i];
+
+      // 1. Comments: '#' to end of line
+      if (ch === '#') {
+        out += `<span class="hl-comment">${escapeHtml(line.slice(i))}</span>`;
+        break;
       }
+
+      // 2. Whitespace
+      if (ch === ' ' || ch === '\t') {
+        out += ch;
+        i++;
+        continue;
+      }
+
+      // 3. String literal: "..." with escapes
+      if (ch === '"') {
+        let strVal = '"';
+        i++;
+        while (i < len) {
+          const sc = line[i];
+          if (sc === '\\' && i + 1 < len) {
+            strVal += sc + line[i + 1];
+            i += 2;
+          } else if (sc === '"') {
+            strVal += '"';
+            i++;
+            break;
+          } else {
+            strVal += sc;
+            i++;
+          }
+        }
+        out += `<span class="hl-string">${escapeHtml(strVal)}</span>`;
+        continue;
+      }
+
+      // 4. Macro definition / invocation: @Name
+      if (ch === '@') {
+        let name = '@';
+        i++;
+        while (i < len && /[a-zA-Z0-9_-]/.test(line[i])) {
+          name += line[i];
+          i++;
+        }
+        out += `<span class="hl-macro">${escapeHtml(name)}</span>`;
+        continue;
+      }
+
+      // 5. Macro variable reference: $name
+      if (ch === '$') {
+        let varName = '$';
+        i++;
+        while (i < len && /[a-zA-Z0-9_-]/.test(line[i])) {
+          varName += line[i];
+          i++;
+        }
+        out += `<span class="hl-var">${escapeHtml(varName)}</span>`;
+        continue;
+      }
+
+      // 6. Number, Range, or Dimension unit (e.g. 100, 100px, 50%, 1fr, 0-100)
+      if (/[0-9]/.test(ch)) {
+        let numStr = '';
+        while (i < len && /[0-9.-]/.test(line[i])) {
+          numStr += line[i];
+          i++;
+        }
+        if (i < len && line[i] === '%') {
+          numStr += '%';
+          i++;
+        } else if (i + 1 < len && line.slice(i, i + 2).toLowerCase() === 'px') {
+          numStr += line.slice(i, i + 2);
+          i += 2;
+        } else if (i + 1 < len && line.slice(i, i + 2).toLowerCase() === 'fr') {
+          numStr += line.slice(i, i + 2);
+          i += 2;
+        }
+        out += `<span class="hl-num">${escapeHtml(numStr)}</span>`;
+        continue;
+      }
+
+      // 7. Identifiers, Attribute keys, Keywords, Containers, Primitives, Flags
+      if (/[a-zA-Z_]/.test(ch)) {
+        let ident = '';
+        while (i < len && /[a-zA-Z0-9_-]/.test(line[i])) {
+          ident += line[i];
+          i++;
+        }
+
+        // Check if followed immediately by '=' (Attribute Key: key=)
+        if (i < len && line[i] === '=') {
+          out += `<span class="hl-attr">${escapeHtml(ident)}</span>=`;
+          i++; // consume '='
+          continue;
+        }
+
+        if (HL_KEYWORDS.has(ident)) {
+          out += `<span class="hl-keyword">${escapeHtml(ident)}</span>`;
+        } else if (HL_CONTAINERS.has(ident)) {
+          out += `<span class="hl-container">${escapeHtml(ident)}</span>`;
+        } else if (HL_PRIMITIVES.has(ident)) {
+          out += `<span class="hl-primitive">${escapeHtml(ident)}</span>`;
+        } else if (HL_FLAGS_AND_ENUMS.has(ident)) {
+          out += `<span class="hl-flag">${escapeHtml(ident)}</span>`;
+        } else {
+          out += escapeHtml(ident);
+        }
+        continue;
+      }
+
+      // 8. Other punctuation / symbols (:, ,, (, ), etc.)
+      out += escapeHtml(ch);
+      i++;
     }
 
-    let tokensHtml = '';
-    const stringRegex = /"([^"\\]|\\.)*"/g;
-    let lastIdx = 0;
-    let match;
-
-    function formatNonString(str) {
-      let s = str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
-      // Macro vars: $name
-      s = s.replace(/(\$[a-zA-Z0-9_-]+)/g, '<span class="hl-var">$1</span>');
-
-      // Macro names: @Name
-      s = s.replace(/(@[a-zA-Z0-9_-]+)/g, '<span class="hl-macro">$1</span>');
-
-      // Attribute pairs: attr=
-      s = s.replace(/\b([a-zA-Z0-9_-]+)=/g, '<span class="hl-attr">$1</span>=');
-
-      // Top-level Keywords & slot containers
-      s = s.replace(/\b(define|window|annotation|use|leading|trailing|center)\b/g, '<span class="hl-keyword">$1</span>');
-
-      // Structural Containers
-      s = s.replace(/\b(header|footer|panel|section|tabs|row|col|list|slot|grid|table|columns|tr|foot|code|resourcebar|stats|navbar|tabbar|sheet|segmented|tree|menubar|menu|breadcrumb)\b/g, '<span class="hl-container">$1</span>');
-
-      // Primitives & Controls
-      s = s.replace(/\b(tab|item|text|button|backbutton|input|combo|slider|kv|image|icon|divider|cell|column|td|resource|stat|progress|chart|spacer|tabitem|segment|checkbox|radio|toggle|chip|avatar|spinner|status|node|menuitem|separator|crumb)\b/g, '<span class="hl-primitive">$1</span>');
-
-      // Flags & enum constants (including hyphenated like label-right)
-      s = s.replace(/(?:^|\b|=)(label-right|primary|disabled|checked|selected|active|bold|muted|italic|lines|striped|compact|bordered|fill|hug|auto|uniform|left|right|center|start|end|between|around|evenly|stretch|top|bottom|horizontal|vertical|small|medium|large|light|regular|semibold|kbd|closable|on|off|chevron|success|info|warning|error|danger|research|military|industry|wealth|approval|locked|available|purchased|maxed|growing|ripe|withering|cashed|bar|line|pie|password|email)(?=\b|\s|:|$)/g, (match, p1) => {
-        const prefix = match.startsWith('=') ? '=' : (match.startsWith(' ') ? ' ' : '');
-        return `${prefix}<span class="hl-flag">${p1}</span>`;
-      });
-
-      // Numbers, units (%, px, fr) & ranges (0-100)
-      s = s.replace(/(?:^|\s|=)(\d+(?:-\d+)?(?:%|fr|px)?)(?=\s|:|,|\)|$)/g, (match, p1) => {
-        const prefix = match.startsWith('=') ? '=' : (match.startsWith(' ') ? ' ' : '');
-        return `${prefix}<span class="hl-num">${p1}</span>`;
-      });
-
-      return s;
-    }
-
-    while ((match = stringRegex.exec(mainLine)) !== null) {
-      const before = mainLine.slice(lastIdx, match.index);
-      tokensHtml += formatNonString(before);
-      const strVal = match[0].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      tokensHtml += `<span class="hl-string">${strVal}</span>`;
-      lastIdx = match.index + match[0].length;
-    }
-    tokensHtml += formatNonString(mainLine.slice(lastIdx));
-
-    if (comment) {
-      const escComment = comment.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      tokensHtml += `<span class="hl-comment">${escComment}</span>`;
-    }
-
-    return tokensHtml;
+    return out;
   });
 
   return highlightedLines.join('\n') + '\n';
