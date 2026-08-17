@@ -537,11 +537,20 @@ function init() {
   });
 
   el.formatBtn.addEventListener('click', () => {
-    const lines = el.input.value.split('\n');
-    el.input.value = lines.map(l => l.replace(/\t/g, '  ')).join('\n');
-    updateEditorView();
-    compileAndRender(true);
-    showToast('Formatted');
+    try {
+      const ast = wireloom.parse(el.input.value);
+      const formatted = wireloom.serialize(ast);
+      el.input.value = formatted;
+      updateEditorView();
+      compileAndRender(true);
+      showToast('Document formatted');
+    } catch {
+      const lines = el.input.value.split('\n');
+      el.input.value = lines.map(l => l.replace(/\t/g, '  ')).join('\n');
+      updateEditorView();
+      compileAndRender(true);
+      showToast('Tabs normalized');
+    }
   });
 
   setupEditor();
