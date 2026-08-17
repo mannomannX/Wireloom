@@ -121,8 +121,10 @@ body {
 }
 
 .brand-logo {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
   stroke: currentColor;
   flex-shrink: 0;
   display: inline-block;
