@@ -14,6 +14,7 @@ const el = {
   themeBtn: document.getElementById('theme-btn'),
   sunIcon: document.getElementById('theme-icon-sun'),
   moonIcon: document.getElementById('theme-icon-moon'),
+  copyMdBtn: document.getElementById('copy-md-btn'),
   copyBtn: document.getElementById('copy-btn'),
   downloadBtn: document.getElementById('download-btn'),
   exportPngBtn: document.getElementById('export-png-btn'),
@@ -291,6 +292,20 @@ function showToast(msg) {
   }, 2000);
 }
 
+function copyMarkdown() {
+  const source = el.input.value;
+  if (!source.trim()) {
+    showToast('No code to copy');
+    return;
+  }
+  const mdBlock = '```wireloom\n' + source.trim() + '\n```';
+  navigator.clipboard.writeText(mdBlock).then(() => {
+    showToast('Markdown block copied');
+  }).catch(() => {
+    showToast('Failed to copy Markdown');
+  });
+}
+
 function copySvg() {
   if (!state.lastSvg) {
     showToast('No rendered SVG to copy');
@@ -369,6 +384,7 @@ function exportPng() {
 
 function initEvents() {
   el.themeBtn.addEventListener('click', toggleTheme);
+  if (el.copyMdBtn) el.copyMdBtn.addEventListener('click', copyMarkdown);
   el.copyBtn.addEventListener('click', copySvg);
   el.downloadBtn.addEventListener('click', downloadSvg);
   el.exportPngBtn.addEventListener('click', exportPng);
