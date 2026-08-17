@@ -152,6 +152,8 @@ var HL_FLAGS_AND_ENUMS = /* @__PURE__ */ new Set([
   "compact",
   "bordered",
   "lines",
+  "scroll",
+  "handle",
   // Sizing & flex values
   "fill",
   "hug",
@@ -198,13 +200,26 @@ var HL_FLAGS_AND_ENUMS = /* @__PURE__ */ new Set([
   "ripe",
   "withering",
   "cashed",
+  // Status & Progress kinds
+  "neutral",
+  "pending",
+  "running",
+  "ring",
   // Kinds & Variants
   "kbd",
+  "default",
   "bar",
   "line",
   "pie",
+  "sparkline",
+  "area",
+  "donut",
+  "stacked",
+  "scatter",
+  "heatmap",
   "password",
   "email",
+  "search",
   // Named icon glyphs
   "credits",
   "influence",
@@ -221,7 +236,14 @@ var HL_FLAGS_AND_ENUMS = /* @__PURE__ */ new Set([
   "check",
   "star",
   "plus",
-  "minus"
+  "minus",
+  "user",
+  "settings",
+  "folder",
+  "file",
+  "refresh",
+  "trash",
+  "home"
 ]);
 function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
