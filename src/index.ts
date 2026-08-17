@@ -12,15 +12,24 @@
  */
 
 import { mergeConfig, type WireloomConfig } from './config.js';
+import {
+  highlight as highlightCode,
+  tokenizeWireloom as tokenizeSource,
+  DEFAULT_HIGHLIGHT_THEME_LIGHT,
+  DEFAULT_HIGHLIGHT_THEME_DARK,
+} from './highlighter.js';
+import type { HighlightOptions, HighlightToken } from './highlighter.js';
 import type { Document } from './parser/ast.js';
 import { parse as parseSource } from './parser/parser.js';
 import { serialize as serializeDoc } from './parser/serializer.js';
 import { renderWireframe } from './renderer/index.js';
 
 export type { WireloomConfig, WireloomTheme, WireloomSecurityLevel } from './config.js';
+export type { HighlightOptions, HighlightTheme, HighlightToken, TokenType } from './highlighter.js';
 export type * from './parser/ast.js';
 export { WireloomError } from './parser/errors.js';
 export { DEFAULT_THEME, DARK_THEME, type Theme } from './renderer/themes.js';
+export { DEFAULT_HIGHLIGHT_THEME_LIGHT, DEFAULT_HIGHLIGHT_THEME_DARK };
 
 export interface RenderResult {
   svg: string;
@@ -52,6 +61,20 @@ export function serialize(doc: Document): string {
   return serializeDoc(doc);
 }
 
+/**
+ * Highlights a Wireloom source string to HTML, inline CSS styles, or ANSI terminal markup.
+ */
+export function highlight(source: string, options?: HighlightOptions): string {
+  return highlightCode(source, options);
+}
+
+/**
+ * Tokenizes a Wireloom source string into a typed token stream for tooling & AST consumers.
+ */
+export function tokenizeWireloom(source: string): HighlightToken[] {
+  return tokenizeSource(source);
+}
+
 export interface RenderOptions {
   /** Override the theme for this render without touching the global config. */
   theme?: 'default' | 'dark';
@@ -73,5 +96,5 @@ export async function render(
   return { svg };
 }
 
-const wireloom = { initialize, parse, serialize, render };
+const wireloom = { initialize, parse, serialize, render, highlight, tokenizeWireloom };
 export default wireloom;

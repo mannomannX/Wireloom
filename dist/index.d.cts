@@ -6,6 +6,59 @@ interface WireloomConfig {
 }
 
 /**
+ * Wireloom Syntax Highlighter & Tokenizer Engine.
+ *
+ * Fully abstracted lexical engine conforming strictly to design/grammar.md (v0.8.0).
+ * Supports pluggable frontends (HTML with custom classPrefix, inline CSS styles,
+ * CLI/ANSI terminal escapes, and raw token streams for Monaco/CodeMirror/React).
+ */
+type TokenType = 'keyword' | 'macro' | 'var' | 'container' | 'primitive' | 'attr' | 'flag' | 'num' | 'string' | 'comment' | 'text';
+interface HighlightToken {
+    type: TokenType;
+    value: string;
+    line: number;
+    column: number;
+}
+interface HighlightTheme {
+    keyword: string;
+    macro: string;
+    var: string;
+    container: string;
+    primitive: string;
+    attr: string;
+    flag: string;
+    num: string;
+    string: string;
+    comment: string;
+}
+declare const DEFAULT_HIGHLIGHT_THEME_LIGHT: HighlightTheme;
+declare const DEFAULT_HIGHLIGHT_THEME_DARK: HighlightTheme;
+interface HighlightOptions {
+    /**
+     * Rendering mode:
+     * - 'html' (default): wraps tokens in `<span class="{classPrefix}{type}">`
+     * - 'inline-css': wraps tokens in `<span style="color: ...">` using the active theme
+     * - 'ansi': terminal ANSI escape codes for CLI output
+     */
+    mode?: 'html' | 'inline-css' | 'ansi';
+    /**
+     * Prefix for HTML CSS class names. Defaults to 'hl-'.
+     * Example: `classPrefix: 'token-'` -> `<span class="token-keyword">`
+     */
+    classPrefix?: string;
+    /**
+     * Theme for 'inline-css' mode or custom color overrides.
+     * Can be 'default', 'dark', or a custom {@link HighlightTheme}.
+     */
+    theme?: 'default' | 'dark' | Partial<HighlightTheme>;
+    /**
+     * Optional custom token formatter hook.
+     * Allows consumers to transform tokens arbitrarily (e.g. for React JSX, AST converters, etc.).
+     */
+    formatToken?: (token: HighlightToken, defaultOutput: string) => string;
+}
+
+/**
  * AST type definitions for the Wireloom v0.4 grammar.
  *
  * The parser produces a `Document` whose optional `root` is the required
@@ -753,6 +806,14 @@ declare function parse(source: string): Document;
  * re-parsed AST of the serialized output equals the input AST.
  */
 declare function serialize(doc: Document): string;
+/**
+ * Highlights a Wireloom source string to HTML, inline CSS styles, or ANSI terminal markup.
+ */
+declare function highlight(source: string, options?: HighlightOptions): string;
+/**
+ * Tokenizes a Wireloom source string into a typed token stream for tooling & AST consumers.
+ */
+declare function tokenizeWireloom(source: string): HighlightToken[];
 interface RenderOptions {
     /** Override the theme for this render without touching the global config. */
     theme?: 'default' | 'dark';
@@ -768,6 +829,8 @@ declare const wireloom: {
     parse: typeof parse;
     serialize: typeof serialize;
     render: typeof render;
+    highlight: typeof highlight;
+    tokenizeWireloom: typeof tokenizeWireloom;
 };
 
-export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BackButtonNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type CodeNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MacroDefineNode, type MacroUseNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type NavbarNode, type NavbarSlotNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SegmentNode, type SegmentedNode, type SeparatorNode, type SheetNode, type SheetPlacement, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpacerNode, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabBarNode, type TabItemNode, type TabNode, type TableCellNode, type TableColumnNode, type TableColumnsNode, type TableFootNode, type TableNode, type TableRowNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
+export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BackButtonNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type CodeNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_HIGHLIGHT_THEME_DARK, DEFAULT_HIGHLIGHT_THEME_LIGHT, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type HighlightOptions, type HighlightTheme, type HighlightToken, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MacroDefineNode, type MacroUseNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type NavbarNode, type NavbarSlotNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SegmentNode, type SegmentedNode, type SeparatorNode, type SheetNode, type SheetPlacement, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpacerNode, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabBarNode, type TabItemNode, type TabNode, type TableCellNode, type TableColumnNode, type TableColumnsNode, type TableFootNode, type TableNode, type TableRowNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TokenType, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, highlight, initialize, parse, render, serialize, tokenizeWireloom };

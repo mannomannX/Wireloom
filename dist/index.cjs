@@ -15,6 +15,387 @@ function getConfig() {
   return { ...currentConfig };
 }
 
+// src/highlighter.ts
+var DEFAULT_HIGHLIGHT_THEME_LIGHT = {
+  keyword: "#7c3aed",
+  macro: "#0284c7",
+  var: "#be123c",
+  container: "#1d4ed8",
+  primitive: "#0f766e",
+  attr: "#c2410c",
+  flag: "#6d28d9",
+  num: "#0369a1",
+  string: "#15803d",
+  comment: "#94a3b8"
+};
+var DEFAULT_HIGHLIGHT_THEME_DARK = {
+  keyword: "#c084fc",
+  macro: "#38bdf8",
+  var: "#f43f5e",
+  container: "#60a5fa",
+  primitive: "#2dd4bf",
+  attr: "#fb923c",
+  flag: "#a78bfa",
+  num: "#38bdf8",
+  string: "#fde047",
+  comment: "#64748b"
+};
+var ANSI_COLORS = {
+  keyword: "\x1B[35m",
+  // Magenta
+  macro: "\x1B[36m",
+  // Cyan
+  var: "\x1B[31m",
+  // Red
+  container: "\x1B[34m",
+  // Blue
+  primitive: "\x1B[32m",
+  // Green
+  attr: "\x1B[33m",
+  // Yellow
+  flag: "\x1B[35m",
+  // Magenta
+  num: "\x1B[36m",
+  // Cyan
+  string: "\x1B[32m",
+  // Green
+  comment: "\x1B[90m",
+  // Bright Black (Gray)
+  text: "\x1B[0m"
+  // Reset
+};
+var HL_KEYWORDS = /* @__PURE__ */ new Set([
+  "define",
+  "window",
+  "annotation",
+  "use",
+  "leading",
+  "trailing",
+  "center"
+]);
+var HL_CONTAINERS = /* @__PURE__ */ new Set([
+  "header",
+  "footer",
+  "panel",
+  "section",
+  "tabs",
+  "row",
+  "col",
+  "list",
+  "slot",
+  "grid",
+  "table",
+  "columns",
+  "tr",
+  "foot",
+  "code",
+  "resourcebar",
+  "stats",
+  "navbar",
+  "tabbar",
+  "sheet",
+  "segmented",
+  "tree",
+  "menubar",
+  "menu",
+  "breadcrumb"
+]);
+var HL_PRIMITIVES = /* @__PURE__ */ new Set([
+  "tab",
+  "item",
+  "text",
+  "button",
+  "backbutton",
+  "input",
+  "combo",
+  "slider",
+  "kv",
+  "image",
+  "icon",
+  "divider",
+  "cell",
+  "column",
+  "td",
+  "resource",
+  "stat",
+  "progress",
+  "chart",
+  "spacer",
+  "tabitem",
+  "segment",
+  "checkbox",
+  "radio",
+  "toggle",
+  "chip",
+  "avatar",
+  "spinner",
+  "status",
+  "node",
+  "menuitem",
+  "separator",
+  "crumb"
+]);
+var HL_FLAGS_AND_ENUMS = /* @__PURE__ */ new Set([
+  // Bare flags
+  "primary",
+  "disabled",
+  "active",
+  "selected",
+  "checked",
+  "on",
+  "off",
+  "closable",
+  "collapsed",
+  "large",
+  "chevron",
+  "label-right",
+  "bold",
+  "italic",
+  "muted",
+  "striped",
+  "compact",
+  "bordered",
+  "lines",
+  // Sizing & flex values
+  "fill",
+  "hug",
+  "auto",
+  "uniform",
+  // Alignment & Positions
+  "start",
+  "center",
+  "end",
+  "between",
+  "around",
+  "evenly",
+  "stretch",
+  "left",
+  "right",
+  "top",
+  "bottom",
+  // Orientations
+  "horizontal",
+  "vertical",
+  // Typography weights & sizes
+  "light",
+  "regular",
+  "semibold",
+  "small",
+  "medium",
+  // Accents & Polarity
+  "research",
+  "military",
+  "industry",
+  "wealth",
+  "approval",
+  "warning",
+  "danger",
+  "success",
+  "info",
+  "error",
+  // States
+  "locked",
+  "available",
+  "purchased",
+  "maxed",
+  "growing",
+  "ripe",
+  "withering",
+  "cashed",
+  // Kinds & Variants
+  "kbd",
+  "bar",
+  "line",
+  "pie",
+  "password",
+  "email",
+  // Named icon glyphs
+  "credits",
+  "influence",
+  "faith",
+  "authority",
+  "computation",
+  "tech",
+  "policy",
+  "ship",
+  "planet",
+  "leader",
+  "gear",
+  "lock",
+  "check",
+  "star",
+  "plus",
+  "minus"
+]);
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function tokenizeWireloom(code) {
+  const tokens = [];
+  let i = 0;
+  let line = 1;
+  let col = 1;
+  const len = code.length;
+  while (i < len) {
+    const ch = code[i];
+    const startLine = line;
+    const startCol = col;
+    const advance = (n = 1) => {
+      for (let k = 0; k < n; k++) {
+        if (code[i + k] === "\n") {
+          line++;
+          col = 1;
+        } else {
+          col++;
+        }
+      }
+      i += n;
+    };
+    if (ch === "#") {
+      let comment = "";
+      while (i < len && code[i] !== "\n") {
+        comment += code[i];
+        advance(1);
+      }
+      tokens.push({ type: "comment", value: comment, line: startLine, column: startCol });
+      continue;
+    }
+    if (ch === " " || ch === "	" || ch === "\r" || ch === "\n") {
+      let ws = "";
+      while (i < len && (code[i] === " " || code[i] === "	" || code[i] === "\r" || code[i] === "\n")) {
+        ws += code[i];
+        advance(1);
+      }
+      tokens.push({ type: "text", value: ws, line: startLine, column: startCol });
+      continue;
+    }
+    if (ch === '"') {
+      let strVal = '"';
+      advance(1);
+      while (i < len) {
+        const sc = code[i];
+        if (sc === "\\" && i + 1 < len) {
+          strVal += sc + code[i + 1];
+          advance(2);
+        } else if (sc === '"') {
+          strVal += '"';
+          advance(1);
+          break;
+        } else if (sc === "\n") {
+          break;
+        } else {
+          strVal += sc;
+          advance(1);
+        }
+      }
+      tokens.push({ type: "string", value: strVal, line: startLine, column: startCol });
+      continue;
+    }
+    if (ch === "@") {
+      let name = "@";
+      advance(1);
+      while (i < len && /[a-zA-Z0-9_-]/.test(code[i])) {
+        name += code[i];
+        advance(1);
+      }
+      tokens.push({ type: "macro", value: name, line: startLine, column: startCol });
+      continue;
+    }
+    if (ch === "$") {
+      let varName = "$";
+      advance(1);
+      while (i < len && /[a-zA-Z0-9_-]/.test(code[i])) {
+        varName += code[i];
+        advance(1);
+      }
+      tokens.push({ type: "var", value: varName, line: startLine, column: startCol });
+      continue;
+    }
+    if (/[0-9]/.test(ch)) {
+      let numStr = "";
+      while (i < len && /[0-9.-]/.test(code[i])) {
+        numStr += code[i];
+        advance(1);
+      }
+      if (i < len && code[i] === "%") {
+        numStr += "%";
+        advance(1);
+      } else if (i + 1 < len && code.slice(i, i + 2).toLowerCase() === "px") {
+        numStr += code.slice(i, i + 2);
+        advance(2);
+      } else if (i + 1 < len && code.slice(i, i + 2).toLowerCase() === "fr") {
+        numStr += code.slice(i, i + 2);
+        advance(2);
+      }
+      tokens.push({ type: "num", value: numStr, line: startLine, column: startCol });
+      continue;
+    }
+    if (/[a-zA-Z_]/.test(ch)) {
+      let ident = "";
+      while (i < len && /[a-zA-Z0-9_-]/.test(code[i])) {
+        ident += code[i];
+        advance(1);
+      }
+      if (i < len && code[i] === "=") {
+        tokens.push({ type: "attr", value: ident, line: startLine, column: startCol });
+        tokens.push({ type: "text", value: "=", line, column: col });
+        advance(1);
+        continue;
+      }
+      if (HL_KEYWORDS.has(ident)) {
+        tokens.push({ type: "keyword", value: ident, line: startLine, column: startCol });
+      } else if (HL_CONTAINERS.has(ident)) {
+        tokens.push({ type: "container", value: ident, line: startLine, column: startCol });
+      } else if (HL_PRIMITIVES.has(ident)) {
+        tokens.push({ type: "primitive", value: ident, line: startLine, column: startCol });
+      } else if (HL_FLAGS_AND_ENUMS.has(ident)) {
+        tokens.push({ type: "flag", value: ident, line: startLine, column: startCol });
+      } else {
+        tokens.push({ type: "text", value: ident, line: startLine, column: startCol });
+      }
+      continue;
+    }
+    tokens.push({ type: "text", value: ch, line: startLine, column: startCol });
+    advance(1);
+  }
+  return tokens;
+}
+function highlight(code, options = {}) {
+  const mode = options.mode ?? "html";
+  const prefix = options.classPrefix ?? "hl-";
+  const tokens = tokenizeWireloom(code);
+  const themeObj = options.theme === "dark" ? DEFAULT_HIGHLIGHT_THEME_DARK : typeof options.theme === "object" ? { ...DEFAULT_HIGHLIGHT_THEME_LIGHT, ...options.theme } : DEFAULT_HIGHLIGHT_THEME_LIGHT;
+  let out = "";
+  for (const token of tokens) {
+    let tokenFormatted = "";
+    if (mode === "ansi") {
+      const color = ANSI_COLORS[token.type] ?? ANSI_COLORS.text;
+      tokenFormatted = token.type === "text" ? token.value : `${color}${token.value}\x1B[0m`;
+    } else if (mode === "inline-css") {
+      const escaped = escapeHtml(token.value);
+      if (token.type === "text") {
+        tokenFormatted = escaped;
+      } else {
+        const color = themeObj[token.type] ?? "inherit";
+        tokenFormatted = `<span style="color: ${color};">${escaped}</span>`;
+      }
+    } else {
+      const escaped = escapeHtml(token.value);
+      if (token.type === "text") {
+        tokenFormatted = escaped;
+      } else {
+        tokenFormatted = `<span class="${prefix}${token.type}">${escaped}</span>`;
+      }
+    }
+    if (options.formatToken) {
+      out += options.formatToken(token, tokenFormatted);
+    } else {
+      out += tokenFormatted;
+    }
+  }
+  return out;
+}
+
 // src/parser/errors.ts
 var WireloomError = class extends Error {
   line;
@@ -8208,22 +8589,32 @@ function parse2(source) {
 function serialize2(doc) {
   return serialize(doc);
 }
+function highlight2(source, options) {
+  return highlight(source, options);
+}
+function tokenizeWireloom2(source) {
+  return tokenizeWireloom(source);
+}
 async function render(id, source, options) {
   const rwOpts = { id };
   if (options?.theme !== void 0) rwOpts.theme = options.theme;
   const svg = renderWireframe(source, rwOpts);
   return { svg };
 }
-var wireloom = { initialize, parse: parse2, serialize: serialize2, render };
+var wireloom = { initialize, parse: parse2, serialize: serialize2, render, highlight: highlight2, tokenizeWireloom: tokenizeWireloom2 };
 var index_default = wireloom;
 
 exports.DARK_THEME = DARK_THEME;
+exports.DEFAULT_HIGHLIGHT_THEME_DARK = DEFAULT_HIGHLIGHT_THEME_DARK;
+exports.DEFAULT_HIGHLIGHT_THEME_LIGHT = DEFAULT_HIGHLIGHT_THEME_LIGHT;
 exports.DEFAULT_THEME = DEFAULT_THEME;
 exports.WireloomError = WireloomError;
 exports.default = index_default;
+exports.highlight = highlight2;
 exports.initialize = initialize;
 exports.parse = parse2;
 exports.render = render;
 exports.serialize = serialize2;
+exports.tokenizeWireloom = tokenizeWireloom2;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map
