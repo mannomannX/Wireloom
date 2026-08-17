@@ -123,7 +123,7 @@ body {
 .brand-logo {
   width: 17px;
   height: 17px;
-  stroke: #38bdf8;
+  stroke: currentColor;
   flex-shrink: 0;
   display: inline-block;
   vertical-align: middle;
