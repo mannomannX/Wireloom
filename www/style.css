@@ -98,11 +98,21 @@ body {
 }
 
 .brand-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--foreground);
   text-decoration: none;
   letter-spacing: -0.01em;
+}
+
+.brand-logo {
+  width: 17px;
+  height: 17px;
+  stroke: #38bdf8;
+  flex-shrink: 0;
 }
 
 .brand-version {
