@@ -26,7 +26,6 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "export": "python scripts/export.py",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
