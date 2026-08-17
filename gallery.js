@@ -155,16 +155,6 @@ function updateEditorView() {
   syncScroll();
 }
 
-  const lines = text.split('\n');
-  let gutterHtml = '';
-  for (let i = 1; i <= lines.length; i++) {
-    gutterHtml += `<div class="gutter-num" data-line="${i}">${i}</div>`;
-  }
-  el.gutter.innerHTML = gutterHtml;
-
-  syncScroll();
-}
-
 function syncScroll() {
   el.highlightLayer.scrollTop = el.input.scrollTop;
   el.highlightLayer.scrollLeft = el.input.scrollLeft;
