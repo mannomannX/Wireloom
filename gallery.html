@@ -33,6 +33,18 @@
       --error-border: #fca5a5;
       --error-text: #b91c1c;
       --canvas-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+
+      /* Syntax Highlighting Light */
+      --hl-keyword: #7c3aed;
+      --hl-macro: #0284c7;
+      --hl-container: #1d4ed8;
+      --hl-primitive: #0f766e;
+      --hl-attr: #c2410c;
+      --hl-string: #15803d;
+      --hl-num: #0369a1;
+      --hl-var: #be123c;
+      --hl-flag: #6d28d9;
+      --hl-comment: #94a3b8;
     }
 
     html.dark {
@@ -56,6 +68,18 @@
       --error-border: #991b1b;
       --error-text: #fecaca;
       --canvas-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+      /* Syntax Highlighting Dark */
+      --hl-keyword: #c084fc;
+      --hl-macro: #38bdf8;
+      --hl-container: #60a5fa;
+      --hl-primitive: #2dd4bf;
+      --hl-attr: #fb923c;
+      --hl-string: #fde047;
+      --hl-num: #38bdf8;
+      --hl-var: #f43f5e;
+      --hl-flag: #a78bfa;
+      --hl-comment: #64748b;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -74,7 +98,7 @@
     }
 
     /* ----------------------------------------------------------------------- */
-    /* Header (just-lsp clean bar)                                             */
+    /* Header (Minimal Bar)                                                    */
     /* ----------------------------------------------------------------------- */
     .top-header {
       display: flex;
@@ -266,7 +290,7 @@
     }
 
     /* ----------------------------------------------------------------------- */
-    /* Editor Body                                                             */
+    /* Syntax-Highlighted Editor Body                                          */
     /* ----------------------------------------------------------------------- */
     .editor-body {
       flex: 1;
@@ -281,17 +305,18 @@
       text-align: right;
       font-family: var(--font-mono);
       font-size: 0.82rem;
-      line-height: 1.5;
+      line-height: 1.55;
       color: var(--muted-foreground);
       opacity: 0.5;
       user-select: none;
       border-right: 1px solid var(--border-subtle);
       overflow: hidden;
       background: var(--card);
+      flex-shrink: 0;
     }
 
     .gutter-num {
-      height: 1.5em;
+      height: 1.55em;
     }
 
     .gutter-num.error {
@@ -300,24 +325,75 @@
       font-weight: 700;
     }
 
-    textarea.editor-input {
+    .editor-content-area {
       flex: 1;
-      height: 100%;
-      background: transparent;
-      border: none;
-      color: var(--foreground);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Syntax Highlighting Layers */
+    .highlight-layer, textarea.editor-input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 0.75rem 0.75rem;
       font-family: var(--font-mono);
       font-size: 0.82rem;
-      line-height: 1.5;
-      padding: 0.75rem 0.75rem;
-      resize: none;
-      outline: none;
+      line-height: 1.55;
+      letter-spacing: 0;
       tab-size: 2;
       white-space: pre;
+      word-wrap: normal;
+      border: none;
+      box-sizing: border-box;
       overflow: auto;
+    }
+
+    .highlight-layer {
+      pointer-events: none;
+      color: var(--foreground);
+      background: transparent;
+      z-index: 1;
+    }
+
+    .highlight-layer pre, .highlight-layer code {
+      margin: 0;
+      padding: 0;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      white-space: pre;
+      background: transparent;
+    }
+
+    textarea.editor-input {
+      background: transparent;
+      color: transparent;
+      caret-color: var(--foreground);
+      resize: none;
+      outline: none;
+      z-index: 2;
       scrollbar-width: thin;
       scrollbar-color: var(--border) transparent;
     }
+
+    textarea.editor-input::selection {
+      background: rgba(56, 189, 248, 0.25);
+    }
+
+    /* Syntax Token Classes */
+    .hl-keyword { color: var(--hl-keyword); font-weight: 600; }
+    .hl-macro { color: var(--hl-macro); font-weight: 600; }
+    .hl-container { color: var(--hl-container); font-weight: 600; }
+    .hl-primitive { color: var(--hl-primitive); font-weight: 500; }
+    .hl-attr { color: var(--hl-attr); }
+    .hl-string { color: var(--hl-string); }
+    .hl-num { color: var(--hl-num); }
+    .hl-var { color: var(--hl-var); font-weight: 600; }
+    .hl-flag { color: var(--hl-flag); }
+    .hl-comment { color: var(--hl-comment); font-style: italic; }
 
     /* Error Bar */
     .error-bar {
@@ -340,74 +416,33 @@
     }
 
     /* ----------------------------------------------------------------------- */
-    /* SVG Canvas Viewport                                                     */
+    /* Clean Static Preview Viewport                                           */
     /* ----------------------------------------------------------------------- */
-    .viewport {
+    .preview-body {
       flex: 1;
-      position: relative;
-      overflow: hidden;
-      cursor: grab;
+      overflow: auto;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .viewport:active {
-      cursor: grabbing;
+      padding: 2rem;
+      background-color: var(--muted);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
     }
 
     .canvas-stage {
-      position: absolute;
-      transform-origin: 0 0;
-      transition: transform 0.05s ease-out;
-      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 100%;
     }
 
     .canvas-stage svg {
       display: block;
       box-shadow: var(--canvas-shadow);
       border-radius: 4px;
-    }
-
-    /* Floating Zoom HUD */
-    .zoom-hud {
-      position: absolute;
-      bottom: 0.75rem;
-      right: 0.75rem;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.15rem 0.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.15rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      z-index: 10;
-    }
-
-    .hud-btn {
-      background: transparent;
-      border: none;
-      color: var(--muted-foreground);
-      padding: 0.2rem 0.35rem;
-      border-radius: 4px;
-      font-size: 0.72rem;
-      font-family: var(--font-mono);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hud-btn:hover {
-      background: var(--muted);
-      color: var(--foreground);
-    }
-
-    .hud-btn svg {
-      width: 12px;
-      height: 12px;
-      stroke: currentColor;
+      max-width: 100%;
+      height: auto;
     }
 
     /* Toast */
@@ -507,7 +542,10 @@
 
         <div class="editor-body">
           <div class="gutter" id="gutter"></div>
-          <textarea id="editor-input" class="editor-input" spellcheck="false" placeholder="window:&#10;  text &quot;Hello&quot;"></textarea>
+          <div class="editor-content-area">
+            <div class="highlight-layer" id="highlight-layer"><code id="highlight-code"></code></div>
+            <textarea id="editor-input" class="editor-input" spellcheck="false" placeholder="window:&#10;  text &quot;Hello&quot;"></textarea>
+          </div>
           <div id="error-bar" class="error-bar"></div>
         </div>
       </div>
@@ -515,28 +553,15 @@
       <!-- Divider -->
       <div class="drag-handle" id="drag-handle"></div>
 
-      <!-- Preview Pane -->
+      <!-- Preview Pane (Clean, Static, Centered) -->
       <div class="preview-pane" id="preview-pane">
         <div class="pane-header">
           <span>preview</span>
           <span id="dim-badge">0 × 0 px</span>
         </div>
 
-        <div class="viewport" id="viewport">
+        <div class="preview-body" id="preview-body">
           <div class="canvas-stage" id="canvas-stage"></div>
-
-          <!-- Zoom Controls HUD -->
-          <div class="zoom-hud">
-            <button id="zoom-fit-btn" class="hud-btn" title="Fit">Fit</button>
-            <button id="zoom-reset-btn" class="hud-btn" title="1:1">1:1</button>
-            <button id="zoom-out-btn" class="hud-btn" title="Zoom Out">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </button>
-            <span id="zoom-badge" style="font-size: 0.7rem; color: var(--muted-foreground); padding: 0 0.2rem;">100%</span>
-            <button id="zoom-in-btn" class="hud-btn" title="Zoom In">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </button>
-          </div>
         </div>
       </div>
     </div>
