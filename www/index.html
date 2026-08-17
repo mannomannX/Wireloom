@@ -26,6 +26,13 @@
         <span class="brand-name">Wireloom</span>
       </a>
       <span class="brand-version">v0.8.0</span>
+      <button id="info-btn" class="btn-info-icon" title="About Wireloom Studio" aria-label="About Wireloom">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+      </button>
     </div>
 
     <div class="header-actions">
@@ -105,6 +112,48 @@
   </div>
 
   <div id="toast" class="toast"></div>
+
+  <!-- Info Modal Dialog -->
+  <div id="info-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg class="brand-logo" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="4"/>
+            <path d="M3 9h18"/>
+            <path d="M9 21V9"/>
+            <path d="M15 9v12"/>
+            <path d="M9 15h6"/>
+          </svg>
+          <h3>About Wireloom Studio</h3>
+        </div>
+        <button id="modal-close-btn" class="btn-close" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          <strong>Wireloom</strong> ist eine minimalistische Text-DSL zum schnellen Skizzieren und Rendern von UI-Wireframes und Mockups als reines SVG.
+        </p>
+        <div class="modal-section">
+          <h4>🛠 Community Fork & Visual Sandbox</h4>
+          <p>
+            Diese Web-App ist ein gepflegter <strong>Community-Fork</strong> (Maintainer: <a href="https://github.com/mannomannX" target="_blank" rel="noopener noreferrer">mannomannX</a>) des ursprünglichen Wireloom-Projekts von <em>Brad Wardell</em> (MIT-Lizenz).
+          </p>
+          <p>
+            Das Studio dient als interaktive visuelle Sandbox zum Entwerfen, Basteln, Formatieren und direkten Exportieren (SVG & PNG 2x) von UI-Mockups.
+          </p>
+        </div>
+        <div class="modal-links">
+          <a href="https://github.com/mannomannX/Wireloom" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            GitHub Repository
+          </a>
+          <a href="https://github.com/mannomannX/Wireloom/blob/main/AGENTS.md" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+            📖 DSL Dokumentation
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="./app.js"></script>
 </body>

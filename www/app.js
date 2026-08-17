@@ -40,6 +40,9 @@ const el = {
   dimBadge: document.getElementById('dim-badge'),
   
   toast: document.getElementById('toast'),
+  infoBtn: document.getElementById('info-btn'),
+  infoModal: document.getElementById('info-modal'),
+  modalCloseBtn: document.getElementById('modal-close-btn'),
 };
 
 // ---------------------------------------------------------------------------
@@ -412,6 +415,31 @@ function initEvents() {
       handleFormat();
     }
   });
+
+  // Info Modal Dialog
+  if (el.infoBtn && el.infoModal) {
+    el.infoBtn.addEventListener('click', () => {
+      el.infoModal.classList.add('visible');
+    });
+
+    if (el.modalCloseBtn) {
+      el.modalCloseBtn.addEventListener('click', () => {
+        el.infoModal.classList.remove('visible');
+      });
+    }
+
+    el.infoModal.addEventListener('click', (e) => {
+      if (e.target === el.infoModal) {
+        el.infoModal.classList.remove('visible');
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && el.infoModal.classList.contains('visible')) {
+        el.infoModal.classList.remove('visible');
+      }
+    });
+  }
 
   window.addEventListener('resize', () => {
     syncScroll();

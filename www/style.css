@@ -144,6 +144,30 @@ body {
   margin-top: -0.5px;
 }
 
+.btn-info-icon {
+  background: transparent;
+  border: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background-color 0.15s;
+  line-height: 1;
+}
+
+.btn-info-icon:hover {
+  color: var(--foreground);
+  background-color: var(--muted);
+}
+
+.btn-info-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
 .header-actions {
   margin-left: auto;
   display: flex;
@@ -553,4 +577,133 @@ textarea.editor-input::selection {
   .preview-pane {
     height: 50%;
   }
+}
+
+/* Modal Dialog */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  padding: 1rem;
+}
+
+.modal-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--canvas-shadow);
+  transform: scale(0.96) translateY(8px);
+  transition: transform 0.2s ease;
+  overflow: hidden;
+}
+
+.modal-backdrop.visible .modal-card {
+  transform: scale(1) translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.modal-title-group h3 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.btn-close:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.modal-body {
+  padding: 1.15rem 1.25rem 1.25rem 1.25rem;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--foreground);
+}
+
+.modal-body p {
+  margin-bottom: 0.65rem;
+}
+
+.modal-section {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 0.85rem;
+  margin: 0.85rem 0;
+}
+
+.modal-section h4 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--foreground);
+}
+
+.modal-section p {
+  font-size: 0.79rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0.4rem;
+}
+
+.modal-section p:last-child {
+  margin-bottom: 0;
+}
+
+.modal-section a {
+  color: var(--foreground);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.modal-links {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.modal-links .btn {
+  font-size: 0.76rem;
 }
