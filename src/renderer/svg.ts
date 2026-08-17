@@ -312,7 +312,7 @@ function emitSheet(laid: LaidOutNode, theme: Theme, out: string[]): void {
   // (also kinded 'sheet'). See positionSheet in layout.ts for the structure.
   const node = laid.node as SheetNode;
   out.push(
-    `<rect x="${laid.x}" y="${laid.y}" width="${laid.width}" height="${laid.height}" ` +
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" ` +
       `fill="${theme.sheetScrimColor}" opacity="${theme.sheetScrimOpacity}" />`,
   );
   const panel = laid.children[0];
@@ -328,8 +328,14 @@ function emitSheetPanel(
 ): void {
   const r = theme.sheetCornerRadius;
   if (node.placement === 'bottom') {
-    // Rounded top corners only — bottom edge flush with window bottom.
-    const path = roundedTopRectPath(panel.x, panel.y, panel.width, panel.height, r);
+    // Rounded top corners only — inset by 0.5 so it meets the window frame cleanly.
+    const path = roundedTopRectPath(
+      panel.x + 0.5,
+      panel.y + 0.5,
+      panel.width - 1,
+      panel.height - 1,
+      r,
+    );
     out.push(
       `<path d="${path}" fill="${theme.sheetBg}" stroke="${theme.sheetBorder}" stroke-width="${theme.sheetStrokeWidth}" />`,
     );

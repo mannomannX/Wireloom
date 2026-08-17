@@ -6771,7 +6771,7 @@ function emitNode(laid, theme, out) {
 function emitSheet(laid, theme, out) {
   const node = laid.node;
   out.push(
-    `<rect x="${laid.x}" y="${laid.y}" width="${laid.width}" height="${laid.height}" fill="${theme.sheetScrimColor}" opacity="${theme.sheetScrimOpacity}" />`
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${theme.sheetScrimColor}" opacity="${theme.sheetScrimOpacity}" />`
   );
   const panel = laid.children[0];
   if (panel === void 0) return;
@@ -6780,7 +6780,13 @@ function emitSheet(laid, theme, out) {
 function emitSheetPanel(panel, node, theme, out) {
   const r = theme.sheetCornerRadius;
   if (node.placement === "bottom") {
-    const path = roundedTopRectPath(panel.x, panel.y, panel.width, panel.height, r);
+    const path = roundedTopRectPath(
+      panel.x + 0.5,
+      panel.y + 0.5,
+      panel.width - 1,
+      panel.height - 1,
+      r
+    );
     out.push(
       `<path d="${path}" fill="${theme.sheetBg}" stroke="${theme.sheetBorder}" stroke-width="${theme.sheetStrokeWidth}" />`
     );
