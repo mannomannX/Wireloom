@@ -522,6 +522,68 @@ function setupSplitter() {
 // Bootstrap
 // ---------------------------------------------------------------------------
 
+function formatWireloomSource(source) {
+  const rawLines = source.split('\n');
+  const indentStack = [0];
+  const formattedLines = [];
+
+  for (let i = 0; i < rawLines.length; i++) {
+    const rawLine = rawLines[i];
+    const trimmed = rawLine.trim();
+    if (!trimmed) {
+      formattedLines.push('');
+      continue;
+    }
+
+    // Normalize spacing between tokens outside strings
+    let cleaned = '';
+    const strRegex = /"([^"\\]|\\.)*"/g;
+    let lastIdx = 0;
+    let m;
+    while ((m = strRegex.exec(trimmed)) !== null) {
+      const nonStr = trimmed.slice(lastIdx, m.index);
+      cleaned += nonStr.replace(/\s+/g, ' ');
+      cleaned += m[0];
+      lastIdx = m.index + m[0].length;
+    }
+    cleaned += trimmed.slice(lastIdx).replace(/\s+/g, ' ');
+    cleaned = cleaned.replace(/\s+:/g, ':');
+
+    const rawIndent = (rawLine.match(/^(\s*)/) || [''])[0].replace(/\t/g, '  ').length;
+
+    if (trimmed.startsWith('window') || trimmed.startsWith('define') || trimmed.startsWith('annotation')) {
+      indentStack.length = 1;
+      indentStack[0] = rawIndent;
+      formattedLines.push(cleaned);
+      if (cleaned.endsWith(':')) {
+        indentStack.push(rawIndent + 2);
+      }
+      continue;
+    }
+
+    while (indentStack.length > 1 && rawIndent < indentStack[indentStack.length - 1]) {
+      indentStack.pop();
+    }
+
+    const depth = Math.max(1, indentStack.length - 1);
+    const targetIndent = '  '.repeat(depth);
+    formattedLines.push(targetIndent + cleaned);
+
+    if (cleaned.endsWith(':')) {
+      indentStack.push(rawIndent + 2);
+    }
+  }
+
+  const result = formattedLines.join('\n');
+
+  try {
+    const ast = wireloom.parse(result);
+    return wireloom.serialize(ast);
+  } catch {
+    return result;
+  }
+}
+
 function init() {
   applyTheme(state.theme);
   
@@ -537,20 +599,11 @@ function init() {
   });
 
   el.formatBtn.addEventListener('click', () => {
-    try {
-      const ast = wireloom.parse(el.input.value);
-      const formatted = wireloom.serialize(ast);
-      el.input.value = formatted;
-      updateEditorView();
-      compileAndRender(true);
-      showToast('Document formatted');
-    } catch {
-      const lines = el.input.value.split('\n');
-      el.input.value = lines.map(l => l.replace(/\t/g, '  ')).join('\n');
-      updateEditorView();
-      compileAndRender(true);
-      showToast('Tabs normalized');
-    }
+    const formatted = formatWireloomSource(el.input.value);
+    el.input.value = formatted;
+    updateEditorView();
+    compileAndRender(true);
+    showToast('Code formatted');
   });
 
   setupEditor();
