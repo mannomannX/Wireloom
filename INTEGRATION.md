@@ -139,6 +139,7 @@ function escapeHtml(s: string): string {
 
 ### react-markdown
 
+{% raw %}
 ```tsx
 import ReactMarkdown from 'react-markdown';
 import wireloom, { WireloomError } from 'wireloom';
@@ -185,6 +186,7 @@ export function Markdown({ markdown }: { markdown: string }) {
   );
 }
 ```
+{% endraw %}
 
 ### remark / rehype
 

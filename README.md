@@ -217,6 +217,7 @@ try {
 
 Short version — hook `wireloom.render` onto the `wireloom` fence language in whatever pipeline you use:
 
+{% raw %}
 ```tsx
 // react-markdown
 <ReactMarkdown
@@ -231,6 +232,7 @@ Short version — hook `wireloom.render` onto the `wireloom` fence language in w
   {markdown}
 </ReactMarkdown>
 ```
+{% endraw %}
 
 Full recipes for `remark`/`rehype`, `markdown-it`, `react-markdown`, and plain server-side rendering — plus error-surface patterns, theme selection, SSR notes, and bundle-size details — are in [`INTEGRATION.md`](INTEGRATION.md).
 
