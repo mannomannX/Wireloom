@@ -175,20 +175,26 @@ function highlightWireloom(code) {
       // Attribute pairs: attr=
       s = s.replace(/\b([a-zA-Z0-9_-]+)=/g, '<span class="hl-attr">$1</span>=');
 
-      // Keywords
-      s = s.replace(/\b(define|window|annotation)\b/g, '<span class="hl-keyword">$1</span>');
+      // Top-level Keywords & slot containers
+      s = s.replace(/\b(define|window|annotation|use|leading|trailing|center)\b/g, '<span class="hl-keyword">$1</span>');
 
       // Structural Containers
       s = s.replace(/\b(header|footer|panel|section|tabs|row|col|list|slot|grid|table|columns|tr|foot|code|resourcebar|stats|navbar|tabbar|sheet|segmented|tree|menubar|menu|breadcrumb)\b/g, '<span class="hl-container">$1</span>');
 
       // Primitives & Controls
-      s = s.replace(/\b(tab|item|text|button|backbutton|input|combo|slider|kv|image|icon|divider|cell|column|td|use|resource|stat|progress|chart|spacer|tabitem|segment|checkbox|radio|toggle|chip|avatar|spinner|status|node|menuitem|separator|crumb)\b/g, '<span class="hl-primitive">$1</span>');
+      s = s.replace(/\b(tab|item|text|button|backbutton|input|combo|slider|kv|image|icon|divider|cell|column|td|resource|stat|progress|chart|spacer|tabitem|segment|checkbox|radio|toggle|chip|avatar|spinner|status|node|menuitem|separator|crumb)\b/g, '<span class="hl-primitive">$1</span>');
 
-      // Flags & enum constants
-      s = s.replace(/\b(primary|disabled|checked|selected|active|bold|muted|italic|lines|striped|compact|bordered|fill|hug|left|right|center|start|end|between|around|evenly|stretch|horizontal|vertical|kbd|large|closable|on|off|success|info|warning|error|danger|research|military|industry|wealth|approval|light|regular|semibold)\b/g, '<span class="hl-flag">$1</span>');
+      // Flags & enum constants (including hyphenated like label-right)
+      s = s.replace(/(?:^|\b|=)(label-right|primary|disabled|checked|selected|active|bold|muted|italic|lines|striped|compact|bordered|fill|hug|auto|uniform|left|right|center|start|end|between|around|evenly|stretch|top|bottom|horizontal|vertical|small|medium|large|light|regular|semibold|kbd|closable|on|off|chevron|success|info|warning|error|danger|research|military|industry|wealth|approval|locked|available|purchased|maxed|growing|ripe|withering|cashed|bar|line|pie|password|email)(?=\b|\s|:|$)/g, (match, p1) => {
+        const prefix = match.startsWith('=') ? '=' : (match.startsWith(' ') ? ' ' : '');
+        return `${prefix}<span class="hl-flag">${p1}</span>`;
+      });
 
-      // Numbers & ranges
-      s = s.replace(/\b(\d+(?:-\d+)?(?:%|fr|px)?)\b/g, '<span class="hl-num">$1</span>');
+      // Numbers, units (%, px, fr) & ranges (0-100)
+      s = s.replace(/(?:^|\s|=)(\d+(?:-\d+)?(?:%|fr|px)?)(?=\s|:|,|\)|$)/g, (match, p1) => {
+        const prefix = match.startsWith('=') ? '=' : (match.startsWith(' ') ? ' ' : '');
+        return `${prefix}<span class="hl-num">${p1}</span>`;
+      });
 
       return s;
     }
