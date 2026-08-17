@@ -23,12 +23,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
 
       - name: Install dependencies
@@ -37,16 +37,16 @@ jobs:
       - name: Build bundle & types
         run: npm run build
 
-      - name: Copy studio to index.html
-        run: cp gallery.html index.html
+      - name: Copy bundle to www
+        run: cp -r dist www/dist
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "www"
 
       - name: Deploy to GitHub Pages
         id: deployment

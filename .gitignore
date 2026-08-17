@@ -35,4 +35,5 @@ project_export.txt
 
 # Scratch and temporary testing files
 scratch/
-hi.html
+scripts/
+www/dist/
