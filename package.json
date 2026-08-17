@@ -1,9 +1,9 @@
 {
   "name": "wireloom",
   "version": "0.8.0",
-  "description": "UI wireframe mockups from a Markdown-embedded DSL, rendered as inline SVG.",
+  "description": "UI wireframe mockups from a Markdown-embedded DSL, rendered as inline SVG. (Maintained Community Fork)",
   "license": "MIT",
-  "author": "Brad Wardell",
+  "author": "Brad Wardell (Original Author), mannomannX (Maintainer)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -46,12 +46,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/StardockCorp/Wireloom.git"
+    "url": "git+https://github.com/mannomannX/Wireloom.git"
   },
   "bugs": {
-    "url": "https://github.com/StardockCorp/Wireloom/issues"
+    "url": "https://github.com/mannomannX/Wireloom/issues"
   },
-  "homepage": "https://github.com/StardockCorp/Wireloom#readme",
+  "homepage": "https://mannomannx.github.io/Wireloom/",
   "engines": {
     "node": ">=18"
   },
