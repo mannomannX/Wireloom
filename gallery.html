@@ -98,13 +98,14 @@
     }
 
     /* ----------------------------------------------------------------------- */
-    /* Header (Minimal Bar)                                                    */
+    /* Header                                                                  */
     /* ----------------------------------------------------------------------- */
     .top-header {
       display: flex;
       align-items: center;
       padding: 0.75rem 1rem;
       gap: 0.5rem;
+      font-family: var(--font-sans);
     }
 
     .brand-title {
@@ -135,13 +136,19 @@
       border-radius: 6px;
       font-size: 0.8rem;
       font-weight: 500;
-      font-family: inherit;
+      font-family: var(--font-sans);
       padding: 0.35rem 0.65rem;
       cursor: pointer;
       border: 1px solid transparent;
       outline: none;
       text-decoration: none;
       transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .btn-sm {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
     }
 
     .btn-ghost {
@@ -186,8 +193,29 @@
       stroke: currentColor;
     }
 
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.22rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--muted);
+      color: var(--muted-foreground);
+      font-size: 0.74rem;
+      font-family: var(--font-sans);
+      font-weight: 500;
+    }
+
+    .badge-pill svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
     /* ----------------------------------------------------------------------- */
-    /* Main Layout Workspace (p-4 pt-0, rounded border box)                    */
+    /* Main Layout Workspace                                                   */
     /* ----------------------------------------------------------------------- */
     .workspace-wrapper {
       flex: 1;
@@ -255,38 +283,26 @@
 
     /* Pane Header Strip */
     .pane-header {
-      height: 32px;
+      height: 40px;
       border-bottom: 1px solid var(--border);
       background: var(--card);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 0.75rem;
-      font-size: 0.75rem;
-      color: var(--muted-foreground);
-      font-family: var(--font-mono);
+      padding: 0 0.85rem;
+      font-family: var(--font-sans);
+    }
+
+    .pane-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--foreground);
     }
 
     .pane-header-actions {
       display: flex;
       align-items: center;
       gap: 0.4rem;
-    }
-
-    .tool-link {
-      background: none;
-      border: none;
-      color: var(--muted-foreground);
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      cursor: pointer;
-      padding: 0.15rem 0.35rem;
-      border-radius: 4px;
-    }
-
-    .tool-link:hover {
-      color: var(--foreground);
-      background: var(--muted);
     }
 
     /* ----------------------------------------------------------------------- */
@@ -457,6 +473,7 @@
       border-radius: 6px;
       font-size: 0.78rem;
       font-weight: 500;
+      font-family: var(--font-sans);
       pointer-events: none;
       opacity: 0;
       transition: all 0.15s ease;
@@ -532,11 +549,14 @@
       <!-- Editor Pane -->
       <div class="editor-pane" id="editor-pane">
         <div class="pane-header">
-          <span>editor</span>
+          <span class="pane-title">Editor</span>
           <div class="pane-header-actions">
-            <button id="format-btn" class="tool-link" title="Format indentation">format</button>
-            <button id="clear-btn" class="tool-link" title="Clear">clear</button>
-            <span id="perf-badge" style="margin-left: 0.3rem;">⚡ 0.0ms</span>
+            <button id="format-btn" class="btn btn-outline btn-sm" title="Format indentation">Format</button>
+            <button id="clear-btn" class="btn btn-outline btn-sm" title="Clear">Clear</button>
+            <span class="badge-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <span id="perf-badge">0.0ms</span>
+            </span>
           </div>
         </div>
 
@@ -556,8 +576,10 @@
       <!-- Preview Pane (Clean, Static, Centered) -->
       <div class="preview-pane" id="preview-pane">
         <div class="pane-header">
-          <span>preview</span>
-          <span id="dim-badge">0 × 0 px</span>
+          <span class="pane-title">Preview</span>
+          <div class="pane-header-actions">
+            <span id="dim-badge" class="badge-pill">0 × 0 px</span>
+          </div>
         </div>
 
         <div class="preview-body" id="preview-body">
