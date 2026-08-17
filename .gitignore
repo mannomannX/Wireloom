@@ -33,3 +33,6 @@ pnpm-debug.log*
 # Export dumps
 project_export.txt
 
+# Scratch and temporary testing files
+scratch/
+hi.html
