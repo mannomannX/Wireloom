@@ -105,6 +105,7 @@ body {
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
+  height: 100%;
 }
 
 .brand-title {
@@ -127,14 +128,20 @@ body {
   min-height: 16px;
   stroke: currentColor;
   flex-shrink: 0;
+  display: block;
+  margin-top: -1.5px;
+}
+
+.brand-name {
   display: inline-block;
-  vertical-align: middle;
+  line-height: 1;
 }
 
 .brand-version {
   font-size: 0.75rem;
   color: var(--muted-foreground);
   line-height: 1;
+  margin-top: -0.5px;
 }
 
 .header-actions {
