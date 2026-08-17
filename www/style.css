@@ -336,6 +336,22 @@ body {
   overflow: hidden;
 }
 
+/* Custom Minimalist Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
 /* Syntax Highlighting Layers */
 .highlight-layer, textarea.editor-input {
   position: absolute;
@@ -353,7 +369,6 @@ body {
   word-wrap: normal;
   border: none;
   box-sizing: border-box;
-  overflow: auto;
 }
 
 .highlight-layer {
@@ -361,6 +376,15 @@ body {
   color: var(--foreground);
   background: transparent;
   z-index: 1;
+  overflow: hidden !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.highlight-layer::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .highlight-layer pre, .highlight-layer code {
@@ -380,6 +404,7 @@ textarea.editor-input {
   resize: none;
   outline: none;
   z-index: 2;
+  overflow: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
